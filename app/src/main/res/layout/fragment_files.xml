@@ -10,42 +10,48 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="File Manager"
-        android:textSize="28sp"
+        android:text="Files"
+        android:textSize="26sp"
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"
-        android:paddingBottom="16dp" />
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="4dp" />
 
-    <!-- Search Bar -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#1A000000"
         app:cardBackgroundColor="?attr/colorSurface">
+        
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp">
+            android:padding="4dp">
+            
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@android:drawable/ic_menu_search"
-                app:tint="@color/text_secondary" />
+                android:layout_marginStart="12dp"
+                app:tint="?android:attr/textColorSecondary" />
+
             <EditText
                 android:id="@+id/searchEditText"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="48dp"
                 android:background="@android:color/transparent"
                 android:hint="Search files..."
                 android:textSize="14sp"
-                android:paddingStart="8dp"
-                android:imeOptions="actionSearch"
-                android:inputType="text" />
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:singleLine="true" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -53,18 +59,25 @@
         android:id="@+id/pathIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Path: /storage/emulated/0"
+        android:text="/data/adb/box"
         android:textSize="11sp"
-        android:textColor="@color/text_secondary"
-        android:paddingBottom="8dp"
-        android:paddingStart="4dp" />
+        android:fontFamily="monospace"
+        android:textColor="@color/primary_indigo"
+        android:paddingStart="8dp"
+        android:layout_marginBottom="12dp" />
 
-    <!-- List View tanpa Card per item -->
-    <ListView
-        android:id="@+id/fileListView"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshFiles"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/fileRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="80dp" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>

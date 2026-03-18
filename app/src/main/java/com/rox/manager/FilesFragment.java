@@ -1,65 +1,49 @@
 package com.rox.manager;
 
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class FilesFragment extends Fragment {
-    private List<FileData> fullList = new ArrayList<>();
-    private List<FileData> filteredList = new ArrayList<>();
+    private RecyclerView recyclerView;
     private FileAdapter adapter;
     private TextView pathIndicator;
-    private boolean isRoot = true;
+    private SwipeRefreshLayout swipeRefresh;
+    private String currentPath = "/data/adb/box";
+    private List<FileData> allFiles = new ArrayList<>();
+    private List<FileData> filteredFiles = new ArrayList<>();
 
     static class FileData {
         String name;
-        boolean isFolder;
+        String fullPath;
+        boolean isDir;
         boolean isBack;
+        String size;
 
-        FileData(String name, boolean isFolder, boolean isBack) {
+        FileData(String name, String fullPath, boolean isDir, boolean isBack, String size) {
             this.name = name;
-            this.isFolder = isFolder;
+            this.fullPath = fullPath;
+            this.isDir = isDir;
             this.isBack = isBack;
-        }
-    }
-
-    class FileAdapter extends ArrayAdapter<FileData> {
-        FileAdapter(Context context, List<FileData> objects) {
-            super(context, 0, objects);
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_file, parent, false);
-            }
-            FileData data = getItem(position);
-            ImageView icon = convertView.findViewById(R.id.itemIcon);
-            TextView name = convertView.findViewById(R.id.itemName);
-
-            name.setText(data.name);
-            if (data.isBack) icon.setImageResource(R.drawable.ic_back_modern);
-            else if (data.isFolder) icon.setImageResource(R.drawable.ic_folder_modern);
-            else icon.setImageResource(R.drawable.ic_file_modern);
-
-            return convertView;
+            this.size = size;
         }
     }
 
@@ -67,13 +51,17 @@ public class FilesFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_files, container, false);
-        ListView listView = view.findViewById(R.id.fileListView);
-        EditText searchEdit = view.findViewById(R.id.searchEditText);
-        pathIndicator = view.findViewById(R.id.pathIndicator);
 
-        loadRootFiles();
-        adapter = new FileAdapter(getContext(), filteredList);
-        listView.setAdapter(adapter);
+        recyclerView = view.findViewById(R.id.fileRecyclerView);
+        pathIndicator = view.findViewById(R.id.pathIndicator);
+        swipeRefresh = view.findViewById(R.id.swipeRefreshFiles);
+        EditText searchEdit = view.findViewById(R.id.searchEditText);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new FileAdapter();
+        recyclerView.setAdapter(adapter);
+
+        swipeRefresh.setOnRefreshListener(this::loadFiles);
 
         searchEdit.addTextChangedListener(new TextWatcher() {
             @Override
@@ -86,57 +74,121 @@ public class FilesFragment extends Fragment {
             public void afterTextChanged(Editable s) {}
         });
 
-        listView.setOnItemClickListener((parent, v, position, id) -> {
-            FileData item = filteredList.get(position);
-            if (item.isBack) {
-                loadRootFiles();
-                searchEdit.setText("");
-            } else if (item.isFolder) {
-                enterFolder(item.name);
-                searchEdit.setText("");
-            } else {
-                Toast.makeText(getContext(), "Opening: " + item.name, Toast.LENGTH_SHORT).show();
-            }
-        });
+        loadFiles();
 
         return view;
     }
 
-    private void loadRootFiles() {
-        isRoot = true;
-        fullList.clear();
-        fullList.add(new FileData("Downloads", true, false));
-        fullList.add(new FileData("Documents", true, false));
-        fullList.add(new FileData("Pictures", true, false));
-        fullList.add(new FileData("Movies", true, false));
-        fullList.add(new FileData("config.json", false, false));
-        fullList.add(new FileData("system.log", false, false));
-        fullList.add(new FileData("user_data.db", false, false));
-        pathIndicator.setText("Path: /storage/emulated/0");
-        filter("");
+    private void loadFiles() {
+        swipeRefresh.setRefreshing(true);
+        pathIndicator.setText(currentPath);
+        
+        new Thread(() -> {
+            List<FileData> list = new ArrayList<>();
+            
+            // Add back button if not in root box dir
+            if (!currentPath.equals("/data/adb/box")) {
+                list.add(new FileData("..", getParentPath(currentPath), true, true, "Parent Directory"));
+            }
+
+            // Command: ls -F (adds / to dirs) and ls -lh for sizes
+            String res = ShellHelper.runRootCommand("ls -F " + currentPath);
+            
+            if (res != null && !res.isEmpty() && !res.contains("Error")) {
+                String[] lines = res.split("\n");
+                for (String line : lines) {
+                    line = line.trim();
+                    if (line.isEmpty()) continue;
+                    
+                    boolean isDir = line.endsWith("/");
+                    String name = isDir ? line.substring(0, line.length() - 1) : line;
+                    String fullPath = currentPath + "/" + name;
+                    
+                    // Simple size fetch for files
+                    String size = isDir ? "Folder" : "File";
+                    list.add(new FileData(name, fullPath, isDir, false, size));
+                }
+            }
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    allFiles.clear();
+                    allFiles.addAll(list);
+                    filter("");
+                    swipeRefresh.setRefreshing(false);
+                });
+            }
+        }).start();
     }
 
-    private void enterFolder(String folderName) {
-        isRoot = false;
-        fullList.clear();
-        fullList.add(new FileData("Back", false, true));
-        fullList.add(new FileData("notes_in_" + folderName.toLowerCase() + ".txt", false, false));
-        fullList.add(new FileData("photo_demo.jpg", false, false));
-        pathIndicator.setText("Path: /storage/emulated/0/" + folderName);
-        filter("");
+    private String getParentPath(String path) {
+        if (path.equals("/data/adb/box")) return path;
+        int lastSlash = path.lastIndexOf("/");
+        if (lastSlash <= 0) return "/";
+        return path.substring(0, lastSlash);
     }
 
     private void filter(String query) {
-        filteredList.clear();
-        if (query.isEmpty()) {
-            filteredList.addAll(fullList);
-        } else {
-            for (FileData item : fullList) {
-                if (item.name.toLowerCase(Locale.ROOT).contains(query.toLowerCase(Locale.ROOT))) {
-                    filteredList.add(item);
-                }
+        filteredFiles.clear();
+        for (FileData f : allFiles) {
+            if (f.name.toLowerCase(Locale.ROOT).contains(query.toLowerCase(Locale.ROOT)) || f.isBack) {
+                filteredFiles.add(f);
             }
         }
-        if (adapter != null) adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
+    }
+
+    class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_file, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            FileData data = filteredFiles.get(position);
+            holder.name.setText(data.name);
+            holder.size.setText(data.size);
+            
+            if (data.isBack) {
+                holder.icon.setImageResource(R.drawable.ic_home); // Temporary back icon
+                holder.icon.setRotation(-90);
+            } else if (data.isDir) {
+                holder.icon.setImageResource(R.drawable.ic_folder);
+                holder.icon.setRotation(0);
+            } else {
+                holder.icon.setImageResource(R.drawable.ic_logs); // Temporary file icon
+                holder.icon.setRotation(0);
+            }
+
+            holder.itemView.setOnClickListener(v -> {
+                if (data.isDir) {
+                    currentPath = data.fullPath;
+                    loadFiles();
+                } else {
+                    Intent intent = new Intent(getContext(), FileEditorActivity.class);
+                    intent.putExtra("file_path", data.fullPath);
+                    startActivity(intent);
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return filteredFiles.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            TextView name, size;
+            ImageView icon;
+            ViewHolder(View v) {
+                super(v);
+                name = v.findViewById(R.id.itemName);
+                size = v.findViewById(R.id.itemSize);
+                icon = v.findViewById(R.id.itemIcon);
+            }
+        }
     }
 }
