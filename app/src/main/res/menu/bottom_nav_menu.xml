@@ -5,6 +5,10 @@
         android:icon="@drawable/ic_home"
         android:title="Home" />
     <item
+        android:id="@+id/nav_dashboard"
+        android:icon="@drawable/ic_dashboard"
+        android:title="Dash" />
+    <item
         android:id="@+id/nav_logs"
         android:icon="@drawable/ic_logs"
         android:title="Logs" />
@@ -12,4 +16,8 @@
         android:id="@+id/nav_files"
         android:icon="@drawable/ic_folder"
         android:title="Files" />
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Set" />
 </menu>
