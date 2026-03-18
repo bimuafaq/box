@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="?attr/android:windowBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,10 +15,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Settings"
-            android:textSize="28sp"
+            android:textSize="26sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
-            android:paddingBottom="24dp" />
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp"
+            android:paddingStart="4dp" />
 
         <!-- APPEARANCE -->
         <TextView
@@ -29,31 +31,40 @@
             android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
             android:letterSpacing="0.1"
+            android:paddingStart="8dp"
             android:paddingBottom="8dp" />
 
-        <LinearLayout
-            android:id="@+id/themeSelection"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:orientation="vertical"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="App Theme"
-                android:textSize="16sp"
-                android:textColor="?attr/colorOnSurface" />
-            <TextView
-                android:id="@+id/currentThemeText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="System Default"
-                android:textSize="13sp"
-                android:textColor="?android:attr/textColorSecondary" />
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            style="?attr/materialCardViewFilledStyle">
+            
+            <LinearLayout
+                android:id="@+id/themeSelection"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="App Theme"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface" />
+                <TextView
+                    android:id="@+id/currentThemeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="System Default"
+                    android:textSize="13sp"
+                    android:textColor="?android:attr/textColorSecondary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- SYSTEM -->
         <TextView
@@ -64,28 +75,36 @@
             android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
             android:letterSpacing="0.1"
-            android:paddingTop="24dp"
+            android:paddingStart="8dp"
             android:paddingBottom="8dp" />
 
-        <RelativeLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="64dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Enable Notifications"
-                android:layout_centerVertical="true"
-                android:textSize="16sp"
-                android:textColor="?attr/colorOnSurface" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            style="?attr/materialCardViewFilledStyle">
             
-            <!-- MATERIAL SWITCH MD3 -->
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/notifySwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true" />
-        </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:paddingHorizontal="16dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Enable Notifications"
+                    android:layout_centerVertical="true"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface" />
+                
+                <!-- MATERIAL SWITCH MD3 -->
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/notifySwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- ADVANCED -->
         <TextView
@@ -96,17 +115,24 @@
             android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
             android:letterSpacing="0.1"
-            android:paddingTop="24dp"
+            android:paddingStart="8dp"
             android:paddingBottom="8dp" />
 
-        <com.google.android.material.button.MaterialButton
-            style="@style/Widget.Material3.Button.TextButton"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="Clear Application Cache"
-            android:gravity="start|center_vertical"
-            android:textColor="#E53935"
-            android:paddingStart="0dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            style="?attr/materialCardViewFilledStyle">
+            
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:text="Clear Application Cache"
+                android:gravity="start|center_vertical"
+                android:textColor="#E53935"
+                android:paddingHorizontal="16dp" />
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>

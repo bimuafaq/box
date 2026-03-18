@@ -83,18 +83,14 @@
                 app:backgroundTint="@color/primary_indigo" />
         </LinearLayout>
 
-        <!-- WEBVIEW IN A BOX (Card) -->
+        <!-- WEBVIEW IN A BOX (Filled Card) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/webViewContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="12dp"
             android:visibility="gone"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            app:strokeWidth="1dp"
-            app:strokeColor="#1A000000">
+            style="?attr/materialCardViewFilledStyle">
             
             <LinearLayout
                 android:layout_width="match_parent"

@@ -82,10 +82,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="#1A000000"
-            app:strokeWidth="1dp">
+            style="?attr/materialCardViewFilledStyle">
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/logScrollView"
                 android:layout_width="match_parent"
