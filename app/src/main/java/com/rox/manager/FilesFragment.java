@@ -194,37 +194,42 @@ public class FilesFragment extends Fragment {
     }
 
     private void openEditor(String path, String name) {
-        // Prevent opening binary/unsupported files that might freeze the app
-        String lowerName = name.toLowerCase(Locale.ROOT);
-        if (!(lowerName.endsWith(".ini") || lowerName.endsWith(".conf") || 
-              lowerName.endsWith(".yaml") || lowerName.endsWith(".yml") || 
-              lowerName.endsWith(".json") || lowerName.endsWith(".txt") || 
-              lowerName.endsWith(".sh") || lowerName.endsWith(".log") ||
-              lowerName.endsWith(".service"))) {
-            
-            if (getView() != null) {
-                Snackbar.make(getView(), "Unsupported file format!", Snackbar.LENGTH_SHORT).show();
-            }
-            return;
-        }
-
-        editingFilePath = path;
-        editorFileName.setText(name);
-        fileListLayout.setVisibility(View.GONE);
-        editorContainer.setVisibility(View.VISIBLE);
-        
-        // Hide main navigation
-        if (getActivity() != null) {
-            View nav = getActivity().findViewById(R.id.bottomNavigation);
-            if (nav != null) nav.setVisibility(View.GONE);
-        }
-
+        // First, check file size to prevent freezing if the file is too large
         new Thread(() -> {
-            String content = ShellHelper.readRootFileBase64(path);
+            String sizeRes = ShellHelper.runRootCommand("stat -c%s \"" + path + "\"");
+            long size = 0;
+            try { size = Long.parseLong(sizeRes.trim()); } catch (Exception ignored) {}
+
+            long finalSize = size;
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    editorEditText.setText(content != null ? content : "");
-                    updateLineNumbers();
+                    // If file is larger than 500KB, it's risky for EditText
+                    if (finalSize > 500 * 1024) {
+                        Snackbar.make(getView(), "File too large to edit safely (" + (finalSize/1024) + "KB)", Snackbar.LENGTH_LONG).show();
+                        return;
+                    }
+                    
+                    // Proceed to open
+                    editingFilePath = path;
+                    editorFileName.setText(name);
+                    fileListLayout.setVisibility(View.GONE);
+                    editorContainer.setVisibility(View.VISIBLE);
+                    
+                    // Hide main navigation
+                    if (getActivity() != null) {
+                        View nav = getActivity().findViewById(R.id.bottomNavigation);
+                        if (nav != null) nav.setVisibility(View.GONE);
+                    }
+
+                    new Thread(() -> {
+                        String content = ShellHelper.readRootFileBase64(path);
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                editorEditText.setText(content != null ? content : "");
+                                updateLineNumbers();
+                            });
+                        }
+                    }).start();
                 });
             }
         }).start();
