@@ -63,9 +63,8 @@ public class FilesFragment extends Fragment {
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
         
-        // Toolbar Buttons
-        MaterialButton btnNewFile = view.findViewById(R.id.btnNewFile);
-        MaterialButton btnNewFolder = view.findViewById(R.id.btnNewFolder);
+        // Toolbar Button (Single New Action)
+        MaterialButton btnAddAction = view.findViewById(R.id.btnAddAction);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FileAdapter();
@@ -108,8 +107,20 @@ public class FilesFragment extends Fragment {
         btnBack.setOnClickListener(v -> closeEditor());
         btnSave.setOnClickListener(v -> saveFile());
         
-        btnNewFile.setOnClickListener(v -> showInputDialog("New File", "Enter file name", name -> executeCommand("touch \"" + currentPath + "/" + name + "\"", "File created")));
-        btnNewFolder.setOnClickListener(v -> showInputDialog("New Folder", "Enter folder name", name -> executeCommand("mkdir -p \"" + currentPath + "/" + name + "\"", "Folder created")));
+        btnAddAction.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(getContext(), v);
+            popup.getMenu().add("New File");
+            popup.getMenu().add("New Folder");
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getTitle().equals("New File")) {
+                    showInputDialog("New File", "Enter file name", name -> executeCommand("touch \"" + currentPath + "/" + name + "\"", "File created"));
+                } else {
+                    showInputDialog("New Folder", "Enter folder name", name -> executeCommand("mkdir -p \"" + currentPath + "/" + name + "\"", "Folder created"));
+                }
+                return true;
+            });
+            popup.show();
+        });
 
         editorEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -124,14 +135,12 @@ public class FilesFragment extends Fragment {
     private void loadFiles() {
         swipeRefresh.setRefreshing(true);
         new Thread(() -> {
-            String cmd = "ls -F \"" + currentPath + "\" | grep -v '/$' || true; ls -d */ \"" + currentPath + "\" 2>/dev/null || true";
-            // Correct way to list with info:
             String fullCmd = "ls -p \"" + currentPath + "\"";
             String result = ShellHelper.runRootCommand(fullCmd);
             
             List<FileData> list = new ArrayList<>();
             if (!currentPath.equals("/") && !currentPath.equals("/data/adb/box")) {
-                list.add(new FileData("..", getParentPath(currentPath), true, true));
+                list.add(new FileData("..", getParentPath(currentPath), true, true, ""));
             }
 
             if (result != null && !result.isEmpty()) {
@@ -141,7 +150,14 @@ public class FilesFragment extends Fragment {
                     boolean isDir = line.endsWith("/");
                     String name = isDir ? line.substring(0, line.length()-1) : line;
                     String fullPath = currentPath + "/" + name;
-                    list.add(new FileData(name, fullPath, isDir, false));
+                    
+                    // Fetch size for files only
+                    String size = "";
+                    if (!isDir) {
+                        String s = ShellHelper.runRootCommand("du -h \"" + fullPath + "\" | cut -f1");
+                        size = s != null ? s.trim() : "";
+                    }
+                    list.add(new FileData(name, fullPath, isDir, false, size));
                 }
             }
             
@@ -181,25 +197,16 @@ public class FilesFragment extends Fragment {
 
     private void openEditor(String path, String name) {
         new Thread(() -> {
-            // Anti-Freeze 2.0: Check if file is binary using grep
-            // -q: quiet, -I: process binary as if it didn't match
+            // Check if file is binary (for warning purposes only, no longer blocking)
             String isBinary = ShellHelper.runRootCommand("grep -qI . \"" + path + "\"; echo $?");
-            String sizeRes = ShellHelper.runRootCommand("stat -c%s \"" + path + "\"");
-            long size = 0;
-            try { size = Long.parseLong(sizeRes.trim()); } catch (Exception ignored) {}
-
-            long finalSize = size;
             boolean binary = isBinary.trim().equals("1");
 
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    if (finalSize > 500 * 1024) {
-                        showSnackbar("File too large (>500KB)"); return;
-                    }
                     if (binary) {
                         new MaterialAlertDialogBuilder(getContext())
                             .setTitle("Binary File Detected")
-                            .setMessage("This file contains binary data (alien language). Opening it might be slow. Proceed?")
+                            .setMessage("This file contains binary data. Opening it might be slow. Proceed?")
                             .setPositiveButton("Open", (d, w) -> startReading(path, name, true))
                             .setNegativeButton("Cancel", null)
                             .show();
@@ -226,11 +233,15 @@ public class FilesFragment extends Fragment {
             String content = ShellHelper.readRootFileBase64(path);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    if (isBinary && content != null) {
-                        // Prevent EditText freeze by injecting newlines if missing
-                        editorEditText.setText(content.replaceAll("(.{100})", "$1\n"));
+                    if (content != null) {
+                        if (isBinary) {
+                            // Inject newlines every 100 chars to prevent EditText rendering hang
+                            editorEditText.setText(content.replaceAll("(.{100})", "$1\n"));
+                        } else {
+                            editorEditText.setText(content);
+                        }
                     } else {
-                        editorEditText.setText(content != null ? content : "");
+                        editorEditText.setText("");
                     }
                     updateLineNumbers();
                 });
@@ -293,7 +304,7 @@ public class FilesFragment extends Fragment {
 
     private void updateLineNumbers() {
         int lineCount = editorEditText.getLineCount();
-        StringBuilder sb = new TextView(getContext()).getContext().getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL ? new StringBuilder() : new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         for (int i = 1; i <= lineCount; i++) { sb.append(i).append("\n"); }
         lineNumbers.setText(sb.toString());
     }
@@ -308,8 +319,8 @@ public class FilesFragment extends Fragment {
     static class FileData {
         String name, fullPath, size = "";
         boolean isDir, isBack;
-        FileData(String name, String fullPath, boolean isDir, boolean isBack) {
-            this.name = name; this.fullPath = fullPath; this.isDir = isDir; this.isBack = isBack;
+        FileData(String name, String fullPath, boolean isDir, boolean isBack, String size) {
+            this.name = name; this.fullPath = fullPath; this.isDir = isDir; this.isBack = isBack; this.size = size;
         }
     }
 
@@ -324,15 +335,12 @@ public class FilesFragment extends Fragment {
             
             if (data.isBack) { 
                 holder.icon.setImageResource(R.drawable.ic_back_arrow); 
-                holder.btnMenu.setVisibility(View.GONE);
                 holder.size.setVisibility(View.GONE);
             } else if (data.isDir) { 
                 holder.icon.setImageResource(R.drawable.ic_folder); 
-                holder.btnMenu.setVisibility(View.VISIBLE);
                 holder.size.setVisibility(View.GONE);
             } else { 
                 holder.icon.setImageResource(R.drawable.ic_logs); 
-                holder.btnMenu.setVisibility(View.VISIBLE);
                 holder.size.setVisibility(View.VISIBLE);
             }
 
@@ -341,7 +349,10 @@ public class FilesFragment extends Fragment {
                 else { openEditor(data.fullPath, data.name); }
             });
 
-            holder.btnMenu.setOnClickListener(v -> {
+            // Long Press for Rename/Delete
+            holder.itemView.setOnLongClickListener(v -> {
+                if (data.isBack) return false;
+                
                 PopupMenu popup = new PopupMenu(getContext(), v);
                 popup.getMenu().add("Rename");
                 popup.getMenu().add("Delete");
@@ -358,17 +369,17 @@ public class FilesFragment extends Fragment {
                     return true;
                 });
                 popup.show();
+                return true;
             });
         }
         @Override public int getItemCount() { return filteredFiles.size(); }
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView name, size; ImageView icon, btnMenu;
+            TextView name, size; ImageView icon;
             ViewHolder(View v) { 
                 super(v); 
                 name = v.findViewById(R.id.itemName); 
                 size = v.findViewById(R.id.itemSize);
                 icon = v.findViewById(R.id.itemIcon); 
-                btnMenu = v.findViewById(R.id.btnMenu); 
             }
         }
     }
