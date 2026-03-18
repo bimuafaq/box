@@ -1,7 +1,9 @@
 package com.rox.manager;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,12 +13,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-import com.google.android.material.card.MaterialCardView;
 
 public class MainActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
-    private MaterialCardView cardHome, cardLogs, cardFiles, cardSettings;
+    private LinearLayout navHome, navLogs, navFiles, navSettings;
     private ImageView imgHome, imgLogs, imgFiles, imgSettings;
     private TextView txtHome, txtLogs, txtFiles, txtSettings;
 
@@ -27,10 +28,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         viewPager = findViewById(R.id.viewPager);
-        cardHome = findViewById(R.id.cardHome);
-        cardLogs = findViewById(R.id.cardLogs);
-        cardFiles = findViewById(R.id.cardFiles);
-        cardSettings = findViewById(R.id.cardSettings);
+        
+        navHome = findViewById(R.id.navHome);
+        navLogs = findViewById(R.id.navLogs);
+        navFiles = findViewById(R.id.navFiles);
+        navSettings = findViewById(R.id.navSettings);
 
         imgHome = findViewById(R.id.imgHome);
         imgLogs = findViewById(R.id.imgLogs);
@@ -53,32 +55,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomNav() {
-        cardHome.setOnClickListener(v -> selectTab(0));
-        cardLogs.setOnClickListener(v -> selectTab(1));
-        cardFiles.setOnClickListener(v -> selectTab(2));
-        cardSettings.setOnClickListener(v -> selectTab(3));
+        navHome.setOnClickListener(v -> selectTab(0));
+        navLogs.setOnClickListener(v -> selectTab(1));
+        navFiles.setOnClickListener(v -> selectTab(2));
+        navSettings.setOnClickListener(v -> selectTab(3));
         selectTab(0);
     }
 
     private void selectTab(int index) {
         viewPager.setCurrentItem(index, false);
         
-        int activeColor = ContextCompat.getColor(this, R.color.white);
-        int inactiveColor = ContextCompat.getColor(this, R.color.text_secondary);
-        int primaryColor = ContextCompat.getColor(this, R.color.primary_indigo);
-        int transColor = android.R.color.transparent;
+        int activeColor = ContextCompat.getColor(this, R.color.primary_indigo);
+        int inactiveColor = 0xFF9E9E9E; // Abu-abu
 
-        // Reset all
-        cardHome.setCardBackgroundColor(ContextCompat.getColor(this, transColor));
-        cardLogs.setCardBackgroundColor(ContextCompat.getColor(this, transColor));
-        cardFiles.setCardBackgroundColor(ContextCompat.getColor(this, transColor));
-        cardSettings.setCardBackgroundColor(ContextCompat.getColor(this, transColor));
-        
-        cardHome.setCardElevation(0);
-        cardLogs.setCardElevation(0);
-        cardFiles.setCardElevation(0);
-        cardSettings.setCardElevation(0);
-
+        // Reset all to Inactive
         imgHome.setColorFilter(inactiveColor);
         imgLogs.setColorFilter(inactiveColor);
         imgFiles.setColorFilter(inactiveColor);
@@ -92,26 +82,18 @@ public class MainActivity extends AppCompatActivity {
         // Set Active
         switch (index) {
             case 0:
-                cardHome.setCardBackgroundColor(primaryColor);
-                cardHome.setCardElevation(8);
                 imgHome.setColorFilter(activeColor);
                 txtHome.setTextColor(activeColor);
                 break;
             case 1:
-                cardLogs.setCardBackgroundColor(primaryColor);
-                cardLogs.setCardElevation(8);
                 imgLogs.setColorFilter(activeColor);
                 txtLogs.setTextColor(activeColor);
                 break;
             case 2:
-                cardFiles.setCardBackgroundColor(primaryColor);
-                cardFiles.setCardElevation(8);
                 imgFiles.setColorFilter(activeColor);
                 txtFiles.setTextColor(activeColor);
                 break;
             case 3:
-                cardSettings.setCardBackgroundColor(primaryColor);
-                cardSettings.setCardElevation(8);
                 imgSettings.setColorFilter(activeColor);
                 txtSettings.setTextColor(activeColor);
                 break;

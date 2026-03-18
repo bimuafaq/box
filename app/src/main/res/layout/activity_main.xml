@@ -10,44 +10,45 @@
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/customNavContainer" />
+        android:layout_above="@id/navCard" />
 
-    <!-- CUSTOM NAVIGATION BAR -->
-    <LinearLayout
-        android:id="@+id/customNavContainer"
+    <!-- SINGLE CARD NAVIGATION BAR -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/navCard"
         android:layout_width="match_parent"
-        android:layout_height="84dp"
+        android:layout_height="64dp"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="12dp"
-        android:weightSum="4">
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="?attr/colorSurface"
+        app:strokeWidth="0dp">
 
-        <!-- NAV HOME -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardHome"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="8dp"
-            app:cardBackgroundColor="@color/primary_indigo"
-            android:clickable="true"
-            android:focusable="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="4">
+
+            <!-- NAV ITEM: HOME -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/navHome"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true">
                 <ImageView
                     android:id="@+id/imgHome"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_home"
-                    app:tint="@color/white" />
+                    app:tint="@color/primary_indigo" />
                 <TextView
                     android:id="@+id/txtHome"
                     android:layout_width="wrap_content"
@@ -55,109 +56,88 @@
                     android:text="Home"
                     android:textSize="10sp"
                     android:textStyle="bold"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/primary_indigo" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- NAV LOGS -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardLogs"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@android:color/transparent"
-            android:clickable="true"
-            android:focusable="true">
+            <!-- NAV ITEM: LOGS -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/navLogs"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true">
                 <ImageView
                     android:id="@+id/imgLogs"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_logs"
-                    app:tint="@color/text_secondary" />
+                    app:tint="#9E9E9E" />
                 <TextView
                     android:id="@+id/txtLogs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Logs"
                     android:textSize="10sp"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="#9E9E9E" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- NAV FILES -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardFiles"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@android:color/transparent"
-            android:clickable="true"
-            android:focusable="true">
+            <!-- NAV ITEM: FILES -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/navFiles"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true">
                 <ImageView
                     android:id="@+id/imgFiles"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_folder"
-                    app:tint="@color/text_secondary" />
+                    app:tint="#9E9E9E" />
                 <TextView
                     android:id="@+id/txtFiles"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Files"
                     android:textSize="10sp"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="#9E9E9E" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- NAV SETTINGS -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardSettings"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@android:color/transparent"
-            android:clickable="true"
-            android:focusable="true">
+            <!-- NAV ITEM: SETTINGS -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/navSettings"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true">
                 <ImageView
                     android:id="@+id/imgSettings"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_settings"
-                    app:tint="@color/text_secondary" />
+                    app:tint="#9E9E9E" />
                 <TextView
                     android:id="@+id/txtSettings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Settings"
                     android:textSize="10sp"
-                    android:textColor="@color/text_secondary" />
+                    android:textColor="#9E9E9E" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-    </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </RelativeLayout>
