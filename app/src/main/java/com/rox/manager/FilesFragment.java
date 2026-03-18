@@ -291,7 +291,14 @@ public class FilesFragment extends Fragment {
                             new MaterialAlertDialogBuilder(getContext())
                                 .setTitle("Delete")
                                 .setMessage("Are you sure you want to delete " + data.name + "?")
-                                .setPositiveButton("Delete", (d, w) -> executeCommand("rm -rf \"" + data.fullPath + "\"", "Deleted"))
+                                .setPositiveButton("Delete", (d, w) -> {
+                                    // SAFETY GUARD: Prevent rm -rf / or deleting outside of box
+                                    if (data.fullPath == null || data.fullPath.trim().isEmpty() || data.fullPath.equals("/") || !data.fullPath.startsWith("/data/adb/box")) {
+                                        showSnackbar("Action blocked: Unsafe path detected!");
+                                        return;
+                                    }
+                                    executeCommand("rm -rf \"" + data.fullPath + "\"", "Deleted");
+                                })
                                 .setNegativeButton("Cancel", null).show();
                         } else { // Rename
                             showInputDialog("Rename", "Enter new name", newName -> executeCommand("mv \"" + data.fullPath + "\" \"" + currentPath + "/" + newName + "\"", "Renamed"));
