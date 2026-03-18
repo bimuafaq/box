@@ -76,6 +76,7 @@ public class FilesFragment extends Fragment {
         editorFileName = view.findViewById(R.id.editorFileName);
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
+        MaterialButton btnSearch = view.findViewById(R.id.btnEditorSearch);
         MaterialButton btnSmaller = view.findViewById(R.id.btnTextSmaller);
         MaterialButton btnLarger = view.findViewById(R.id.btnTextLarger);
 
@@ -94,6 +95,7 @@ public class FilesFragment extends Fragment {
         // Editor Listeners
         btnBack.setOnClickListener(v -> closeEditor());
         btnSave.setOnClickListener(v -> saveFile());
+        btnSearch.setOnClickListener(v -> Toast.makeText(getContext(), "Find functionality coming soon", Toast.LENGTH_SHORT).show());
         btnSmaller.setOnClickListener(v -> { currentTextSize = Math.max(8f, currentTextSize - 1f); updateEditorTextSize(); });
         btnLarger.setOnClickListener(v -> { currentTextSize = Math.min(30f, currentTextSize + 1f); updateEditorTextSize(); });
 
@@ -133,7 +135,6 @@ public class FilesFragment extends Fragment {
                 }
             }
 
-            // Sort alphabetical
             Comparator<FileData> comp = (a, b) -> a.name.toLowerCase().compareTo(b.name.toLowerCase());
             Collections.sort(folders, comp);
             Collections.sort(files, comp);
@@ -172,7 +173,8 @@ public class FilesFragment extends Fragment {
         editorContainer.setVisibility(View.VISIBLE);
         
         new Thread(() -> {
-            String content = ShellHelper.runRootCommand("cat " + path);
+            // SAFE READ VIA BASE64
+            String content = ShellHelper.readRootFileBase64(path);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     editorEditText.setText(content != null ? content : "");
@@ -191,10 +193,12 @@ public class FilesFragment extends Fragment {
     private void saveFile() {
         String content = editorEditText.getText().toString();
         new Thread(() -> {
-            String safeContent = content.replace("'", "'\\''");
-            ShellHelper.runRootCommand("printf '" + safeContent + "' > " + editingFilePath);
+            // SAFE WRITE VIA BASE64
+            boolean success = ShellHelper.writeRootFileBase64(editingFilePath, content);
             if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Saved!", Toast.LENGTH_SHORT).show());
+                getActivity().runOnUiThread(() -> 
+                    Toast.makeText(getContext(), success ? "Saved Successfully!" : "Save Failed!", Toast.LENGTH_SHORT).show()
+                );
             }
         }).start();
     }

@@ -1,10 +1,12 @@
 package com.rox.manager;
 
+import android.util.Base64;
 import android.util.Log;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class ShellHelper {
@@ -40,22 +42,48 @@ public class ShellHelper {
 
         StringBuilder output = new StringBuilder();
         try {
-            // Kita gunakan echo marker untuk tahu kapan perintah selesai tanpa menutup su
             writer.write(command + "\n");
             writer.write("echo " + END_MARKER + "\n");
             writer.flush();
 
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.contains(END_MARKER)) break;
+                if (line.equals(END_MARKER)) break;
                 output.append(line).append("\n");
             }
             return output.toString().trim();
         } catch (Exception e) {
             Log.e(TAG, "Error executing command in persistent shell", e);
-            // Jika error, reset shell agar di-init ulang perintah berikutnya
             closeShell();
             return "Error: " + e.getMessage();
+        }
+    }
+
+    public static String readRootFileBase64(String path) {
+        String res = runRootCommand("base64 " + path);
+        if (res == null || res.startsWith("Error:")) return null;
+        try {
+            // Remove any whitespace/newlines from base64 output
+            String cleanB64 = res.replaceAll("\\s+", "");
+            byte[] data = Base64.decode(cleanB64, Base64.DEFAULT);
+            return new String(data, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to decode base64", e);
+            return null;
+        }
+    }
+
+    public static boolean writeRootFileBase64(String path, String content) {
+        try {
+            byte[] data = content.getBytes(StandardCharsets.UTF_8);
+            String b64 = Base64.encodeToString(data, Base64.NO_WRAP);
+            // Use shell to decode and write
+            String cmd = "echo '" + b64 + "' | base64 -d > " + path;
+            String res = runRootCommand(cmd);
+            return res != null && !res.startsWith("Error:");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to encode/write base64", e);
+            return false;
         }
     }
 

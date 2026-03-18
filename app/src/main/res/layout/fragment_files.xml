@@ -119,21 +119,28 @@
                 android:singleLine="true"
                 android:ellipsize="end" />
             
-            <!-- Text Size Controls -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditorSearch"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                app:icon="@android:drawable/ic_menu_search"
+                app:iconSize="20dp" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTextSmaller"
                 style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:text="A-"
-                android:textSize="10sp" />
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="-"
+                android:textSize="14sp" />
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTextLarger"
                 style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:text="A+"
-                android:textSize="10sp" />
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="+"
+                android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditorSave"
@@ -166,20 +173,26 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
                     
-                    <!-- Line Numbers -->
+                    <!-- Line Numbers with different background -->
                     <TextView
                         android:id="@+id/lineNumbers"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:padding="12dp"
-                        android:text="1\n2\n3"
+                        android:text="1"
                         android:textSize="13sp"
                         android:fontFamily="monospace"
                         android:textColor="?android:attr/textColorSecondary"
-                        android:background="#0D000000"
-                        android:gravity="end" />
+                        android:background="#0F000000"
+                        android:gravity="end"
+                        android:minWidth="40dp" />
 
-                    <!-- Editor Content -->
+                    <!-- Vertical Divider -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="#1A000000" />
+
                     <EditText
                         android:id="@+id/editorEditText"
                         android:layout_width="match_parent"
