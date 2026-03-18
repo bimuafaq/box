@@ -21,14 +21,29 @@
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRefreshLogs"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+        
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            app:icon="@drawable/ic_logs"
-            app:iconTint="@color/primary_indigo" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchLiveLogs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                app:thumbIcon="@drawable/ic_logs" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRefreshLogs"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:icon="@drawable/ic_logs"
+                app:iconTint="@color/primary_indigo" />
+        </LinearLayout>
     </RelativeLayout>
 
     <!-- File Selector Section -->
@@ -59,29 +74,35 @@
     </HorizontalScrollView>
 
     <!-- Log Content Area -->
-    <com.google.android.material.card.MaterialCardView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLogs"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:strokeColor="#1A000000"
-        app:strokeWidth="1dp">
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/logScrollView"
+        android:layout_weight="1">
+        
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#111111"
-            android:padding="12dp">
-            <TextView
-                android:id="@+id/logTextView"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#1A000000"
+            app:strokeWidth="1dp">
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/logScrollView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Initializing logs..."
-                android:textColor="#00FF00"
-                android:fontFamily="monospace"
-                android:textSize="12sp" />
-        </androidx.core.widget.NestedScrollView>
-    </com.google.android.material.card.MaterialCardView>
+                android:layout_height="match_parent"
+                android:background="#111111"
+                android:padding="12dp">
+                <TextView
+                    android:id="@+id/logTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Initializing logs..."
+                    android:textColor="#00FF00"
+                    android:fontFamily="monospace"
+                    android:textSize="12sp" />
+            </androidx.core.widget.NestedScrollView>
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>

@@ -1,6 +1,8 @@
 package com.rox.manager;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.io.File;
 
@@ -19,7 +23,12 @@ public class LogsFragment extends Fragment {
     private ChipGroup logFileGroup;
     private TextView logTextView;
     private NestedScrollView logScrollView;
+    private SwipeRefreshLayout swipeRefresh;
+    private MaterialSwitch switchLive;
     private String selectedLogPath = "";
+    
+    private final Handler liveHandler = new Handler(Looper.getMainLooper());
+    private boolean isLiveEnabled = false;
 
     @Nullable
     @Override
@@ -29,18 +38,58 @@ public class LogsFragment extends Fragment {
         logFileGroup = view.findViewById(R.id.logFileGroup);
         logTextView = view.findViewById(R.id.logTextView);
         logScrollView = view.findViewById(R.id.logScrollView);
+        swipeRefresh = view.findViewById(R.id.swipeRefreshLogs);
+        switchLive = view.findViewById(R.id.switchLiveLogs);
         MaterialButton btnRefresh = view.findViewById(R.id.btnRefreshLogs);
 
-        btnRefresh.setOnClickListener(v -> refreshLogContent());
+        btnRefresh.setOnClickListener(v -> loadLogFileList());
+        
+        swipeRefresh.setOnRefreshListener(this::refreshLogContent);
+        
+        switchLive.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            isLiveEnabled = isChecked;
+            if (isChecked) startLiveUpdate();
+            else stopLiveUpdate();
+        });
 
         loadLogFileList();
 
         return view;
     }
 
+    private final Runnable liveRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isLiveEnabled) {
+                refreshLogContentQuietly();
+                liveHandler.postDelayed(this, 2000); // Polling every 2s
+            }
+        }
+    };
+
+    private void startLiveUpdate() {
+        liveHandler.removeCallbacks(liveRunnable);
+        liveHandler.post(liveRunnable);
+    }
+
+    private void stopLiveUpdate() {
+        liveHandler.removeCallbacks(liveRunnable);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopLiveUpdate();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isLiveEnabled) startLiveUpdate();
+    }
+
     private void loadLogFileList() {
         new Thread(() -> {
-            // Ambil semua file .log di folder run
             String res = ShellHelper.runRootCommand("ls /data/adb/box/run/*.log");
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
@@ -73,7 +122,6 @@ public class LogsFragment extends Fragment {
 
         logFileGroup.addView(chip);
 
-        // Auto select first chip
         if (logFileGroup.getChildCount() == 1) {
             chip.setChecked(true);
             selectedLogPath = path;
@@ -82,21 +130,41 @@ public class LogsFragment extends Fragment {
     }
 
     private void refreshLogContent() {
+        if (selectedLogPath.isEmpty()) {
+            swipeRefresh.setRefreshing(false);
+            return;
+        }
+
+        swipeRefresh.setRefreshing(true);
+        new Thread(() -> {
+            String content = ShellHelper.runRootCommand("tail -n 500 " + selectedLogPath);
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    swipeRefresh.setRefreshing(false);
+                    if (content != null && !content.isEmpty()) {
+                        logTextView.setText(content);
+                        logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
+                    } else {
+                        logTextView.setText("Log file is empty.");
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void refreshLogContentQuietly() {
         if (selectedLogPath.isEmpty()) return;
 
-        logTextView.setText("Reading " + new File(selectedLogPath).getName() + "...");
-        
         new Thread(() -> {
-            // Baca 500 baris terakhir agar tidak lag
             String content = ShellHelper.runRootCommand("tail -n 500 " + selectedLogPath);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (content != null && !content.isEmpty()) {
-                        logTextView.setText(content);
-                        // Auto scroll to bottom
-                        logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
-                    } else {
-                        logTextView.setText("Log file is empty.");
+                        // Cek jika konten berbeda untuk menghindari flickering
+                        if (!content.equals(logTextView.getText().toString())) {
+                            logTextView.setText(content);
+                            logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
+                        }
                     }
                 });
             }
