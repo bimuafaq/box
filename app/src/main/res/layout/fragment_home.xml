@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             
-            <!-- ROW 1: STATUS & CORE -->
+            <!-- ROW 1: STATUS & CORE (Centered) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -42,6 +42,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
@@ -65,6 +66,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
@@ -93,7 +95,7 @@
                 android:layout_marginBottom="16dp"
                 android:background="#1A000000" />
 
-            <!-- ROW 2: CPU, RAM, RUNTIME -->
+            <!-- ROW 2: CPU, RAM, RUNTIME (Centered) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -103,6 +105,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
@@ -124,6 +127,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
@@ -145,6 +149,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"

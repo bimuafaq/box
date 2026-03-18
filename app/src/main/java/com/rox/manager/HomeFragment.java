@@ -72,7 +72,7 @@ public class HomeFragment extends Fragment {
         public void run() {
             if (isStatsRunning) {
                 refreshCoreStats();
-                statsHandler.postDelayed(this, 2000); // Refresh every 2s
+                statsHandler.postDelayed(this, 2000);
             }
         }
     };
@@ -146,13 +146,14 @@ public class HomeFragment extends Fragment {
                             statusText.setTextColor(ContextCompat.getColor(getContext(), R.color.primary_indigo));
                             long seconds = parseETimeToSeconds(etime);
                             startTimer(seconds);
+                            coreText.setText(core.toUpperCase() + " (" + pid + ")");
                         } else {
                             statusText.setText(getString(R.string.status_stopped));
                             statusText.setTextColor(0xFFE53935);
                             runtimeText.setText("00:00:00");
                             stopTimer();
+                            coreText.setText("---");
                         }
-                        coreText.setText(core.isEmpty() ? "---" : core.toUpperCase());
                     }
                 });
             }
@@ -161,14 +162,12 @@ public class HomeFragment extends Fragment {
 
     private void refreshCoreStats() {
         new Thread(() -> {
-            // Get stats specifically for the core process
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
                          "if [ \"$PID\" != \"0\" ]; then " +
                          "  RSS=$(grep VmRSS /proc/$PID/status | awk '{print $2}'); " +
                          "  CPU=$(ps -p $PID -o %cpu=); " +
-                         "  CORE_ID=$(awk '{print $39}' /proc/$PID/stat); " +
-                         "  echo \"$RSS|$CPU|$CORE_ID\"; " +
-                         "else echo \"0|0|0\"; fi";
+                         "  echo \"$RSS|$CPU\"; " +
+                         "else echo \"0|0\"; fi";
             
             String res = ShellHelper.runRootCommand(cmd);
 
@@ -179,13 +178,11 @@ public class HomeFragment extends Fragment {
                         try {
                             long rssKb = Long.parseLong(parts[0].trim());
                             String cpu = parts[1].trim();
-                            String coreId = parts[2].trim();
 
                             if (rssKb > 0) {
                                 String ramStr = (rssKb >= 1024) ? (rssKb / 1024) + " MB" : rssKb + " KB";
                                 ramText.setText(ramStr);
                                 cpuText.setText(cpu.isEmpty() ? "0%" : cpu + "%");
-                                // We can use coreId for something if needed, but for now we update CPU/RAM
                             } else {
                                 ramText.setText("0 MB");
                                 cpuText.setText("0%");
