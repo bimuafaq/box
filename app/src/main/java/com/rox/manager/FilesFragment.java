@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -40,6 +41,7 @@ public class FilesFragment extends Fragment {
     private TextView lineNumbersView, editorFileName;
     private String editingFilePath = "";
     private float currentTextSize = 13f;
+    private ScaleGestureDetector scaleGestureDetector;
 
     static class FileData {
         String name;
@@ -77,8 +79,6 @@ public class FilesFragment extends Fragment {
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
         MaterialButton btnSearch = view.findViewById(R.id.btnEditorSearch);
-        MaterialButton btnSmaller = view.findViewById(R.id.btnTextSmaller);
-        MaterialButton btnLarger = view.findViewById(R.id.btnTextLarger);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FileAdapter();
@@ -92,12 +92,27 @@ public class FilesFragment extends Fragment {
             @Override public void afterTextChanged(Editable s) {}
         });
 
+        // Pinch to Zoom Implementation
+        scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                float scaleFactor = detector.getScaleFactor();
+                currentTextSize *= scaleFactor;
+                currentTextSize = Math.max(8f, Math.min(40f, currentTextSize));
+                updateEditorTextSize();
+                return true;
+            }
+        });
+
+        editorEditText.setOnTouchListener((v, event) -> {
+            scaleGestureDetector.onTouchEvent(event);
+            return false; // Let normal touch events pass
+        });
+
         // Editor Listeners
         btnBack.setOnClickListener(v -> closeEditor());
         btnSave.setOnClickListener(v -> saveFile());
         btnSearch.setOnClickListener(v -> Toast.makeText(getContext(), "Find functionality coming soon", Toast.LENGTH_SHORT).show());
-        btnSmaller.setOnClickListener(v -> { currentTextSize = Math.max(8f, currentTextSize - 1f); updateEditorTextSize(); });
-        btnLarger.setOnClickListener(v -> { currentTextSize = Math.min(30f, currentTextSize + 1f); updateEditorTextSize(); });
 
         editorEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -173,7 +188,6 @@ public class FilesFragment extends Fragment {
         editorContainer.setVisibility(View.VISIBLE);
         
         new Thread(() -> {
-            // SAFE READ VIA BASE64
             String content = ShellHelper.readRootFileBase64(path);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
@@ -193,7 +207,6 @@ public class FilesFragment extends Fragment {
     private void saveFile() {
         String content = editorEditText.getText().toString();
         new Thread(() -> {
-            // SAFE WRITE VIA BASE64
             boolean success = ShellHelper.writeRootFileBase64(editingFilePath, content);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> 
@@ -226,7 +239,7 @@ public class FilesFragment extends Fragment {
             FileData data = filteredFiles.get(position);
             holder.name.setText(data.name);
             holder.size.setText(data.size);
-            if (data.isBack) { holder.icon.setImageResource(R.drawable.ic_home); holder.icon.setRotation(-90); }
+            if (data.isBack) { holder.icon.setImageResource(R.drawable.ic_back_arrow); holder.icon.setRotation(0); }
             else if (data.isDir) { holder.icon.setImageResource(R.drawable.ic_folder); holder.icon.setRotation(0); }
             else { holder.icon.setImageResource(R.drawable.ic_logs); holder.icon.setRotation(0); }
 
