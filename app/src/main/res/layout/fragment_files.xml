@@ -145,20 +145,20 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
+                <!-- INNER CARD HEADER (Like a Status Bar) -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="32dp"
-                    android:background="?attr/colorSurfaceVariant"
+                    android:layout_height="28dp"
+                    android:background="@color/primary_indigo"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:alpha="0.7">
+                    android:orientation="horizontal">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="SOURCE EDITOR"
                         android:textSize="9sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textColor="@android:color/white"
                         android:letterSpacing="0.1" />
                 </LinearLayout>
 
@@ -195,7 +195,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:fillViewport="true">
-
                             <EditText
                                 android:id="@+id/editorEditText"
                                 android:layout_width="wrap_content"
@@ -215,5 +214,4 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-
 </FrameLayout>
