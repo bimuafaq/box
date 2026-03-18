@@ -22,7 +22,7 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="24dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
         app:cardBackgroundColor="?attr/colorSurface"
@@ -50,8 +50,7 @@
                         android:textSize="10sp"
                         android:textColor="?android:attr/textColorSecondary"
                         android:textAllCaps="true"
-                        android:letterSpacing="0.1"
-                        android:layout_gravity="start" />
+                        android:letterSpacing="0.1" />
                     <TextView
                         android:id="@+id/statusText"
                         android:layout_width="wrap_content"
@@ -60,8 +59,7 @@
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="@color/primary_indigo"
-                        android:layout_marginTop="2dp"
-                        android:layout_gravity="start" />
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="0dp"
@@ -76,8 +74,7 @@
                         android:textSize="10sp"
                         android:textColor="?android:attr/textColorSecondary"
                         android:textAllCaps="true"
-                        android:letterSpacing="0.1"
-                        android:layout_gravity="end" />
+                        android:letterSpacing="0.1" />
                     <TextView
                         android:id="@+id/coreText"
                         android:layout_width="wrap_content"
@@ -87,7 +84,6 @@
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
                         android:layout_marginTop="2dp"
-                        android:layout_gravity="end"
                         android:gravity="end" />
                 </LinearLayout>
             </LinearLayout>
@@ -104,159 +100,81 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="start"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="CPU"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary" />
-                    <TextView
-                        android:id="@+id/cpuText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0%"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="1dp" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CPU" android:textSize="9sp" android:textStyle="bold" android:textColor="?android:attr/textColorSecondary" />
+                    <TextView android:id="@+id/cpuText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
                 </LinearLayout>
                 <View android:layout_width="24dp" android:layout_height="0dp" />
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="start"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="RAM"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary" />
-                    <TextView
-                        android:id="@+id/ramText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0 MB"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="1dp" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RAM" android:textSize="9sp" android:textStyle="bold" android:textColor="?android:attr/textColorSecondary" />
+                    <TextView android:id="@+id/ramText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 MB" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
                 </LinearLayout>
                 <View android:layout_width="24dp" android:layout_height="0dp" />
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="start"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="CORE"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary" />
-                    <TextView
-                        android:id="@+id/idCoreText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="-"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="1dp" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CORE" android:textSize="9sp" android:textStyle="bold" android:textColor="?android:attr/textColorSecondary" />
+                    <TextView android:id="@+id/idCoreText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
                 </LinearLayout>
                 <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="UPTIME"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:layout_gravity="end" />
-                    <TextView
-                        android:id="@+id/runtimeText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="00:00:00"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="1dp"
-                        android:layout_gravity="end"
-                        android:gravity="end" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UPTIME" android:textSize="9sp" android:textStyle="bold" android:textColor="?android:attr/textColorSecondary" />
+                    <TextView android:id="@+id/runtimeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="00:00:00" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" android:gravity="end" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- MODUL 2: COMPACT CONTROLS (Formatted like Status Card) -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- MODUL 2: CONTROLS ONLY (Surface Background + Indigo Text) -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:contentPadding="12dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="3">
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/startBtn"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="1"
-                android:text="START"
-                android:textSize="12sp"
-                android:layout_marginEnd="4dp"
-                android:textColor="@android:color/white"
-                app:backgroundTint="@color/primary_indigo"
-                app:cornerRadius="12dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/restartBtn"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="1"
-                android:text="RESTART"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                android:textColor="@android:color/white"
-                app:backgroundTint="@color/primary_indigo"
-                app:cornerRadius="12dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/stopBtn"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="1"
-                android:text="STOP"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp"
-                android:textColor="@android:color/white"
-                app:backgroundTint="@color/primary_indigo"
-                app:cornerRadius="12dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        android:orientation="horizontal"
+        android:weightSum="3">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/startBtn"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="START"
+            android:textSize="12sp"
+            android:layout_marginEnd="4dp"
+            android:textColor="@color/primary_indigo"
+            app:backgroundTint="?attr/colorSurface"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/primary_indigo"
+            app:cornerRadius="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/restartBtn"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="RESTART"
+            android:textSize="12sp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textColor="@color/primary_indigo"
+            app:backgroundTint="?attr/colorSurface"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/primary_indigo"
+            app:cornerRadius="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/stopBtn"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="STOP"
+            android:textSize="12sp"
+            android:layout_marginStart="4dp"
+            android:textColor="@color/primary_indigo"
+            app:backgroundTint="?attr/colorSurface"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/primary_indigo"
+            app:cornerRadius="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp" />
+    </LinearLayout>
 
 </LinearLayout>
