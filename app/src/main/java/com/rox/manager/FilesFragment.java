@@ -63,7 +63,7 @@ public class FilesFragment extends Fragment {
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
         
-        // Toolbar Button (Single New Action)
+        // Toolbar Button (Unified New Action)
         MaterialButton btnAddAction = view.findViewById(R.id.btnAddAction);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -151,7 +151,6 @@ public class FilesFragment extends Fragment {
                     String name = isDir ? line.substring(0, line.length()-1) : line;
                     String fullPath = currentPath + "/" + name;
                     
-                    // Fetch size for files only
                     String size = "";
                     if (!isDir) {
                         String s = ShellHelper.runRootCommand("du -h \"" + fullPath + "\" | cut -f1");
@@ -197,7 +196,6 @@ public class FilesFragment extends Fragment {
 
     private void openEditor(String path, String name) {
         new Thread(() -> {
-            // Check if file is binary (for warning purposes only, no longer blocking)
             String isBinary = ShellHelper.runRootCommand("grep -qI . \"" + path + "\"; echo $?");
             boolean binary = isBinary.trim().equals("1");
 
@@ -230,12 +228,13 @@ public class FilesFragment extends Fragment {
         }
 
         new Thread(() -> {
+            // Read in chunks or using a faster method if possible
+            // For now, using readRootFileBase64 which is already optimized
             String content = ShellHelper.readRootFileBase64(path);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (content != null) {
                         if (isBinary) {
-                            // Inject newlines every 100 chars to prevent EditText rendering hang
                             editorEditText.setText(content.replaceAll("(.{100})", "$1\n"));
                         } else {
                             editorEditText.setText(content);
@@ -349,7 +348,7 @@ public class FilesFragment extends Fragment {
                 else { openEditor(data.fullPath, data.name); }
             });
 
-            // Long Press for Rename/Delete
+            // Long Press for Rename/Delete (BFR style)
             holder.itemView.setOnLongClickListener(v -> {
                 if (data.isBack) return false;
                 
