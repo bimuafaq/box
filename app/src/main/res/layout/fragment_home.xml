@@ -123,58 +123,51 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- MODUL 2: CONTROLS ONLY (Surface Background + Indigo Text) -->
-    <LinearLayout
+    <!-- MD3 BUTTON TOGGLE GROUP (THE ESTABLISHED MD3 WAY) -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/controlsGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="3">
+        app:singleSelection="true"
+        app:selectionRequired="false"
+        android:gravity="center_horizontal">
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/startBtn"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
             android:text="START"
             android:textSize="12sp"
-            android:layout_marginEnd="4dp"
             android:textColor="@color/primary_indigo"
-            app:backgroundTint="?attr/colorSurface"
-            app:strokeWidth="2dp"
             app:strokeColor="@color/primary_indigo"
-            app:cornerRadius="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
+            app:strokeWidth="1dp" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/restartBtn"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
             android:text="RESTART"
             android:textSize="12sp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
             android:textColor="@color/primary_indigo"
-            app:backgroundTint="?attr/colorSurface"
-            app:strokeWidth="2dp"
             app:strokeColor="@color/primary_indigo"
-            app:cornerRadius="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
+            app:strokeWidth="1dp" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/stopBtn"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
             android:text="STOP"
             android:textSize="12sp"
-            android:layout_marginStart="4dp"
             android:textColor="@color/primary_indigo"
-            app:backgroundTint="?attr/colorSurface"
-            app:strokeWidth="2dp"
             app:strokeColor="@color/primary_indigo"
-            app:cornerRadius="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
-    </LinearLayout>
+            app:strokeWidth="1dp" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
 </LinearLayout>
