@@ -17,13 +17,16 @@ import com.google.android.material.button.MaterialButton;
 import java.util.Locale;
 
 public class HomeFragment extends Fragment {
-    private TextView statusText, coreText, runtimeText;
+    private TextView statusText, coreText, runtimeText, cpuText, ramText;
     private MaterialButton startBtn, stopBtn;
     private boolean isActionRunning = false;
     
     private Handler timerHandler = new Handler();
     private long currentRuntimeSeconds = 0;
     private boolean isTimerRunning = false;
+    
+    private Handler statsHandler = new Handler();
+    private boolean isStatsRunning = false;
 
     @Nullable
     @Override
@@ -33,6 +36,9 @@ public class HomeFragment extends Fragment {
         statusText = view.findViewById(R.id.statusText);
         coreText = view.findViewById(R.id.coreText);
         runtimeText = view.findViewById(R.id.runtimeText);
+        cpuText = view.findViewById(R.id.cpuText);
+        ramText = view.findViewById(R.id.ramText);
+        
         startBtn = view.findViewById(R.id.startBtn);
         stopBtn = view.findViewById(R.id.stopBtn);
         MaterialButton webBtn = view.findViewById(R.id.webBtn);
@@ -61,6 +67,16 @@ public class HomeFragment extends Fragment {
         }
     };
 
+    private final Runnable statsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isStatsRunning) {
+                refreshSystemStats();
+                statsHandler.postDelayed(this, 3000); // Refresh every 3s
+            }
+        }
+    };
+
     private void updateRuntimeUI(long totalSeconds) {
         long h = totalSeconds / 3600;
         long m = (totalSeconds % 3600) / 60;
@@ -73,12 +89,14 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         refreshAllInfo();
+        startStats();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         stopTimer();
+        stopStats();
     }
 
     private void startTimer(long initialSeconds) {
@@ -94,9 +112,20 @@ public class HomeFragment extends Fragment {
         timerHandler.removeCallbacks(timerRunnable);
     }
 
+    private void startStats() {
+        if (!isStatsRunning) {
+            isStatsRunning = true;
+            statsHandler.post(statsRunnable);
+        }
+    }
+
+    private void stopStats() {
+        isStatsRunning = false;
+        statsHandler.removeCallbacks(statsRunnable);
+    }
+
     private void refreshAllInfo() {
         new Thread(() -> {
-            // Menggunakan ps -o etime sebagai sumber akurasi utama
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
                          "CORE=$(grep '^bin_name=' /data/adb/box/settings.ini | cut -d '\"' -f 2); " +
                          "ETIME=$(ps -p $PID -o etime= 2>/dev/null || echo \"00:00\"); " +
@@ -115,7 +144,6 @@ public class HomeFragment extends Fragment {
                         if (pid.matches("\\d+") && !pid.equals("0")) {
                             statusText.setText(getString(R.string.status_running));
                             statusText.setTextColor(ContextCompat.getColor(getContext(), R.color.primary_indigo));
-                            
                             long seconds = parseETimeToSeconds(etime);
                             startTimer(seconds);
                         } else {
@@ -131,15 +159,77 @@ public class HomeFragment extends Fragment {
         }).start();
     }
 
+    private void refreshSystemStats() {
+        new Thread(() -> {
+            // Get RAM: MemTotal and MemAvailable in kB
+            String ramCmd = "cat /proc/meminfo | grep -E 'MemTotal|MemAvailable' | awk '{print $2}'";
+            String cpuCmd = "top -n 1 -d 1 | grep 'CPU' | head -n 1"; // Varying output format
+            
+            String ramRes = ShellHelper.runRootCommand(ramCmd);
+            // Fallback for CPU: more robust approach
+            String cpuRes = ShellHelper.runRootCommand("top -n 1 | grep -i \"idle\" | head -n 1");
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    // Process RAM
+                    if (ramRes != null && !ramRes.contains("Error")) {
+                        String[] lines = ramRes.split("\n");
+                        if (lines.length >= 2) {
+                            try {
+                                long totalKb = Long.parseLong(lines[0].trim());
+                                long availKb = Long.parseLong(lines[1].trim());
+                                long usedMb = (totalKb - availKb) / 1024;
+                                long totalMb = totalKb / 1024;
+                                ramText.setText(usedMb + " / " + totalMb + " MB");
+                            } catch (Exception ignored) {}
+                        }
+                    }
+
+                    // Process CPU (Simple heuristic)
+                    if (cpuRes != null && !cpuRes.contains("Error")) {
+                        try {
+                            // Example: "CPU: 10% usr 5% sys 0% nic 85% idle"
+                            // or "800%cpu  27%user   0%nice  25%sys 745%idle   0%iow   3%irq   0%sirq   0%host"
+                            String lower = cpuRes.toLowerCase();
+                            if (lower.contains("idle")) {
+                                String[] parts = lower.split("\\s+");
+                                for (int i = 0; i < parts.length; i++) {
+                                    if (parts[i].contains("idle")) {
+                                        // Usually the value is before "idle" or at parts[i-1]
+                                        String valStr = parts[i].replace("idle", "").replace("%", "");
+                                        if (valStr.isEmpty() && i > 0) {
+                                            valStr = parts[i-1].replace("%", "");
+                                        }
+                                        if (!valStr.isEmpty()) {
+                                            int idle = Integer.parseInt(valStr);
+                                            // Heuristic: if idle > 100 (multi-core), normalize it or just show 100-idle
+                                            // Most modern 'top' shows percentage per core or total.
+                                            // We'll just show a simplified version.
+                                            if (idle > 100) idle = idle / 8; // assuming 8 cores fallback
+                                            int usage = Math.max(0, Math.min(100, 100 - idle));
+                                            cpuText.setText(usage + "%");
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Exception ignored) {
+                            cpuText.setText("---");
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
     private long parseETimeToSeconds(String etime) {
         try {
-            // Format etime bisa: mm:ss, hh:mm:ss, atau dd-hh:mm:ss
             String[] parts = etime.split(":");
             long seconds = 0;
-            if (parts.length == 2) { // mm:ss
+            if (parts.length == 2) {
                 seconds = Long.parseLong(parts[0]) * 60 + Long.parseLong(parts[1]);
-            } else if (parts.length == 3) { // hh:mm:ss atau dd-hh:mm:ss
-                if (parts[0].contains("-")) { // dd-hh
+            } else if (parts.length == 3) {
+                if (parts[0].contains("-")) {
                     String[] dayHour = parts[0].split("-");
                     seconds = Long.parseLong(dayHour[0]) * 86400 + Long.parseLong(dayHour[1]) * 3600;
                 } else {
@@ -155,7 +245,6 @@ public class HomeFragment extends Fragment {
 
     private void runRootAction(String command, String msg) {
         if (isActionRunning) return;
-        
         isActionRunning = true;
         toggleButtons(false);
         Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
@@ -163,7 +252,6 @@ public class HomeFragment extends Fragment {
         new Thread(() -> {
             ShellHelper.runRootCommand(command);
             try { Thread.sleep(2200); } catch (InterruptedException ignored) {}
-            
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     refreshAllInfo();
