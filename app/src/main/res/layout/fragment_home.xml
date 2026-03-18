@@ -100,17 +100,19 @@
                 android:layout_marginBottom="16dp"
                 android:background="#1A000000" />
 
-            <!-- ROW 2: CPU, RAM, RUNTIME (Centered) -->
+            <!-- ROW 2: CPU (Left), RAM (Center), RUNTIME (Right) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="3">
+                
+                <!-- CPU USAGE -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
+                    android:gravity="start"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
@@ -118,16 +120,21 @@
                         android:text="CPU"
                         android:textSize="9sp"
                         android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:layout_gravity="start" />
                     <TextView
                         android:id="@+id/cpuText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0%"
-                        android:textSize="13sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface" />
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginTop="1dp"
+                        android:layout_gravity="start" />
                 </LinearLayout>
+
+                <!-- RAM USAGE -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -140,21 +147,26 @@
                         android:text="RAM"
                         android:textSize="9sp"
                         android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:layout_gravity="center" />
                     <TextView
                         android:id="@+id/ramText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0 MB"
-                        android:textSize="13sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface" />
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginTop="1dp"
+                        android:layout_gravity="center" />
                 </LinearLayout>
+
+                <!-- RUNTIME -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
+                    android:gravity="end"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
@@ -162,15 +174,19 @@
                         android:text="UPTIME"
                         android:textSize="9sp"
                         android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:layout_gravity="end" />
                     <TextView
                         android:id="@+id/runtimeText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="00:00:00"
-                        android:textSize="13sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface" />
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginTop="1dp"
+                        android:layout_gravity="end"
+                        android:gravity="end" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
