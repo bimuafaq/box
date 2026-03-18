@@ -75,7 +75,6 @@ public class FilesFragment extends Fragment {
         btnBack.setOnClickListener(v -> closeEditor());
         btnSave.setOnClickListener(v -> saveFile());
         
-        // Center Dialog for FAB (BFR style)
         btnAddAction.setOnClickListener(v -> {
             new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Create New")
@@ -176,12 +175,17 @@ public class FilesFragment extends Fragment {
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (content != null) {
-                        // Anti-Freeze: Inject newlines for long lines to prevent render hang
-                        editorEditText.setText(content.replaceAll("(.{200})", "$1\n"));
+                        // More efficient Anti-Freeze: Only break if lines are ridiculously long
+                        if (content.length() > 50000) {
+                            editorEditText.setText(content.substring(0, 50000) + "\n[File too large, showing partial content for stability]");
+                        } else {
+                            editorEditText.setText(content);
+                        }
                     } else {
                         editorEditText.setText("");
                     }
-                    updateLineNumbers();
+                    // Small delay to ensure layout is ready for line numbering
+                    editorEditText.postDelayed(this::updateLineNumbers, 100);
                 });
             }
         }).start();
@@ -241,7 +245,10 @@ public class FilesFragment extends Fragment {
     }
 
     private void updateLineNumbers() {
+        if (editorEditText == null || lineNumbers == null) return;
         int lineCount = editorEditText.getLineCount();
+        if (lineCount <= 0) lineCount = 1;
+        
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i <= lineCount; i++) { sb.append(i).append("\n"); }
         lineNumbers.setText(sb.toString());
