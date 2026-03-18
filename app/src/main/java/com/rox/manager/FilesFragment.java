@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -20,6 +19,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.widget.PopupMenu;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,17 +32,16 @@ public class FilesFragment extends Fragment {
     private List<FileData> allFiles = new ArrayList<>();
     private List<FileData> filteredFiles = new ArrayList<>();
     private String currentPath = "/data/adb/box";
-    private TextView pathIndicator;
     private SwipeRefreshLayout swipeRefresh;
     private EditText searchEditText;
 
-    // Editor Components
+    // Custom RecyclerView Editor (Anti-Freeze)
     private View fileListLayout, editorContainer;
-    private EditText editorEditText;
-    private TextView editorFileName, lineNumbers;
+    private RecyclerView editorRecyclerView;
+    private EditorAdapter editorAdapter;
+    private List<String> editorLines = new ArrayList<>();
+    private TextView editorFileName;
     private String editingFilePath = "";
-    private float currentTextSize = 13f;
-    private ScaleGestureDetector scaleGestureDetector;
 
     @Nullable
     @Override
@@ -50,25 +49,26 @@ public class FilesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_files, container, false);
 
         recyclerView = view.findViewById(R.id.fileRecyclerView);
-        pathIndicator = view.findViewById(R.id.pathIndicator);
         swipeRefresh = view.findViewById(R.id.swipeRefreshFiles);
         searchEditText = view.findViewById(R.id.searchEditText);
         fileListLayout = view.findViewById(R.id.fileListLayout);
         
-        // Editor UI
+        // Custom Editor UI
         editorContainer = view.findViewById(R.id.editorContainer);
-        editorEditText = view.findViewById(R.id.editorEditText);
+        editorRecyclerView = view.findViewById(R.id.editorRecyclerView);
         editorFileName = view.findViewById(R.id.editorFileName);
-        lineNumbers = view.findViewById(R.id.lineNumbers);
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
         
-        // Toolbar Button (Unified New Action)
-        MaterialButton btnAddAction = view.findViewById(R.id.btnAddAction);
+        FloatingActionButton btnAddAction = view.findViewById(R.id.btnAddAction);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FileAdapter();
         recyclerView.setAdapter(adapter);
+
+        editorRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        editorAdapter = new EditorAdapter();
+        editorRecyclerView.setAdapter(editorAdapter);
 
         swipeRefresh.setOnRefreshListener(this::loadFiles);
         
@@ -76,32 +76,6 @@ public class FilesFragment extends Fragment {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { filter(s.toString()); }
             @Override public void afterTextChanged(Editable s) {}
-        });
-
-        // Pinch to Zoom
-        scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            @Override
-            public boolean onScale(ScaleGestureDetector detector) {
-                float scaleFactor = detector.getScaleFactor();
-                float sensitivity = 1.1f; 
-                if (scaleFactor > 1.0f) scaleFactor *= sensitivity;
-                else scaleFactor /= sensitivity;
-                currentTextSize *= scaleFactor;
-                currentTextSize = Math.max(8f, Math.min(50f, currentTextSize));
-                updateEditorTextSize();
-                return true;
-            }
-        });
-
-        editorEditText.setOnTouchListener((v, event) -> {
-            if (event.getPointerCount() > 1) {
-                v.getParent().requestDisallowInterceptTouchEvent(true);
-                if (v.getParent().getParent() != null && v.getParent().getParent().getParent() != null) {
-                    v.getParent().getParent().getParent().requestDisallowInterceptTouchEvent(true);
-                }
-            }
-            scaleGestureDetector.onTouchEvent(event);
-            return false; 
         });
 
         btnBack.setOnClickListener(v -> closeEditor());
@@ -120,12 +94,6 @@ public class FilesFragment extends Fragment {
                 return true;
             });
             popup.show();
-        });
-
-        editorEditText.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { updateLineNumbers(); }
-            @Override public void afterTextChanged(Editable s) {}
         });
 
         loadFiles();
@@ -172,7 +140,6 @@ public class FilesFragment extends Fragment {
                     allFiles.clear();
                     allFiles.addAll(list);
                     filter(searchEditText.getText().toString());
-                    pathIndicator.setText(currentPath);
                     swipeRefresh.setRefreshing(false);
                 });
             }
@@ -195,28 +162,6 @@ public class FilesFragment extends Fragment {
     }
 
     private void openEditor(String path, String name) {
-        new Thread(() -> {
-            String isBinary = ShellHelper.runRootCommand("grep -qI . \"" + path + "\"; echo $?");
-            boolean binary = isBinary.trim().equals("1");
-
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    if (binary) {
-                        new MaterialAlertDialogBuilder(getContext())
-                            .setTitle("Binary File Detected")
-                            .setMessage("This file contains binary data. Opening it might be slow. Proceed?")
-                            .setPositiveButton("Open", (d, w) -> startReading(path, name, true))
-                            .setNegativeButton("Cancel", null)
-                            .show();
-                    } else {
-                        startReading(path, name, false);
-                    }
-                });
-            }
-        }).start();
-    }
-
-    private void startReading(String path, String name, boolean isBinary) {
         editingFilePath = path;
         editorFileName.setText(name);
         fileListLayout.setVisibility(View.GONE);
@@ -228,21 +173,26 @@ public class FilesFragment extends Fragment {
         }
 
         new Thread(() -> {
-            // Read in chunks or using a faster method if possible
-            // For now, using readRootFileBase64 which is already optimized
             String content = ShellHelper.readRootFileBase64(path);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    editorLines.clear();
                     if (content != null) {
-                        if (isBinary) {
-                            editorEditText.setText(content.replaceAll("(.{100})", "$1\n"));
-                        } else {
-                            editorEditText.setText(content);
+                        // Split content by newline to feed RecyclerView
+                        String[] lines = content.split("\n");
+                        for (String line : lines) {
+                            // Break extremely long lines (binaries) to prevent freeze
+                            if (line.length() > 200) {
+                                for (int i = 0; i < line.length(); i += 200) {
+                                    editorLines.add(line.substring(i, Math.min(i + 200, line.length())));
+                                }
+                            } else {
+                                editorLines.add(line);
+                            }
                         }
-                    } else {
-                        editorEditText.setText("");
                     }
-                    updateLineNumbers();
+                    if (editorLines.isEmpty()) editorLines.add("");
+                    editorAdapter.notifyDataSetChanged();
                 });
             }
         }).start();
@@ -259,9 +209,10 @@ public class FilesFragment extends Fragment {
     }
 
     private void saveFile() {
-        String content = editorEditText.getText().toString();
+        StringBuilder sb = new StringBuilder();
+        for (String line : editorLines) { sb.append(line).append("\n"); }
         new Thread(() -> {
-            boolean success = ShellHelper.writeRootFileBase64(editingFilePath, content);
+            boolean success = ShellHelper.writeRootFileBase64(editingFilePath, sb.toString());
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     showSnackbar(success ? "Saved Successfully!" : "Save Failed!");
@@ -301,18 +252,6 @@ public class FilesFragment extends Fragment {
         }
     }
 
-    private void updateLineNumbers() {
-        int lineCount = editorEditText.getLineCount();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= lineCount; i++) { sb.append(i).append("\n"); }
-        lineNumbers.setText(sb.toString());
-    }
-
-    private void updateEditorTextSize() {
-        editorEditText.setTextSize(currentTextSize);
-        lineNumbers.setTextSize(currentTextSize);
-    }
-
     interface InputCallback { void onInput(String text); }
 
     static class FileData {
@@ -321,6 +260,39 @@ public class FilesFragment extends Fragment {
         FileData(String name, String fullPath, boolean isDir, boolean isBack, String size) {
             this.name = name; this.fullPath = fullPath; this.isDir = isDir; this.isBack = isBack; this.size = size;
         }
+    }
+
+    class EditorAdapter extends RecyclerView.Adapter<EditorAdapter.ViewHolder> {
+        @NonNull @Override public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
+            TextView tv = v.findViewById(android.R.id.text1);
+            tv.setTextSize(12);
+            tv.setPadding(8, 4, 8, 4);
+            tv.setBackgroundColor(0x0A000000);
+            tv.setTypeface(android.graphics.Typeface.MONOSPACE);
+            return new ViewHolder(v);
+        }
+        @Override public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            TextView tv = holder.itemView.findViewById(android.R.id.text1);
+            String lineNum = String.format(Locale.ROOT, "%3d | ", position + 1);
+            tv.setText(lineNum + editorLines.get(position));
+            
+            holder.itemView.setOnClickListener(v -> {
+                EditText input = new EditText(getContext());
+                input.setText(editorLines.get(position));
+                input.setTypeface(android.graphics.Typeface.MONOSPACE);
+                new MaterialAlertDialogBuilder(getContext())
+                    .setTitle("Edit Line " + (position + 1))
+                    .setView(input)
+                    .setPositiveButton("Update", (d, w) -> {
+                        editorLines.set(position, input.getText().toString());
+                        notifyItemChanged(position);
+                    })
+                    .setNegativeButton("Cancel", null).show();
+            });
+        }
+        @Override public int getItemCount() { return editorLines.size(); }
+        class ViewHolder extends RecyclerView.ViewHolder { ViewHolder(View v) { super(v); } }
     }
 
     class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
@@ -348,10 +320,8 @@ public class FilesFragment extends Fragment {
                 else { openEditor(data.fullPath, data.name); }
             });
 
-            // Long Press for Rename/Delete (BFR style)
             holder.itemView.setOnLongClickListener(v -> {
                 if (data.isBack) return false;
-                
                 PopupMenu popup = new PopupMenu(getContext(), v);
                 popup.getMenu().add("Rename");
                 popup.getMenu().add("Delete");
