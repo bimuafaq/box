@@ -12,14 +12,14 @@
         android:layout_height="match_parent"
         android:layout_above="@id/navCard" />
 
-    <!-- SINGLE CARD NAVIGATION BAR -->
+    <!-- SINGLE CARD NAVIGATION BAR (5 ITEMS) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/navCard"
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:layout_marginBottom="16dp"
         app:cardCornerRadius="24dp"
         app:cardElevation="8dp"
@@ -30,9 +30,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:weightSum="4">
+            android:weightSum="5">
 
-            <!-- NAV ITEM: HOME -->
+            <!-- HOME -->
             <LinearLayout
                 android:id="@+id/navHome"
                 android:layout_width="0dp"
@@ -45,8 +45,8 @@
                 android:focusable="true">
                 <ImageView
                     android:id="@+id/imgHome"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_home"
                     app:tint="@color/primary_indigo" />
                 <TextView
@@ -54,12 +54,38 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Home"
-                    android:textSize="10sp"
+                    android:textSize="9sp"
                     android:textStyle="bold"
                     android:textColor="@color/primary_indigo" />
             </LinearLayout>
 
-            <!-- NAV ITEM: LOGS -->
+            <!-- DASHBOARD (NEW) -->
+            <LinearLayout
+                android:id="@+id/navDashboard"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/imgDashboard"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_dashboard"
+                    app:tint="#9E9E9E" />
+                <TextView
+                    android:id="@+id/txtDashboard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dash"
+                    android:textSize="9sp"
+                    android:textColor="#9E9E9E" />
+            </LinearLayout>
+
+            <!-- LOGS -->
             <LinearLayout
                 android:id="@+id/navLogs"
                 android:layout_width="0dp"
@@ -72,8 +98,8 @@
                 android:focusable="true">
                 <ImageView
                     android:id="@+id/imgLogs"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_logs"
                     app:tint="#9E9E9E" />
                 <TextView
@@ -81,11 +107,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Logs"
-                    android:textSize="10sp"
+                    android:textSize="9sp"
                     android:textColor="#9E9E9E" />
             </LinearLayout>
 
-            <!-- NAV ITEM: FILES -->
+            <!-- FILES -->
             <LinearLayout
                 android:id="@+id/navFiles"
                 android:layout_width="0dp"
@@ -98,8 +124,8 @@
                 android:focusable="true">
                 <ImageView
                     android:id="@+id/imgFiles"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_folder"
                     app:tint="#9E9E9E" />
                 <TextView
@@ -107,11 +133,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Files"
-                    android:textSize="10sp"
+                    android:textSize="9sp"
                     android:textColor="#9E9E9E" />
             </LinearLayout>
 
-            <!-- NAV ITEM: SETTINGS -->
+            <!-- SETTINGS -->
             <LinearLayout
                 android:id="@+id/navSettings"
                 android:layout_width="0dp"
@@ -124,16 +150,16 @@
                 android:focusable="true">
                 <ImageView
                     android:id="@+id/imgSettings"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_settings"
                     app:tint="#9E9E9E" />
                 <TextView
                     android:id="@+id/txtSettings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Settings"
-                    android:textSize="10sp"
+                    android:text="Set"
+                    android:textSize="9sp"
                     android:textColor="#9E9E9E" />
             </LinearLayout>
 

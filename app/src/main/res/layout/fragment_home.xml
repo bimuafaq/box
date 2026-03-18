@@ -204,7 +204,7 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- MODUL 2: COMPACT CONTROLS (Unified Color) -->
+    <!-- MODUL 2: COMPACT CONTROLS -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -249,38 +249,5 @@
             android:insetTop="0dp"
             android:insetBottom="0dp" />
     </LinearLayout>
-
-    <!-- MODUL 3: DASHBOARD -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:contentPadding="20dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_dashboard"
-                android:textSize="11sp"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textAllCaps="true"
-                android:letterSpacing="0.1"
-                android:paddingBottom="16dp" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/webBtn"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="@string/btn_open_dashboard"
-                app:cornerRadius="16dp"
-                android:textColor="@color/primary_indigo"
-                app:strokeColor="@color/primary_indigo" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

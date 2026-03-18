@@ -1,6 +1,5 @@
 package com.rox.manager;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -43,18 +42,12 @@ public class HomeFragment extends Fragment {
         startBtn = view.findViewById(R.id.startBtn);
         restartBtn = view.findViewById(R.id.restartBtn);
         stopBtn = view.findViewById(R.id.stopBtn);
-        MaterialButton webBtn = view.findViewById(R.id.webBtn);
 
         refreshAllInfo();
 
         startBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service start", "Starting ROX..."));
         restartBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service restart", "Restarting ROX..."));
         stopBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service stop", "Stopping ROX..."));
-
-        webBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), WebViewActivity.class);
-            startActivity(intent);
-        });
 
         return view;
     }
