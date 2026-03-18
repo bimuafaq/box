@@ -1,8 +1,13 @@
 <resources>
+    <style name="Widget.Custom.Snackbar" parent="Widget.Material3.Snackbar">
+        <item name="android:layout_margin">12dp</item>
+    </style>
+
     <!-- Light Theme Material 3 -->
     <style name="Theme.OXController" parent="Theme.Material3.Light.NoActionBar">
         <!-- Transparent Status Bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="snackbarStyle">@style/Widget.Custom.Snackbar</item>
     </style>
 </resources>

@@ -224,9 +224,12 @@ public class HomeFragment extends Fragment {
         isActionRunning = true;
         toggleButtons(false);
         if (getView() != null && getActivity() != null) {
-            Snackbar.make(getView(), msg, Snackbar.LENGTH_SHORT)
-                .setAnchorView(getActivity().findViewById(R.id.bottomNavigation))
-                .show();
+            Snackbar snackbar = Snackbar.make(getView(), msg, Snackbar.LENGTH_SHORT);
+            View nav = getActivity().findViewById(R.id.bottomNavigation);
+            if (nav != null && nav.getVisibility() == View.VISIBLE) {
+                snackbar.setAnchorView(nav);
+            }
+            snackbar.show();
         }
 
         new Thread(() -> {

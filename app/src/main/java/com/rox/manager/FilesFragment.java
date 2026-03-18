@@ -199,6 +199,12 @@ public class FilesFragment extends Fragment {
         fileListLayout.setVisibility(View.GONE);
         editorContainer.setVisibility(View.VISIBLE);
         
+        // Hide main navigation
+        if (getActivity() != null) {
+            View nav = getActivity().findViewById(R.id.bottomNavigation);
+            if (nav != null) nav.setVisibility(View.GONE);
+        }
+
         new Thread(() -> {
             String content = ShellHelper.readRootFileBase64(path);
             if (getActivity() != null) {
@@ -214,6 +220,12 @@ public class FilesFragment extends Fragment {
         editorContainer.setVisibility(View.GONE);
         fileListLayout.setVisibility(View.VISIBLE);
         editingFilePath = "";
+
+        // Show main navigation
+        if (getActivity() != null) {
+            View nav = getActivity().findViewById(R.id.bottomNavigation);
+            if (nav != null) nav.setVisibility(View.VISIBLE);
+        }
     }
 
     private void saveFile() {
@@ -223,9 +235,12 @@ public class FilesFragment extends Fragment {
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (getView() != null && getActivity() != null) {
-                        Snackbar.make(getView(), success ? "Saved Successfully!" : "Save Failed!", Snackbar.LENGTH_SHORT)
-                            .setAnchorView(getActivity().findViewById(R.id.bottomNavigation))
-                            .show();
+                        Snackbar snackbar = Snackbar.make(getView(), success ? "Saved Successfully!" : "Save Failed!", Snackbar.LENGTH_SHORT);
+                        View nav = getActivity().findViewById(R.id.bottomNavigation);
+                        if (nav != null && nav.getVisibility() == View.VISIBLE) {
+                            snackbar.setAnchorView(nav);
+                        }
+                        snackbar.show();
                     }
                 });
             }

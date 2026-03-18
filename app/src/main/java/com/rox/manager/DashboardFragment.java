@@ -41,6 +41,12 @@ public class DashboardFragment extends Fragment {
             webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
             webView.loadUrl("http://127.0.0.1:9090/ui");
+
+            // Hide main navigation
+            if (getActivity() != null) {
+                View nav = getActivity().findViewById(R.id.bottomNavigation);
+                if (nav != null) nav.setVisibility(View.GONE);
+            }
         });
 
         btnClose.setOnClickListener(v -> {
@@ -50,6 +56,12 @@ public class DashboardFragment extends Fragment {
             initialLayout.setVisibility(View.VISIBLE);
             title.setVisibility(View.VISIBLE);
             webView.loadUrl("about:blank");
+
+            // Show main navigation
+            if (getActivity() != null) {
+                View nav = getActivity().findViewById(R.id.bottomNavigation);
+                if (nav != null) nav.setVisibility(View.VISIBLE);
+            }
         });
 
         return view;

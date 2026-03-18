@@ -4,5 +4,6 @@
         <!-- Transparent Status Bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="snackbarStyle">@style/Widget.Custom.Snackbar</item>
     </style>
 </resources>
