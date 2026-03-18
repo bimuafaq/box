@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 
 public class DashboardFragment extends Fragment {
-    private View initialLayout, webViewContainer;
+    private View initialLayout, webViewContainer, webHeader;
     private WebView webView;
     private TextView title;
 
@@ -25,6 +25,7 @@ public class DashboardFragment extends Fragment {
         
         initialLayout = view.findViewById(R.id.initialLayout);
         webViewContainer = view.findViewById(R.id.webViewContainer);
+        webHeader = view.findViewById(R.id.webHeader);
         webView = view.findViewById(R.id.dashWebView);
         title = view.findViewById(R.id.dashTitle);
         
@@ -36,15 +37,19 @@ public class DashboardFragment extends Fragment {
         btnOpen.setOnClickListener(v -> {
             initialLayout.setVisibility(View.GONE);
             title.setVisibility(View.GONE);
+            
+            webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
             webView.loadUrl("http://127.0.0.1:9090/ui");
         });
 
         btnClose.setOnClickListener(v -> {
+            webHeader.setVisibility(View.GONE);
             webViewContainer.setVisibility(View.GONE);
+            
             initialLayout.setVisibility(View.VISIBLE);
             title.setVisibility(View.VISIBLE);
-            webView.loadUrl("about:blank"); // Clear content
+            webView.loadUrl("about:blank");
         });
 
         return view;
