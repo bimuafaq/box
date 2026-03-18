@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -30,7 +30,7 @@ public class SettingsFragment extends Fragment {
         themeSelection.setOnClickListener(v -> showThemeDialog());
 
         notifySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Toast.makeText(getContext(), isChecked ? "Notifications Enabled" : "Notifications Disabled", Toast.LENGTH_SHORT).show();
+            if (getView() != null) Snackbar.make(getView(), isChecked ? "Notifications Enabled" : "Notifications Disabled", Snackbar.LENGTH_SHORT).show();
         });
 
         return view;

@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -221,9 +221,9 @@ public class FilesFragment extends Fragment {
         new Thread(() -> {
             boolean success = ShellHelper.writeRootFileBase64(editingFilePath, content);
             if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> 
-                    Toast.makeText(getContext(), success ? "Saved Successfully!" : "Save Failed!", Toast.LENGTH_SHORT).show()
-                );
+                getActivity().runOnUiThread(() -> {
+                    if (getView() != null) Snackbar.make(getView(), success ? "Saved Successfully!" : "Save Failed!", Snackbar.LENGTH_SHORT).show();
+                });
             }
         }).start();
     }

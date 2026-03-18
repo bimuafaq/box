@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -223,7 +223,7 @@ public class HomeFragment extends Fragment {
         if (isActionRunning) return;
         isActionRunning = true;
         toggleButtons(false);
-        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+        if (getView() != null) Snackbar.make(getView(), msg, Snackbar.LENGTH_SHORT).show();
 
         new Thread(() -> {
             ShellHelper.runRootCommand(command);

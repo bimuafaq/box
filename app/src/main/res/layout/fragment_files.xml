@@ -25,7 +25,7 @@
             android:paddingStart="4dp" />
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Material3.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -133,22 +133,10 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <!-- INNER CARD HEADER (Like a Status Bar) -->
-                <LinearLayout
+                <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+                    android:id="@+id/dragHandleEditor"
                     android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:background="@color/primary_indigo"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="SOURCE EDITOR"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/white"
-                        android:letterSpacing="0.1" />
-                </LinearLayout>
+                    android:layout_height="wrap_content" />
 
                 <ScrollView
                     android:id="@+id/editorScrollView"

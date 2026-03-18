@@ -97,22 +97,10 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <!-- INNER CARD HEADER (Like a Status Bar) -->
-                <LinearLayout
+                <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+                    android:id="@+id/dragHandle"
                     android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:background="@color/primary_indigo"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="DASHBOARD"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/white"
-                        android:letterSpacing="0.1" />
-                </LinearLayout>
+                    android:layout_height="wrap_content" />
 
                 <WebView
                     android:id="@+id/dashWebView"

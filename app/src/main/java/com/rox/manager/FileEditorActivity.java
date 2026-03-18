@@ -3,7 +3,7 @@ package com.rox.manager;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import java.io.File;
@@ -44,7 +44,7 @@ public class FileEditorActivity extends AppCompatActivity {
                 if (content != null && !content.startsWith("Error:")) {
                     editText.setText(content);
                 } else {
-                    Toast.makeText(this, "Failed to read file", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(android.R.id.content), "Failed to read file", Snackbar.LENGTH_SHORT).show();
                 }
             });
         }).start();
@@ -62,11 +62,11 @@ public class FileEditorActivity extends AppCompatActivity {
             
             runOnUiThread(() -> {
                 if (res != null && res.isEmpty()) {
-                    Toast.makeText(this, "File saved successfully", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(android.R.id.content), "File saved successfully", Snackbar.LENGTH_SHORT).show();
                 } else if (res != null && res.startsWith("Error:")) {
-                    Toast.makeText(this, res, Toast.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(android.R.id.content), res, Snackbar.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, "File saved", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(android.R.id.content), "File saved", Snackbar.LENGTH_SHORT).show();
                 }
             });
         }).start();
