@@ -100,7 +100,7 @@
                 android:layout_marginBottom="16dp"
                 android:background="#1A000000" />
 
-            <!-- ROW 2: CPU & RAM (Closer on Left), UPTIME (Far Right) -->
+            <!-- ROW 2: CPU, RAM, CORE (Left), UPTIME (Right) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,10 +131,7 @@
                         android:layout_marginTop="1dp" />
                 </LinearLayout>
 
-                <!-- SPACER BETWEEN CPU & RAM (32dp) -->
-                <View
-                    android:layout_width="32dp"
-                    android:layout_height="0dp" />
+                <View android:layout_width="24dp" android:layout_height="0dp" />
 
                 <!-- RAM USAGE -->
                 <LinearLayout
@@ -160,13 +157,39 @@
                         android:layout_marginTop="1dp" />
                 </LinearLayout>
 
-                <!-- FILLER TO PUSH UPTIME TO END -->
+                <View android:layout_width="24dp" android:layout_height="0dp" />
+
+                <!-- CORE ID -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CORE"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorSecondary" />
+                    <TextView
+                        android:id="@+id/idCoreText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginTop="1dp" />
+                </LinearLayout>
+
+                <!-- FILLER -->
                 <View
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_weight="1" />
 
-                <!-- UPTIME (Far Right) -->
+                <!-- UPTIME -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

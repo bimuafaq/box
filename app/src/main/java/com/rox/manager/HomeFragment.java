@@ -17,7 +17,7 @@ import com.google.android.material.button.MaterialButton;
 import java.util.Locale;
 
 public class HomeFragment extends Fragment {
-    private TextView statusText, coreText, runtimeText, cpuText, ramText;
+    private TextView statusText, coreText, runtimeText, cpuText, ramText, idCoreText;
     private MaterialButton startBtn, stopBtn;
     private boolean isActionRunning = false;
     
@@ -38,6 +38,7 @@ public class HomeFragment extends Fragment {
         runtimeText = view.findViewById(R.id.runtimeText);
         cpuText = view.findViewById(R.id.cpuText);
         ramText = view.findViewById(R.id.ramText);
+        idCoreText = view.findViewById(R.id.idCoreText);
         
         startBtn = view.findViewById(R.id.startBtn);
         stopBtn = view.findViewById(R.id.stopBtn);
@@ -166,8 +167,9 @@ public class HomeFragment extends Fragment {
                          "if [ \"$PID\" != \"0\" ]; then " +
                          "  RSS=$(grep VmRSS /proc/$PID/status | awk '{print $2}'); " +
                          "  CPU=$(ps -p $PID -o %cpu=); " +
-                         "  echo \"$RSS|$CPU\"; " +
-                         "else echo \"0|0\"; fi";
+                         "  CORE_ID=$(awk '{print $39}' /proc/$PID/stat); " +
+                         "  echo \"$RSS|$CPU|$CORE_ID\"; " +
+                         "else echo \"0|0|0\"; fi";
             
             String res = ShellHelper.runRootCommand(cmd);
 
@@ -178,18 +180,22 @@ public class HomeFragment extends Fragment {
                         try {
                             long rssKb = Long.parseLong(parts[0].trim());
                             String cpu = parts[1].trim();
+                            String coreId = parts[2].trim();
 
                             if (rssKb > 0) {
                                 String ramStr = (rssKb >= 1024) ? (rssKb / 1024) + " MB" : rssKb + " KB";
                                 ramText.setText(ramStr);
                                 cpuText.setText(cpu.isEmpty() ? "0%" : cpu + "%");
+                                idCoreText.setText(coreId.isEmpty() ? "-" : coreId);
                             } else {
                                 ramText.setText("0 MB");
                                 cpuText.setText("0%");
+                                idCoreText.setText("-");
                             }
                         } catch (Exception ignored) {
                             ramText.setText("---");
                             cpuText.setText("---");
+                            idCoreText.setText("-");
                         }
                     }
                 });
