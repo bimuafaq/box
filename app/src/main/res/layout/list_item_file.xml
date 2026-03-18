@@ -53,6 +53,6 @@
         app:tint="?attr/colorOnSurfaceVariant"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:padding="4dp"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
 </LinearLayout>
