@@ -32,7 +32,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             
-            <!-- ROW 1: STATUS (Left) & CORE (Right) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +99,6 @@
                 android:layout_marginBottom="16dp"
                 android:background="#1A000000" />
 
-            <!-- ROW 2: CPU, RAM, CORE (Left), UPTIME (Right) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -204,59 +202,61 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- MODUL 2: COMPACT CONTROLS -->
-    <LinearLayout
+    <!-- MODUL 2: COMPACT CONTROLS (Formatted like Status Card) -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginBottom="16dp"
-        android:weightSum="3">
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/startBtn"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:text="START"
-            android:textSize="12sp"
-            android:layout_marginEnd="4dp"
-            android:textColor="@color/primary_indigo"
-            app:backgroundTint="?attr/colorSurface"
-            app:strokeWidth="2dp"
-            app:strokeColor="@color/primary_indigo"
-            app:cornerRadius="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/restartBtn"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:text="RESTART"
-            android:textSize="12sp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:textColor="@color/primary_indigo"
-            app:backgroundTint="?attr/colorSurface"
-            app:strokeWidth="2dp"
-            app:strokeColor="@color/primary_indigo"
-            app:cornerRadius="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/stopBtn"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:text="STOP"
-            android:textSize="12sp"
-            android:layout_marginStart="4dp"
-            android:textColor="@color/primary_indigo"
-            app:backgroundTint="?attr/colorSurface"
-            app:strokeWidth="2dp"
-            app:strokeColor="@color/primary_indigo"
-            app:cornerRadius="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp" />
-    </LinearLayout>
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="?attr/colorSurface"
+        app:contentPadding="12dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/startBtn"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="START"
+                android:textSize="12sp"
+                android:layout_marginEnd="4dp"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/primary_indigo"
+                app:cornerRadius="12dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/restartBtn"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="RESTART"
+                android:textSize="12sp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/primary_indigo"
+                app:cornerRadius="12dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/stopBtn"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="STOP"
+                android:textSize="12sp"
+                android:layout_marginStart="4dp"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/primary_indigo"
+                app:cornerRadius="12dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
