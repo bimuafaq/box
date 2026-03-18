@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.materialswitch.MaterialSwitch;
@@ -40,10 +39,7 @@ public class LogsFragment extends Fragment {
         logScrollView = view.findViewById(R.id.logScrollView);
         swipeRefresh = view.findViewById(R.id.swipeRefreshLogs);
         switchLive = view.findViewById(R.id.switchLiveLogs);
-        MaterialButton btnRefresh = view.findViewById(R.id.btnRefreshLogs);
 
-        btnRefresh.setOnClickListener(v -> loadLogFileList());
-        
         swipeRefresh.setOnRefreshListener(this::refreshLogContent);
         
         switchLive.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -62,7 +58,7 @@ public class LogsFragment extends Fragment {
         public void run() {
             if (isLiveEnabled) {
                 refreshLogContentQuietly();
-                liveHandler.postDelayed(this, 2000); // Polling every 2s
+                liveHandler.postDelayed(this, 2000);
             }
         }
     };
@@ -160,7 +156,6 @@ public class LogsFragment extends Fragment {
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (content != null && !content.isEmpty()) {
-                        // Cek jika konten berbeda untuk menghindari flickering
                         if (!content.equals(logTextView.getText().toString())) {
                             logTextView.setText(content);
                             logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));

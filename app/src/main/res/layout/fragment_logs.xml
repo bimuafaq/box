@@ -29,20 +29,19 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
             
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LIVE"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="?android:attr/textColorSecondary"
+                android:layout_marginEnd="4dp" />
+
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/switchLiveLogs"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                app:thumbIcon="@drawable/ic_logs" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRefreshLogs"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:icon="@drawable/ic_logs"
-                app:iconTint="@color/primary_indigo" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </RelativeLayout>
 
