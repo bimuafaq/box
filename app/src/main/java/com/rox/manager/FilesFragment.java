@@ -91,19 +91,33 @@ public class FilesFragment extends Fragment {
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        // Pinch to Zoom Implementation
+        // Pinch to Zoom Implementation (More Sensitive & Robust)
         scaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
                 float scaleFactor = detector.getScaleFactor();
+                // Increase sensitivity by scaling the factor slightly
+                float sensitivity = 1.1f; 
+                if (scaleFactor > 1.0f) scaleFactor *= sensitivity;
+                else scaleFactor /= sensitivity;
+
                 currentTextSize *= scaleFactor;
-                currentTextSize = Math.max(8f, Math.min(40f, currentTextSize));
+                currentTextSize = Math.max(8f, Math.min(50f, currentTextSize));
                 updateEditorTextSize();
                 return true;
             }
         });
 
         editorEditText.setOnTouchListener((v, event) -> {
+            // If more than one finger, disable scroll interception to focus on zoom
+            if (event.getPointerCount() > 1) {
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+                // Also reach up to the vertical ScrollView
+                if (v.getParent().getParent() != null && v.getParent().getParent().getParent() != null) {
+                    v.getParent().getParent().getParent().requestDisallowInterceptTouchEvent(true);
+                }
+            }
+            
             scaleGestureDetector.onTouchEvent(event);
             return false; 
         });
