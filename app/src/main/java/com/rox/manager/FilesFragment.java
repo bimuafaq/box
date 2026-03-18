@@ -194,6 +194,20 @@ public class FilesFragment extends Fragment {
     }
 
     private void openEditor(String path, String name) {
+        // Prevent opening binary/unsupported files that might freeze the app
+        String lowerName = name.toLowerCase(Locale.ROOT);
+        if (!(lowerName.endsWith(".ini") || lowerName.endsWith(".conf") || 
+              lowerName.endsWith(".yaml") || lowerName.endsWith(".yml") || 
+              lowerName.endsWith(".json") || lowerName.endsWith(".txt") || 
+              lowerName.endsWith(".sh") || lowerName.endsWith(".log") ||
+              lowerName.endsWith(".service"))) {
+            
+            if (getView() != null) {
+                Snackbar.make(getView(), "Unsupported file format!", Snackbar.LENGTH_SHORT).show();
+            }
+            return;
+        }
+
         editingFilePath = path;
         editorFileName.setText(name);
         fileListLayout.setVisibility(View.GONE);
