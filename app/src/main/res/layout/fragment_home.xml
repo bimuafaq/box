@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             
-            <!-- ROW 1: STATUS & CORE (Centered) -->
+            <!-- ROW 1: STATUS (Left) & CORE (Right) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
+                    android:gravity="start"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
@@ -66,7 +66,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
+                    android:gravity="end"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
@@ -84,7 +84,8 @@
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="2dp"
+                        android:gravity="end" />
                 </LinearLayout>
             </LinearLayout>
 
