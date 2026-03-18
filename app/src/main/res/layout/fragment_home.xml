@@ -18,7 +18,7 @@
         android:paddingBottom="16dp"
         android:paddingStart="4dp" />
 
-    <!-- MODUL 1: STATUS & INFO -->
+    <!-- MODUL 1: STATUS & SYSTEM INFO -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,31 +31,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_service_status"
-                android:textSize="11sp"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textAllCaps="true"
-                android:letterSpacing="0.1" />
-            <TextView
-                android:id="@+id/statusText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/status_ready"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary_indigo"
-                android:layout_marginTop="4dp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"
-                android:background="#1A000000" />
-
+            
+            <!-- ROW 1: STATUS & CORE -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -69,18 +46,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="CORE"
+                        android:text="@string/label_service_status"
                         android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.1" />
                     <TextView
-                        android:id="@+id/coreText"
+                        android:id="@+id/statusText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="---"
-                        android:textSize="14sp"
+                        android:text="@string/status_ready"
+                        android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface" />
+                        android:textColor="@color/primary_indigo"
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="0dp"
@@ -90,33 +69,36 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="RUNTIME"
+                        android:text="ACTIVE CORE"
                         android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.1" />
                     <TextView
-                        android:id="@+id/runtimeText"
+                        android:id="@+id/coreText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="00:00:00"
-                        android:textSize="14sp"
+                        android:text="---"
+                        android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface" />
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
                 android:background="#1A000000" />
 
+            <!-- ROW 2: CPU, RAM, RUNTIME -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:weightSum="2">
+                android:weightSum="3">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -125,8 +107,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="CPU USAGE"
-                        android:textSize="10sp"
+                        android:text="CPU"
+                        android:textSize="9sp"
                         android:textStyle="bold"
                         android:textColor="?android:attr/textColorSecondary" />
                     <TextView
@@ -134,7 +116,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0%"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface" />
                 </LinearLayout>
@@ -146,16 +128,37 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="RAM USAGE"
-                        android:textSize="10sp"
+                        android:text="RAM"
+                        android:textSize="9sp"
                         android:textStyle="bold"
                         android:textColor="?android:attr/textColorSecondary" />
                     <TextView
                         android:id="@+id/ramText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 / 0 MB"
-                        android:textSize="14sp"
+                        android:text="0 MB"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="UPTIME"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorSecondary" />
+                    <TextView
+                        android:id="@+id/runtimeText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00:00:00"
+                        android:textSize="13sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface" />
                 </LinearLayout>
@@ -187,6 +190,7 @@
                 android:paddingBottom="16dp" />
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/startBtn"

@@ -71,8 +71,8 @@ public class HomeFragment extends Fragment {
         @Override
         public void run() {
             if (isStatsRunning) {
-                refreshSystemStats();
-                statsHandler.postDelayed(this, 3000); // Refresh every 3s
+                refreshCoreStats();
+                statsHandler.postDelayed(this, 2000); // Refresh every 2s
             }
         }
     };
@@ -159,61 +159,39 @@ public class HomeFragment extends Fragment {
         }).start();
     }
 
-    private void refreshSystemStats() {
+    private void refreshCoreStats() {
         new Thread(() -> {
-            // Get RAM: MemTotal and MemAvailable in kB
-            String ramCmd = "cat /proc/meminfo | grep -E 'MemTotal|MemAvailable' | awk '{print $2}'";
-            String cpuCmd = "top -n 1 -d 1 | grep 'CPU' | head -n 1"; // Varying output format
+            // Get stats specifically for the core process
+            String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
+                         "if [ \"$PID\" != \"0\" ]; then " +
+                         "  RSS=$(grep VmRSS /proc/$PID/status | awk '{print $2}'); " +
+                         "  CPU=$(ps -p $PID -o %cpu=); " +
+                         "  CORE_ID=$(awk '{print $39}' /proc/$PID/stat); " +
+                         "  echo \"$RSS|$CPU|$CORE_ID\"; " +
+                         "else echo \"0|0|0\"; fi";
             
-            String ramRes = ShellHelper.runRootCommand(ramCmd);
-            // Fallback for CPU: more robust approach
-            String cpuRes = ShellHelper.runRootCommand("top -n 1 | grep -i \"idle\" | head -n 1");
+            String res = ShellHelper.runRootCommand(cmd);
 
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    // Process RAM
-                    if (ramRes != null && !ramRes.contains("Error")) {
-                        String[] lines = ramRes.split("\n");
-                        if (lines.length >= 2) {
-                            try {
-                                long totalKb = Long.parseLong(lines[0].trim());
-                                long availKb = Long.parseLong(lines[1].trim());
-                                long usedMb = (totalKb - availKb) / 1024;
-                                long totalMb = totalKb / 1024;
-                                ramText.setText(usedMb + " / " + totalMb + " MB");
-                            } catch (Exception ignored) {}
-                        }
-                    }
-
-                    // Process CPU (Simple heuristic)
-                    if (cpuRes != null && !cpuRes.contains("Error")) {
+                    if (res != null && res.contains("|")) {
+                        String[] parts = res.split("\\|");
                         try {
-                            // Example: "CPU: 10% usr 5% sys 0% nic 85% idle"
-                            // or "800%cpu  27%user   0%nice  25%sys 745%idle   0%iow   3%irq   0%sirq   0%host"
-                            String lower = cpuRes.toLowerCase();
-                            if (lower.contains("idle")) {
-                                String[] parts = lower.split("\\s+");
-                                for (int i = 0; i < parts.length; i++) {
-                                    if (parts[i].contains("idle")) {
-                                        // Usually the value is before "idle" or at parts[i-1]
-                                        String valStr = parts[i].replace("idle", "").replace("%", "");
-                                        if (valStr.isEmpty() && i > 0) {
-                                            valStr = parts[i-1].replace("%", "");
-                                        }
-                                        if (!valStr.isEmpty()) {
-                                            int idle = Integer.parseInt(valStr);
-                                            // Heuristic: if idle > 100 (multi-core), normalize it or just show 100-idle
-                                            // Most modern 'top' shows percentage per core or total.
-                                            // We'll just show a simplified version.
-                                            if (idle > 100) idle = idle / 8; // assuming 8 cores fallback
-                                            int usage = Math.max(0, Math.min(100, 100 - idle));
-                                            cpuText.setText(usage + "%");
-                                            break;
-                                        }
-                                    }
-                                }
+                            long rssKb = Long.parseLong(parts[0].trim());
+                            String cpu = parts[1].trim();
+                            String coreId = parts[2].trim();
+
+                            if (rssKb > 0) {
+                                String ramStr = (rssKb >= 1024) ? (rssKb / 1024) + " MB" : rssKb + " KB";
+                                ramText.setText(ramStr);
+                                cpuText.setText(cpu.isEmpty() ? "0%" : cpu + "%");
+                                // We can use coreId for something if needed, but for now we update CPU/RAM
+                            } else {
+                                ramText.setText("0 MB");
+                                cpuText.setText("0%");
                             }
                         } catch (Exception ignored) {
+                            ramText.setText("---");
                             cpuText.setText("---");
                         }
                     }
