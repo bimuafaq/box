@@ -63,7 +63,7 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/ic_dashboard"
-                app:tint="@color/primary_indigo"
+                app:tint="?attr/colorPrimary"
                 android:alpha="0.8" />
             <TextView
                 android:layout_width="wrap_content"
@@ -80,7 +80,7 @@
                 android:layout_marginTop="32dp"
                 android:text="OPEN DASHBOARD"
                 app:cornerRadius="28dp"
-                app:backgroundTint="@color/primary_indigo" />
+                app:backgroundTint="?attr/colorPrimary" />
         </LinearLayout>
 
         <!-- WEBVIEW IN A BOX (Filled Card) -->
