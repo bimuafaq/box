@@ -1,83 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:background="?attr/android:windowBackground">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Files"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnSurface"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
-        android:paddingStart="4dp" />
-
-    <com.google.android.material.card.MaterialCardView
+    <!-- FILE LIST VIEW -->
+    <LinearLayout
+        android:id="@+id/fileListLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="#1A000000"
-        app:cardBackgroundColor="?attr/colorSurface">
-        
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Files"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="4dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#1A000000"
+            app:cardBackgroundColor="?attr/colorSurface">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="4dp">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    android:layout_marginStart="12dp"
+                    app:tint="?android:attr/textColorSecondary" />
+                <EditText
+                    android:id="@+id/searchEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent"
+                    android:hint="Search files..."
+                    android:textSize="14sp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:singleLine="true" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/pathIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="/data/adb/box"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:textColor="@color/primary_indigo"
+            android:paddingStart="8dp"
+            android:layout_marginBottom="12dp" />
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshFiles"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fileRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="80dp" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
+
+    <!-- IN-TAB EDITOR OVERLAY -->
+    <LinearLayout
+        android:id="@+id/editorContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="?attr/android:windowBackground"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="4dp">
-            
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_search"
-                android:layout_marginStart="12dp"
-                app:tint="?android:attr/textColorSecondary" />
-
-            <EditText
-                android:id="@+id/searchEditText"
-                android:layout_width="match_parent"
+            android:padding="8dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditorBack"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="@android:color/transparent"
-                android:hint="Search files..."
-                android:textSize="14sp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:singleLine="true" />
+                app:icon="@drawable/ic_home"
+                android:rotation="-90" />
+            <TextView
+                android:id="@+id/editorFileName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="filename.ini"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:singleLine="true"
+                android:ellipsize="end" />
+            
+            <!-- Text Size Controls -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTextSmaller"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="A-"
+                android:textSize="10sp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTextLarger"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="A+"
+                android:textSize="10sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditorSave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SAVE"
+                android:textSize="12sp"
+                app:cornerRadius="12dp"
+                app:backgroundTint="@color/primary_indigo" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <TextView
-        android:id="@+id/pathIndicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="/data/adb/box"
-        android:textSize="11sp"
-        android:fontFamily="monospace"
-        android:textColor="@color/primary_indigo"
-        android:paddingStart="8dp"
-        android:layout_marginBottom="12dp" />
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshFiles"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/fileRecyclerView"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="80dp" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_margin="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="?attr/colorSurface"
+            app:strokeWidth="1dp"
+            app:strokeColor="#1A000000">
+            
+            <ScrollView
+                android:id="@+id/editorScrollView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true">
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    
+                    <!-- Line Numbers -->
+                    <TextView
+                        android:id="@+id/lineNumbers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:padding="12dp"
+                        android:text="1\n2\n3"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:background="#0D000000"
+                        android:gravity="end" />
 
-</LinearLayout>
+                    <!-- Editor Content -->
+                    <EditText
+                        android:id="@+id/editorEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:gravity="top|start"
+                        android:padding="12dp"
+                        android:fontFamily="monospace"
+                        android:textSize="13sp"
+                        android:inputType="textMultiLine|textNoSuggestions"
+                        android:scrollbars="none" />
+                </LinearLayout>
+            </ScrollView>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+</FrameLayout>
