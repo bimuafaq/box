@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import android.widget.PopupMenu;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -35,12 +34,10 @@ public class FilesFragment extends Fragment {
     private SwipeRefreshLayout swipeRefresh;
     private EditText searchEditText;
 
-    // Custom RecyclerView Editor (Anti-Freeze)
+    // Natural Editor Components
     private View fileListLayout, editorContainer;
-    private RecyclerView editorRecyclerView;
-    private EditorAdapter editorAdapter;
-    private List<String> editorLines = new ArrayList<>();
-    private TextView editorFileName;
+    private EditText editorEditText;
+    private TextView editorFileName, lineNumbers;
     private String editingFilePath = "";
 
     @Nullable
@@ -53,10 +50,11 @@ public class FilesFragment extends Fragment {
         searchEditText = view.findViewById(R.id.searchEditText);
         fileListLayout = view.findViewById(R.id.fileListLayout);
         
-        // Custom Editor UI
+        // Editor UI
         editorContainer = view.findViewById(R.id.editorContainer);
-        editorRecyclerView = view.findViewById(R.id.editorRecyclerView);
+        editorEditText = view.findViewById(R.id.editorEditText);
         editorFileName = view.findViewById(R.id.editorFileName);
+        lineNumbers = view.findViewById(R.id.lineNumbers);
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
         
@@ -65,10 +63,6 @@ public class FilesFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FileAdapter();
         recyclerView.setAdapter(adapter);
-
-        editorRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        editorAdapter = new EditorAdapter();
-        editorRecyclerView.setAdapter(editorAdapter);
 
         swipeRefresh.setOnRefreshListener(this::loadFiles);
         
@@ -81,19 +75,24 @@ public class FilesFragment extends Fragment {
         btnBack.setOnClickListener(v -> closeEditor());
         btnSave.setOnClickListener(v -> saveFile());
         
+        // Center Dialog for FAB (BFR style)
         btnAddAction.setOnClickListener(v -> {
-            PopupMenu popup = new PopupMenu(getContext(), v);
-            popup.getMenu().add("New File");
-            popup.getMenu().add("New Folder");
-            popup.setOnMenuItemClickListener(item -> {
-                if (item.getTitle().equals("New File")) {
-                    showInputDialog("New File", "Enter file name", name -> executeCommand("touch \"" + currentPath + "/" + name + "\"", "File created"));
-                } else {
-                    showInputDialog("New Folder", "Enter folder name", name -> executeCommand("mkdir -p \"" + currentPath + "/" + name + "\"", "Folder created"));
-                }
-                return true;
-            });
-            popup.show();
+            new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Create New")
+                .setItems(new String[]{"New File", "New Folder"}, (dialog, which) -> {
+                    if (which == 0) {
+                        showInputDialog("New File", "Enter file name", name -> executeCommand("touch \"" + currentPath + "/" + name + "\"", "File created"));
+                    } else {
+                        showInputDialog("New Folder", "Enter folder name", name -> executeCommand("mkdir -p \"" + currentPath + "/" + name + "\"", "Folder created"));
+                    }
+                })
+                .show();
+        });
+
+        editorEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { updateLineNumbers(); }
+            @Override public void afterTextChanged(Editable s) {}
         });
 
         loadFiles();
@@ -176,23 +175,13 @@ public class FilesFragment extends Fragment {
             String content = ShellHelper.readRootFileBase64(path);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    editorLines.clear();
                     if (content != null) {
-                        // Split content by newline to feed RecyclerView
-                        String[] lines = content.split("\n");
-                        for (String line : lines) {
-                            // Break extremely long lines (binaries) to prevent freeze
-                            if (line.length() > 200) {
-                                for (int i = 0; i < line.length(); i += 200) {
-                                    editorLines.add(line.substring(i, Math.min(i + 200, line.length())));
-                                }
-                            } else {
-                                editorLines.add(line);
-                            }
-                        }
+                        // Anti-Freeze: Inject newlines for long lines to prevent render hang
+                        editorEditText.setText(content.replaceAll("(.{200})", "$1\n"));
+                    } else {
+                        editorEditText.setText("");
                     }
-                    if (editorLines.isEmpty()) editorLines.add("");
-                    editorAdapter.notifyDataSetChanged();
+                    updateLineNumbers();
                 });
             }
         }).start();
@@ -209,10 +198,9 @@ public class FilesFragment extends Fragment {
     }
 
     private void saveFile() {
-        StringBuilder sb = new StringBuilder();
-        for (String line : editorLines) { sb.append(line).append("\n"); }
+        String content = editorEditText.getText().toString();
         new Thread(() -> {
-            boolean success = ShellHelper.writeRootFileBase64(editingFilePath, sb.toString());
+            boolean success = ShellHelper.writeRootFileBase64(editingFilePath, content);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     showSnackbar(success ? "Saved Successfully!" : "Save Failed!");
@@ -252,6 +240,13 @@ public class FilesFragment extends Fragment {
         }
     }
 
+    private void updateLineNumbers() {
+        int lineCount = editorEditText.getLineCount();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= lineCount; i++) { sb.append(i).append("\n"); }
+        lineNumbers.setText(sb.toString());
+    }
+
     interface InputCallback { void onInput(String text); }
 
     static class FileData {
@@ -260,39 +255,6 @@ public class FilesFragment extends Fragment {
         FileData(String name, String fullPath, boolean isDir, boolean isBack, String size) {
             this.name = name; this.fullPath = fullPath; this.isDir = isDir; this.isBack = isBack; this.size = size;
         }
-    }
-
-    class EditorAdapter extends RecyclerView.Adapter<EditorAdapter.ViewHolder> {
-        @NonNull @Override public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
-            TextView tv = v.findViewById(android.R.id.text1);
-            tv.setTextSize(12);
-            tv.setPadding(8, 4, 8, 4);
-            tv.setBackgroundColor(0x0A000000);
-            tv.setTypeface(android.graphics.Typeface.MONOSPACE);
-            return new ViewHolder(v);
-        }
-        @Override public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            TextView tv = holder.itemView.findViewById(android.R.id.text1);
-            String lineNum = String.format(Locale.ROOT, "%3d | ", position + 1);
-            tv.setText(lineNum + editorLines.get(position));
-            
-            holder.itemView.setOnClickListener(v -> {
-                EditText input = new EditText(getContext());
-                input.setText(editorLines.get(position));
-                input.setTypeface(android.graphics.Typeface.MONOSPACE);
-                new MaterialAlertDialogBuilder(getContext())
-                    .setTitle("Edit Line " + (position + 1))
-                    .setView(input)
-                    .setPositiveButton("Update", (d, w) -> {
-                        editorLines.set(position, input.getText().toString());
-                        notifyItemChanged(position);
-                    })
-                    .setNegativeButton("Cancel", null).show();
-            });
-        }
-        @Override public int getItemCount() { return editorLines.size(); }
-        class ViewHolder extends RecyclerView.ViewHolder { ViewHolder(View v) { super(v); } }
     }
 
     class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
@@ -322,22 +284,20 @@ public class FilesFragment extends Fragment {
 
             holder.itemView.setOnLongClickListener(v -> {
                 if (data.isBack) return false;
-                PopupMenu popup = new PopupMenu(getContext(), v);
-                popup.getMenu().add("Rename");
-                popup.getMenu().add("Delete");
-                popup.setOnMenuItemClickListener(item -> {
-                    if (item.getTitle().equals("Delete")) {
-                        new MaterialAlertDialogBuilder(getContext())
-                            .setTitle("Delete")
-                            .setMessage("Are you sure you want to delete " + data.name + "?")
-                            .setPositiveButton("Delete", (d, w) -> executeCommand("rm -rf \"" + data.fullPath + "\"", "Deleted"))
-                            .setNegativeButton("Cancel", null).show();
-                    } else {
-                        showInputDialog("Rename", "Enter new name", newName -> executeCommand("mv \"" + data.fullPath + "\" \"" + currentPath + "/" + newName + "\"", "Renamed"));
-                    }
-                    return true;
-                });
-                popup.show();
+                new MaterialAlertDialogBuilder(getContext())
+                    .setTitle(data.name)
+                    .setItems(new String[]{"Rename", "Delete"}, (dialog, which) -> {
+                        if (which == 1) { // Delete
+                            new MaterialAlertDialogBuilder(getContext())
+                                .setTitle("Delete")
+                                .setMessage("Are you sure you want to delete " + data.name + "?")
+                                .setPositiveButton("Delete", (d, w) -> executeCommand("rm -rf \"" + data.fullPath + "\"", "Deleted"))
+                                .setNegativeButton("Cancel", null).show();
+                        } else { // Rename
+                            showInputDialog("Rename", "Enter new name", newName -> executeCommand("mv \"" + data.fullPath + "\" \"" + currentPath + "/" + newName + "\"", "Renamed"));
+                        }
+                    })
+                    .show();
                 return true;
             });
         }

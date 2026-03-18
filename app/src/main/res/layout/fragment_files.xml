@@ -59,7 +59,7 @@
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- BFR STYLE FAB -->
+    <!-- FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddAction"
         android:layout_width="wrap_content"
@@ -68,10 +68,9 @@
         android:layout_gravity="end|bottom"
         android:src="@android:drawable/ic_input_add"
         app:tint="?attr/colorOnPrimaryContainer"
-        app:backgroundTint="?attr/colorPrimaryContainer"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
+        app:backgroundTint="?attr/colorPrimaryContainer" />
 
-    <!-- RECYCLERVIEW EDITOR OVERLAY (ANTI-FREEZE) -->
+    <!-- NATURAL EDITOR OVERLAY -->
     <LinearLayout
         android:id="@+id/editorContainer"
         android:layout_width="match_parent"
@@ -122,11 +121,46 @@
             app:cardCornerRadius="16dp"
             style="@style/Widget.Material3.CardView.Filled">
             
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/editorRecyclerView"
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="4dp" />
+                android:fillViewport="true">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    
+                    <TextView
+                        android:id="@+id/lineNumbers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:padding="12dp"
+                        android:text="1"
+                        android:textSize="12sp"
+                        android:fontFamily="monospace"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:background="#0F000000"
+                        android:gravity="end" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fillViewport="true">
+                        <EditText
+                            android:id="@+id/editorEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:minWidth="400dp"
+                            android:background="@android:color/transparent"
+                            android:gravity="top|start"
+                            android:padding="12dp"
+                            android:fontFamily="monospace"
+                            android:textSize="12sp"
+                            android:scrollHorizontally="true"
+                            android:inputType="textMultiLine|textNoSuggestions" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+            </ScrollView>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
