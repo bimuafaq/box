@@ -148,20 +148,20 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="32dp"
-                    android:background="#0D000000"
+                    android:background="?attr/colorSurfaceVariant"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:alpha="0.7">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="SOURCE EDITOR"
                         android:textSize="9sp"
                         android:textStyle="bold"
-                        android:textColor="#80000000"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:letterSpacing="0.1" />
                 </LinearLayout>
 
-                <!-- Vertical Scroll -->
                 <ScrollView
                     android:id="@+id/editorScrollView"
                     android:layout_width="match_parent"
@@ -173,7 +173,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
                         
-                        <!-- Line Numbers -->
                         <TextView
                             android:id="@+id/lineNumbers"
                             android:layout_width="wrap_content"
@@ -192,7 +191,6 @@
                             android:layout_height="match_parent"
                             android:background="#1A000000" />
 
-                        <!-- Horizontal Scroll for Code -->
                         <HorizontalScrollView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -209,7 +207,8 @@
                                 android:textSize="13sp"
                                 android:inputType="textMultiLine|textNoSuggestions"
                                 android:scrollbars="none"
-                                android:minWidth="1000dp" />
+                                android:scrollHorizontally="true"
+                                android:minWidth="300dp" />
                         </HorizontalScrollView>
                     </LinearLayout>
                 </ScrollView>

@@ -6,35 +6,6 @@
     android:orientation="vertical"
     android:background="?attr/android:windowBackground">
 
-    <!-- DASHBOARD HEADER (Visible when WebView is active) -->
-    <LinearLayout
-        android:id="@+id/webHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="8dp"
-        android:visibility="gone">
-        
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCloseWeb"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:icon="@drawable/ic_back_arrow"
-            app:iconSize="24dp"
-            app:iconTint="?attr/colorOnSurface" /> <!-- Rotate home to look like back/up or use a proper back icon -->
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Web Interface"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginStart="8dp" />
-    </LinearLayout>
-
     <!-- INITIAL TITLE (Visible when Idle) -->
     <TextView
         android:id="@+id/dashTitle"
@@ -77,15 +48,6 @@
                 android:layout_marginTop="16dp"
                 android:textColor="?attr/colorOnSurface" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Load proxy management console"
-                android:textSize="13sp"
-                android:textColor="?android:attr/textColorSecondary"
-                android:layout_marginTop="4dp"
-                android:gravity="center" />
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOpenFullWeb"
                 android:layout_width="240dp"
@@ -109,10 +71,50 @@
             app:strokeWidth="1dp"
             app:strokeColor="#1A000000">
             
-            <WebView
-                android:id="@+id/dashWebView"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
+
+                <WebView
+                    android:id="@+id/dashWebView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <!-- IMMERSIVE HEADER OVERLAY -->
+                <LinearLayout
+                    android:id="@+id/webHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
+                    android:background="@android:color/transparent">
+                    
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCloseWeb"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        app:icon="@drawable/ic_back_arrow"
+                        app:iconSize="22dp"
+                        app:iconTint="?attr/colorOnSurface"
+                        android:backgroundTint="#26888888" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Web Interface"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        android:layout_marginStart="8dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:background="@drawable/ic_dashboard"
+                        android:backgroundTint="#26888888"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
     </FrameLayout>
