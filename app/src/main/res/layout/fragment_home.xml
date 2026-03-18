@@ -123,7 +123,7 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- MD3 BUTTON TOGGLE GROUP (THE ESTABLISHED MD3 WAY) -->
+    <!-- MD3 BUTTON TOGGLE GROUP (FILLED) -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/controlsGroup"
         android:layout_width="match_parent"
@@ -134,38 +134,41 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/startBtn"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Material3.Button"
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
             android:text="START"
             android:textSize="12sp"
-            android:textColor="@color/primary_indigo"
-            app:strokeColor="@color/primary_indigo"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@color/primary_indigo"
+            app:strokeColor="?attr/colorSurface"
             app:strokeWidth="1dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/restartBtn"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Material3.Button"
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
             android:text="RESTART"
             android:textSize="12sp"
-            android:textColor="@color/primary_indigo"
-            app:strokeColor="@color/primary_indigo"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@color/primary_indigo"
+            app:strokeColor="?attr/colorSurface"
             app:strokeWidth="1dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/stopBtn"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Material3.Button"
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
             android:text="STOP"
             android:textSize="12sp"
-            android:textColor="@color/primary_indigo"
-            app:strokeColor="@color/primary_indigo"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@color/primary_indigo"
+            app:strokeColor="?attr/colorSurface"
             app:strokeWidth="1dp" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
