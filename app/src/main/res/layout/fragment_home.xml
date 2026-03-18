@@ -100,18 +100,17 @@
                 android:layout_marginBottom="16dp"
                 android:background="#1A000000" />
 
-            <!-- ROW 2: CPU (Left), RAM (Center), RUNTIME (Right) -->
+            <!-- ROW 2: CPU & RAM (Closer on Left), UPTIME (Far Right) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:weightSum="3">
+                android:gravity="center_vertical">
                 
                 <!-- CPU USAGE -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:gravity="start"
                     android:orientation="vertical">
                     <TextView
@@ -120,8 +119,7 @@
                         android:text="CPU"
                         android:textSize="9sp"
                         android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:layout_gravity="start" />
+                        android:textColor="?android:attr/textColorSecondary" />
                     <TextView
                         android:id="@+id/cpuText"
                         android:layout_width="wrap_content"
@@ -130,16 +128,19 @@
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="1dp"
-                        android:layout_gravity="start" />
+                        android:layout_marginTop="1dp" />
                 </LinearLayout>
+
+                <!-- SPACER BETWEEN CPU & RAM (32dp) -->
+                <View
+                    android:layout_width="32dp"
+                    android:layout_height="0dp" />
 
                 <!-- RAM USAGE -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
+                    android:gravity="start"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
@@ -147,8 +148,7 @@
                         android:text="RAM"
                         android:textSize="9sp"
                         android:textStyle="bold"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:layout_gravity="center" />
+                        android:textColor="?android:attr/textColorSecondary" />
                     <TextView
                         android:id="@+id/ramText"
                         android:layout_width="wrap_content"
@@ -157,15 +157,19 @@
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="1dp"
-                        android:layout_gravity="center" />
+                        android:layout_marginTop="1dp" />
                 </LinearLayout>
 
-                <!-- RUNTIME -->
-                <LinearLayout
+                <!-- FILLER TO PUSH UPTIME TO END -->
+                <View
                     android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <!-- UPTIME (Far Right) -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:gravity="end"
                     android:orientation="vertical">
                     <TextView
