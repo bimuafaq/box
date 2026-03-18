@@ -222,7 +222,11 @@ public class FilesFragment extends Fragment {
             boolean success = ShellHelper.writeRootFileBase64(editingFilePath, content);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    if (getView() != null) Snackbar.make(getView(), success ? "Saved Successfully!" : "Save Failed!", Snackbar.LENGTH_SHORT).show();
+                    if (getView() != null && getActivity() != null) {
+                        Snackbar.make(getView(), success ? "Saved Successfully!" : "Save Failed!", Snackbar.LENGTH_SHORT)
+                            .setAnchorView(getActivity().findViewById(R.id.bottomNavigation))
+                            .show();
+                    }
                 });
             }
         }).start();

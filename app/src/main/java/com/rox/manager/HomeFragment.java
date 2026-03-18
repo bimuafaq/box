@@ -223,7 +223,11 @@ public class HomeFragment extends Fragment {
         if (isActionRunning) return;
         isActionRunning = true;
         toggleButtons(false);
-        if (getView() != null) Snackbar.make(getView(), msg, Snackbar.LENGTH_SHORT).show();
+        if (getView() != null && getActivity() != null) {
+            Snackbar.make(getView(), msg, Snackbar.LENGTH_SHORT)
+                .setAnchorView(getActivity().findViewById(R.id.bottomNavigation))
+                .show();
+        }
 
         new Thread(() -> {
             ShellHelper.runRootCommand(command);

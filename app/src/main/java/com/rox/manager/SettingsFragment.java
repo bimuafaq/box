@@ -30,7 +30,11 @@ public class SettingsFragment extends Fragment {
         themeSelection.setOnClickListener(v -> showThemeDialog());
 
         notifySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (getView() != null) Snackbar.make(getView(), isChecked ? "Notifications Enabled" : "Notifications Disabled", Snackbar.LENGTH_SHORT).show();
+            if (getView() != null && getActivity() != null) {
+                Snackbar.make(getView(), isChecked ? "Notifications Enabled" : "Notifications Disabled", Snackbar.LENGTH_SHORT)
+                    .setAnchorView(getActivity().findViewById(R.id.bottomNavigation))
+                    .show();
+            }
         });
 
         return view;
