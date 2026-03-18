@@ -1,6 +1,7 @@
 <resources>
     <style name="Widget.Custom.Snackbar" parent="Widget.Material3.Snackbar">
-        <item name="android:layout_margin">12dp</item>
+        <item name="android:layout_margin">16dp</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Material3.SmallComponent</item>
     </style>
 
     <!-- Light Theme Material 3 -->
