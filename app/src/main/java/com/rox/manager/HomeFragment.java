@@ -18,7 +18,7 @@ import java.util.Locale;
 
 public class HomeFragment extends Fragment {
     private TextView statusText, coreText, runtimeText, cpuText, ramText, idCoreText;
-    private MaterialButton startBtn, stopBtn;
+    private MaterialButton startBtn, stopBtn, restartBtn;
     private boolean isActionRunning = false;
     
     private Handler timerHandler = new Handler();
@@ -41,12 +41,14 @@ public class HomeFragment extends Fragment {
         idCoreText = view.findViewById(R.id.idCoreText);
         
         startBtn = view.findViewById(R.id.startBtn);
+        restartBtn = view.findViewById(R.id.restartBtn);
         stopBtn = view.findViewById(R.id.stopBtn);
         MaterialButton webBtn = view.findViewById(R.id.webBtn);
 
         refreshAllInfo();
 
         startBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service start", "Starting ROX..."));
+        restartBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service restart", "Restarting ROX..."));
         stopBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service stop", "Stopping ROX..."));
 
         webBtn.setOnClickListener(v -> {
@@ -245,6 +247,7 @@ public class HomeFragment extends Fragment {
 
     private void toggleButtons(boolean enabled) {
         startBtn.setEnabled(enabled);
+        restartBtn.setEnabled(enabled);
         stopBtn.setEnabled(enabled);
     }
 }
