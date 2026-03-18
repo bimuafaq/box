@@ -1,6 +1,7 @@
 package com.rox.manager;
 
 import android.os.Bundle;
+import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
@@ -26,6 +27,35 @@ public class MainActivity extends AppCompatActivity {
 
         setupViewPager();
         setupBottomNav();
+        setupKeyboardListener();
+    }
+
+    private void setupKeyboardListener() {
+        View decorView = getWindow().getDecorView();
+        decorView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            android.graphics.Rect r = new android.graphics.Rect();
+            decorView.getWindowVisibleDisplayFrame(r);
+            int screenHeight = decorView.getRootView().getHeight();
+            int keypadHeight = screenHeight - r.bottom;
+
+            // If height difference is more than 15% of screen, keyboard is likely up
+            if (keypadHeight > screenHeight * 0.15) {
+                if (bottomNavigation.getVisibility() == View.VISIBLE) {
+                    bottomNavigation.setVisibility(View.GONE);
+                }
+            } else {
+                // Only show if we are NOT in editor/full web (handled by fragments)
+                // But for safety, we let fragments handle their own hide/show
+                // and here we just handle the global search case.
+                int currentItem = viewPager.getCurrentItem();
+                // If it's home, settings or logs (where we don't manually hide it)
+                if (currentItem != 1 && currentItem != 3) {
+                    if (bottomNavigation.getVisibility() == View.GONE) {
+                        bottomNavigation.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        });
     }
 
     private void setupViewPager() {
