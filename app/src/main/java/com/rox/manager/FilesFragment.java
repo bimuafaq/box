@@ -78,7 +78,6 @@ public class FilesFragment extends Fragment {
         editorFileName = view.findViewById(R.id.editorFileName);
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
-        MaterialButton btnSearch = view.findViewById(R.id.btnEditorSearch);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FileAdapter();
@@ -106,13 +105,12 @@ public class FilesFragment extends Fragment {
 
         editorEditText.setOnTouchListener((v, event) -> {
             scaleGestureDetector.onTouchEvent(event);
-            return false; // Let normal touch events pass
+            return false; 
         });
 
         // Editor Listeners
         btnBack.setOnClickListener(v -> closeEditor());
         btnSave.setOnClickListener(v -> saveFile());
-        btnSearch.setOnClickListener(v -> Toast.makeText(getContext(), "Find functionality coming soon", Toast.LENGTH_SHORT).show());
 
         editorEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -217,9 +215,12 @@ public class FilesFragment extends Fragment {
     }
 
     private void updateLineNumbers() {
-        int lineCount = editorEditText.getLineCount();
+        String text = editorEditText.getText().toString();
+        String[] lines = text.split("\n", -1);
+        int lineCount = lines.length;
+        
         StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= Math.max(1, lineCount); i++) {
+        for (int i = 1; i <= lineCount; i++) {
             sb.append(i).append("\n");
         }
         lineNumbersView.setText(sb.toString());
