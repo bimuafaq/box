@@ -24,6 +24,9 @@ import android.content.res.Configuration;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
 import io.github.rosemoe.sora.widget.schemes.SchemeNotepadXX;
+import io.github.rosemoe.sora.langs.textmate.TextMateLanguage;
+import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry;
+import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -177,6 +180,9 @@ public class FilesFragment extends Fragment {
         editorFileName.setText(name);
         fileListLayout.setVisibility(View.GONE);
         editorContainer.setVisibility(View.VISIBLE);
+
+        // Reset language before loading new file
+        codeEditor.setEditorLanguage(null);
 
         new Thread(() -> {
             String content = ShellHelper.readRootFileBase64(path);
