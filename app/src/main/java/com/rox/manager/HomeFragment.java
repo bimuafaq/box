@@ -44,13 +44,9 @@ public class HomeFragment extends Fragment {
 
         refreshAllInfo();
 
-        startBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service start && /data/adb/box/scripts/box.iptables enable && " +
-                "(pkill -f inotifyd; " +
-                "inotifyd /data/adb/box/scripts/box.inotify /data/adb/modules/box_for_root >/dev/null 2>&1 & " +
-                "inotifyd /data/adb/box/scripts/net.inotify /data/misc/net >/dev/null 2>&1 & " +
-                "inotifyd /data/adb/box/scripts/ctr.inotify /data/misc/net/rt_tables >/dev/null 2>&1 &)", "Starting Box..."));
-        restartBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service restart", "Restarting ROX..."));
-        stopBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.iptables disable && /data/adb/box/scripts/box.service stop && pkill -f inotifyd", "Stopping ROX..."));
+        startBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/start.sh", "Starting Box..."));
+        restartBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/start.sh", "Restarting Box..."));
+        stopBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.iptables disable && /data/adb/box/scripts/box.service stop && pkill -f inotifyd", "Stopping Box..."));
 
         return view;
     }
