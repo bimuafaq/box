@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.activity.OnBackPressedCallback;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +27,19 @@ public class MainActivity extends AppCompatActivity {
 
         setupViewPager();
         setupBottomNav();
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (viewPager.getCurrentItem() != 0) {
+                    viewPager.setCurrentItem(0, false);
+                    bottomNavigation.setSelectedItemId(R.id.nav_home);
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
     }
 
     private void setupViewPager() {

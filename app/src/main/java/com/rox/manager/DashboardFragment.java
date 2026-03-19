@@ -13,12 +13,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
+import androidx.activity.OnBackPressedCallback;
 
 public class DashboardFragment extends Fragment {
     private View initialLayout, webViewContainer, webHeader;
     private WebView webView;
     private TextView title;
     private SwipeRefreshLayout swipeRefresh;
+    private OnBackPressedCallback backPressedCallback;
 
     @Nullable
     @Override
@@ -37,6 +39,14 @@ public class DashboardFragment extends Fragment {
         
         setupWebView();
 
+        backPressedCallback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                btnClose.performClick();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), backPressedCallback);
+
         swipeRefresh.setOnRefreshListener(() -> {
             webView.reload();
             swipeRefresh.setRefreshing(false);
@@ -49,6 +59,7 @@ public class DashboardFragment extends Fragment {
             webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
             webView.loadUrl("http://127.0.0.1:9090/ui");
+            if (backPressedCallback != null) backPressedCallback.setEnabled(true);
         });
 
         btnClose.setOnClickListener(v -> {
@@ -58,6 +69,7 @@ public class DashboardFragment extends Fragment {
             initialLayout.setVisibility(View.VISIBLE);
             title.setVisibility(View.VISIBLE);
             webView.loadUrl("about:blank");
+            if (backPressedCallback != null) backPressedCallback.setEnabled(false);
         });
 
         return view;

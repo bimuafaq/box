@@ -23,6 +23,7 @@ import android.content.res.Configuration;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
 import io.github.rosemoe.sora.widget.schemes.SchemeNotepadXX;
+import androidx.activity.OnBackPressedCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +46,7 @@ public class FilesFragment extends Fragment {
     private CodeEditor codeEditor;
     private TextView editorFileName;
     private String editingFilePath = "";
+    private OnBackPressedCallback backPressedCallback;
 
     @Nullable
     @Override
@@ -64,6 +66,14 @@ public class FilesFragment extends Fragment {
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
         
         FloatingActionButton btnAddAction = view.findViewById(R.id.btnAddAction);
+
+        backPressedCallback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                closeEditor();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), backPressedCallback);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FileAdapter();
@@ -188,6 +198,7 @@ public class FilesFragment extends Fragment {
         editorFileName.setText(name);
         fileListLayout.setVisibility(View.GONE);
         editorContainer.setVisibility(View.VISIBLE);
+        if (backPressedCallback != null) backPressedCallback.setEnabled(true);
 
         new Thread(() -> {
             String content = ShellHelper.readRootFileBase64(path);
@@ -207,6 +218,7 @@ public class FilesFragment extends Fragment {
         editorContainer.setVisibility(View.GONE);
         fileListLayout.setVisibility(View.VISIBLE);
         editingFilePath = "";
+        if (backPressedCallback != null) backPressedCallback.setEnabled(false);
     }
 
     private void saveFile() {
