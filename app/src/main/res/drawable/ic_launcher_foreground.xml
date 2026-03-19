@@ -5,44 +5,29 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     
-    <!-- Right Face Checkerboard Fills -->
-    <path
-        android:fillColor="#000000"
-        android:pathData="M 54 54 L 64.5 48 L 64.5 60 L 54 66 Z" />
-    <path
-        android:fillColor="#000000"
-        android:pathData="M 64.5 60 L 75 54 L 75 66 L 64.5 72 Z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M 64.5 48 L 75 42 L 75 54 L 64.5 60 Z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M 54 66 L 64.5 60 L 64.5 72 L 54 78 Z" />
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.9"
+        android:scaleY="0.9">
 
-    <!-- Outer Hexagon Outline (Rounded) -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#000000"
-        android:strokeWidth="4"
-        android:strokeLineJoin="round"
-        android:strokeLineCap="round"
-        android:pathData="M 51.4 31.5 Q 54 30 56.6 31.5 L 72.4 40.5 Q 75 42 75 45 L 75 63 Q 75 66 72.4 67.5 L 56.6 76.5 Q 54 78 51.4 76.5 L 35.6 67.5 Q 33 66 33 63 L 33 45 Q 33 42 35.6 40.5 Z" />
-        
-    <!-- Inner Y Outline -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#000000"
-        android:strokeWidth="4"
-        android:strokeLineJoin="round"
-        android:strokeLineCap="round"
-        android:pathData="M 54 54 L 54 76.5 M 54 54 L 72.4 43.5 M 54 54 L 35.6 43.5" />
+        <!-- Outer Hexagon Outline (Rounded) -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#000000"
+            android:strokeWidth="4"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round"
+            android:pathData="M 51.4 31.5 Q 54 30 56.6 31.5 L 72.4 40.5 Q 75 42 75 45 L 75 63 Q 75 66 72.4 67.5 L 56.6 76.5 Q 54 78 51.4 76.5 L 35.6 67.5 Q 33 66 33 63 L 33 45 Q 33 42 35.6 40.5 Z" />
+            
+        <!-- Inner Y Outline -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#000000"
+            android:strokeWidth="4"
+            android:strokeLineJoin="round"
+            android:strokeLineCap="round"
+            android:pathData="M 54 54 L 54 76.5 M 54 54 L 72.4 43.5 M 54 54 L 35.6 43.5" />
 
-    <!-- Checkerboard Cross Lines -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#000000"
-        android:strokeWidth="4"
-        android:strokeLineJoin="round"
-        android:strokeLineCap="round"
-        android:pathData="M 64.5 48 L 64.5 72 M 75 54 L 54 66" />
+    </group>
 </vector>
