@@ -144,26 +144,24 @@ public class ShellHelper {
         }
     }
 
-    public static String readRootFileBase64(String path) {
-        String res = runRootCommandOneShot("base64 \"" + path + "\"");
+    public static String readRootFileDirect(String path) {
+        String res = runRootCommandOneShot("cat \"" + path + "\"");
         if (res == null || res.startsWith("Error:") || res.startsWith("[Error]")) return null;
-        try {
-            String cleanB64 = res.replaceAll("\\s+", "");
-            byte[] data = Base64.decode(cleanB64, Base64.DEFAULT);
-            return new String(data, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return null;
-        }
+        return res;
     }
 
-    public static boolean writeRootFileBase64(String path, String content) {
+    public static boolean writeRootFileDirect(String path, String content) {
         try {
-            byte[] data = content.getBytes(StandardCharsets.UTF_8);
-            String b64 = Base64.encodeToString(data, Base64.NO_WRAP);
-            String cmd = "echo \"" + b64 + "\" | base64 -d > \"" + path + "\"";
-            String res = runRootCommandOneShot(cmd);
-            return res != null && !res.startsWith("Error:");
+            // Run cat and pipe our raw content directly into it via stdin
+            Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", "cat > \"" + path + "\""});
+            DataOutputStream os = new DataOutputStream(p.getOutputStream());
+            os.write(content.getBytes(StandardCharsets.UTF_8));
+            os.flush();
+            os.close(); // Send EOF to cat
+            p.waitFor();
+            return p.exitValue() == 0;
         } catch (Exception e) {
+            Log.e(TAG, "Failed to write file directly", e);
             return false;
         }
     }

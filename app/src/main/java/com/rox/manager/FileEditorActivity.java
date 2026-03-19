@@ -39,9 +39,9 @@ public class FileEditorActivity extends AppCompatActivity {
 
     private void loadFile() {
         new Thread(() -> {
-            String content = ShellHelper.runRootCommand("cat " + filePath);
+            String content = ShellHelper.readRootFileDirect(filePath);
             runOnUiThread(() -> {
-                if (content != null && !content.startsWith("Error:")) {
+                if (content != null) {
                     editText.setText(content);
                 } else {
                     Snackbar.make(findViewById(android.R.id.content), "Failed to read file", Snackbar.LENGTH_SHORT).show();
@@ -53,20 +53,12 @@ public class FileEditorActivity extends AppCompatActivity {
     private void saveFile() {
         String content = editText.getText().toString();
         new Thread(() -> {
-            // Write content to temporary file then move to destination via su
-            // Note: For large files this could be complex, but for config it's usually fine
-            // We use printf to handle special characters better
-            String safeContent = content.replace("'", "'\\''");
-            String cmd = "printf '" + safeContent + "' > " + filePath;
-            String res = ShellHelper.runRootCommand(cmd);
-            
+            boolean success = ShellHelper.writeRootFileDirect(filePath, content);
             runOnUiThread(() -> {
-                if (res != null && res.isEmpty()) {
+                if (success) {
                     Snackbar.make(findViewById(android.R.id.content), "File saved successfully", Snackbar.LENGTH_SHORT).show();
-                } else if (res != null && res.startsWith("Error:")) {
-                    Snackbar.make(findViewById(android.R.id.content), res, Snackbar.LENGTH_SHORT).show();
                 } else {
-                    Snackbar.make(findViewById(android.R.id.content), "File saved", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(android.R.id.content), "Failed to save file", Snackbar.LENGTH_SHORT).show();
                 }
             });
         }).start();

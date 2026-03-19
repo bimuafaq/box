@@ -201,7 +201,7 @@ public class FilesFragment extends Fragment {
         if (backPressedCallback != null) backPressedCallback.setEnabled(true);
 
         new Thread(() -> {
-            String content = ShellHelper.readRootFileBase64(path);
+            String content = ShellHelper.readRootFileDirect(path);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (content != null) {
@@ -224,7 +224,7 @@ public class FilesFragment extends Fragment {
     private void saveFile() {
         String content = codeEditor.getText().toString();
         new Thread(() -> {
-            boolean success = ShellHelper.writeRootFileBase64(editingFilePath, content);
+            boolean success = ShellHelper.writeRootFileDirect(editingFilePath, content);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     showSnackbar(success ? "Saved Successfully!" : "Save Failed!");
