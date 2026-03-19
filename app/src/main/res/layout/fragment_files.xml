@@ -23,40 +23,39 @@
             android:paddingBottom="12dp"
             android:paddingStart="20dp" />
 
-        <!-- SEARCH BAR IN CARD (Matching MD3 SearchBar Style) -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- SEARCH BAR (No Card, just a thin divider below it) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/search_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="56dp"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="8dp"
-            app:cardCornerRadius="28dp"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-            app:strokeWidth="0dp"
-            style="?attr/materialCardViewFilledStyle">
+            android:hint="Search files..."
+            app:boxBackgroundColor="@android:color/transparent"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:endIconMode="clear_text"
+            app:startIconDrawable="@drawable/ic_search_material"
+            style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/search_layout"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/searchEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Search files..."
-                app:boxBackgroundColor="@android:color/transparent"
-                app:boxStrokeWidth="0dp"
-                app:boxStrokeWidthFocused="0dp"
-                app:endIconMode="clear_text"
-                app:startIconDrawable="@drawable/ic_search_material"
-                style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
+                android:maxLines="1"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:imeOptions="actionSearch" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/searchEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp"
-                    android:imeOptions="actionSearch" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </com.google.android.material.card.MaterialCardView>
+        <!-- THIN DIVIDER -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="?attr/colorOutlineVariant"
+            android:alpha="0.3" />
 
         <!-- FILE LIST (Polos on Background) -->
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
