@@ -19,7 +19,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import android.widget.PopupMenu;
 import android.content.res.Configuration;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
@@ -95,7 +94,7 @@ public class FilesFragment extends Fragment {
         // Initialize Sora Editor Settings
         codeEditor.setWordwrap(true);
         codeEditor.setLineNumberEnabled(true);
-
+        
         applyThemeToEditor();
         loadFiles();
         return view;

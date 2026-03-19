@@ -39,5 +39,4 @@ dependencies {
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'io.github.Rosemoe.sora-editor:editor:0.23.6'
-    implementation 'io.github.Rosemoe.sora-editor:language-textmate:0.23.6'
 }

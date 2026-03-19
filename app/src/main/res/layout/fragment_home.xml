@@ -15,52 +15,50 @@
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp"
+        android:paddingBottom="12dp"
         android:paddingStart="4dp" />
 
-    <!-- MODUL 1: STATUS & SYSTEM INFO (MD3 FILLED CARD) -->
+    <!-- MODUL 1: STATUS & SYSTEM INFO (COMPACT MD3 FILLED CARD) -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        app:cardCornerRadius="16dp"
+        android:layout_marginBottom="20dp"
+        app:cardCornerRadius="20dp"
         style="?attr/materialCardViewFilledStyle">
         
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="16dp">
             
+            <!-- HEADER INFO -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
+                android:orientation="horizontal">
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="start"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/label_service_status"
-                        android:textSize="11sp"
+                        android:textSize="10sp"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textAllCaps="true"
                         android:textStyle="bold"
-                        android:letterSpacing="0.1" />
+                        android:letterSpacing="0.05" />
                     <TextView
                         android:id="@+id/statusText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/status_ready"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="2dp" />
+                        android:textColor="?attr/colorPrimary" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="0dp"
@@ -72,54 +70,55 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="ACTIVE CORE"
-                        android:textSize="11sp"
+                        android:textSize="10sp"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textAllCaps="true"
                         android:textStyle="bold"
-                        android:letterSpacing="0.1" />
+                        android:letterSpacing="0.05" />
                     <TextView
                         android:id="@+id/coreText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="---"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
-                        android:layout_marginTop="2dp"
-                        android:gravity="end" />
+                        android:textColor="?attr/colorOnSurface" />
                 </LinearLayout>
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:background="?attr/colorOutlineVariant" />
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="?attr/colorOutlineVariant"
+                android:alpha="0.5" />
 
+            <!-- GRID STATS (COMPACT & SYMMETRIC) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
-                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CPU" android:textSize="10sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
-                    <TextView android:id="@+id/cpuText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:textSize="16sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
+                android:weightSum="4">
+                
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CPU" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <TextView android:id="@+id/cpuText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                 </LinearLayout>
-                <View android:layout_width="32dp" android:layout_height="0dp" />
-                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RAM" android:textSize="10sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
-                    <TextView android:id="@+id/ramText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 MB" android:textSize="16sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RAM" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <TextView android:id="@+id/ramText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 MB" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                 </LinearLayout>
-                <View android:layout_width="32dp" android:layout_height="0dp" />
-                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CORE" android:textSize="10sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
-                    <TextView android:id="@+id/idCoreText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="16sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CORE" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <TextView android:id="@+id/idCoreText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                 </LinearLayout>
-                <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
-                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UPTIME" android:textSize="10sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
-                    <TextView android:id="@+id/runtimeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="00:00:00" android:textSize="16sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" android:gravity="end" />
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UPTIME" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <TextView android:id="@+id/runtimeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="00:00:00" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

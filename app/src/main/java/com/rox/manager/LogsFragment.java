@@ -14,18 +14,22 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import androidx.core.widget.NestedScrollView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import java.util.ArrayList;
+import java.util.List;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class LogsFragment extends Fragment {
-    private TextView logTextView;
+    private TextView logTextView, textSelectedLog;
     private SwipeRefreshLayout swipeRefresh;
-    private ChipGroup logFileGroup;
     private MaterialSwitch switchLiveLogs;
     private NestedScrollView logScrollView;
+    private View cardLogSource;
     private String selectedLogFile = "box.log";
+    private SharedPreferences prefs;
     
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isLive = true;
@@ -35,20 +39,25 @@ public class LogsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_logs, container, false);
 
+        prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
+        selectedLogFile = prefs.getString("selected_log", "box.log");
+
         logTextView = view.findViewById(R.id.logTextView);
+        textSelectedLog = view.findViewById(R.id.textSelectedLog);
+        textSelectedLog.setText(selectedLogFile);
         swipeRefresh = view.findViewById(R.id.swipeRefreshLogs);
-        logFileGroup = view.findViewById(R.id.logFileGroup);
         switchLiveLogs = view.findViewById(R.id.switchLiveLogs);
         logScrollView = view.findViewById(R.id.logScrollView);
+        cardLogSource = view.findViewById(R.id.cardLogSource);
 
-        setupLogChips();
-        
         switchLiveLogs.setChecked(true);
         switchLiveLogs.setOnCheckedChangeListener((v, checked) -> {
             isLive = checked;
             if (isLive) startLiveLogs();
             else stopLiveLogs();
         });
+
+        cardLogSource.setOnClickListener(v -> showLogSelectionDialog());
 
         swipeRefresh.setOnRefreshListener(() -> {
             loadLogs();
@@ -61,19 +70,37 @@ public class LogsFragment extends Fragment {
         return view;
     }
 
-    private void setupLogChips() {
-        String[] logs = {"box.log", "clash.log", "sing-box.log", "xray.log", "v2fly.log", "hysteria.log"};
-        for (String log : logs) {
-            Chip chip = new Chip(getContext());
-            chip.setText(log);
-            chip.setCheckable(true);
-            if (log.equals(selectedLogFile)) chip.setChecked(true);
-            chip.setOnClickListener(v -> {
-                selectedLogFile = log;
-                loadLogs();
-            });
-            logFileGroup.addView(chip);
-        }
+    private void showLogSelectionDialog() {
+        new Thread(() -> {
+            String res = ShellHelper.runRootCommand("ls /data/adb/box/run/*.log");
+            List<String> logFiles = new ArrayList<>();
+            if (res != null && !res.isEmpty()) {
+                for (String line : res.split("\n")) {
+                    if (line.contains("/")) {
+                        logFiles.add(line.substring(line.lastIndexOf("/") + 1));
+                    } else {
+                        logFiles.add(line);
+                    }
+                }
+            }
+            
+            if (logFiles.isEmpty()) logFiles.add("box.log");
+
+            String[] items = logFiles.toArray(new String[0]);
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    new MaterialAlertDialogBuilder(getContext())
+                        .setTitle("Select Log Source")
+                        .setItems(items, (dialog, which) -> {
+                            selectedLogFile = items[which];
+                            prefs.edit().putString("selected_log", selectedLogFile).apply();
+                            textSelectedLog.setText(selectedLogFile);
+                            loadLogs();
+                        })
+                        .show();
+                });
+            }
+        }).start();
     }
 
     private final Runnable liveRunnable = new Runnable() {
@@ -98,7 +125,6 @@ public class LogsFragment extends Fragment {
     private void loadLogs() {
         new Thread(() -> {
             String path = "/data/adb/box/run/" + selectedLogFile;
-            // Get last 100 lines for performance
             String cmd = "tail -n 100 " + path + " 2>/dev/null || echo 'Log file not found or empty.'";
             String result = ShellHelper.runRootCommand(cmd);
             
@@ -106,7 +132,6 @@ public class LogsFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     if (result != null) {
                         logTextView.setText(formatLogText(result));
-                        // Auto scroll to bottom
                         logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
                     }
                 });
@@ -123,16 +148,15 @@ public class LogsFragment extends Fragment {
             int lineEnd = currentPos + line.length();
             if (lineEnd > spannable.length()) break;
 
-            if (line.toLowerCase().contains("info")) {
-                spannable.setSpan(new ForegroundColorSpan(0xFF4CAF50), currentPos, lineEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            } else if (line.toLowerCase().contains("warn")) {
-                spannable.setSpan(new ForegroundColorSpan(0xFFFFC107), currentPos, lineEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            } else if (line.toLowerCase().contains("error") || line.toLowerCase().contains("fatal")) {
-                spannable.setSpan(new ForegroundColorSpan(0xFFF44336), currentPos, lineEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            } else if (line.toLowerCase().contains("debug")) {
-                spannable.setSpan(new ForegroundColorSpan(0xFF2196F3), currentPos, lineEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
+            String lower = line.toLowerCase();
+            int color = 0xFF9E9E9E; // Default grey
+
+            if (lower.contains("info") || lower.contains("success")) color = 0xFF4CAF50;
+            else if (lower.contains("warn")) color = 0xFFFFC107;
+            else if (lower.contains("error") || lower.contains("fatal") || lower.contains("fail")) color = 0xFFF44336;
+            else if (lower.contains("debug") || lower.contains("conn")) color = 0xFF2196F3;
             
+            spannable.setSpan(new ForegroundColorSpan(color), currentPos, lineEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             currentPos = lineEnd + 1;
         }
         return spannable;
