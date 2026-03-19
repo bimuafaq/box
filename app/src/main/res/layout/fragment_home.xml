@@ -125,12 +125,12 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- MD3 BUTTON GROUP (SEPARATED) -->
-    <LinearLayout
+    <!-- MD3 BUTTON GROUP -->
+    <com.google.android.material.button.MaterialButtonGroup
         android:id="@+id/controlsGroup"
+        style="@style/Widget.Material3.MaterialButtonGroup.Connected"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center_horizontal">
 
         <com.google.android.material.button.MaterialButton
@@ -139,8 +139,6 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:layout_marginEnd="4dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.StartButton"
             android:text="START"
             android:textSize="12sp" />
 
@@ -150,9 +148,6 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.MiddleButton"
             android:text="RESTART"
             android:textSize="12sp" />
 
@@ -162,11 +157,9 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.EndButton"
             android:text="STOP"
             android:textSize="12sp" />
 
-    </LinearLayout>
+    </com.google.android.material.button.MaterialButtonGroup>
 
 </LinearLayout>
