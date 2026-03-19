@@ -45,9 +45,9 @@ public class HomeFragment extends Fragment {
 
         refreshAllInfo();
 
-        startBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service start", "Starting ROX..."));
+        startBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service start && /data/adb/box/scripts/box.iptables enable", "Starting ROX..."));
         restartBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service restart", "Restarting ROX..."));
-        stopBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service stop", "Stopping ROX..."));
+        stopBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.iptables disable && /data/adb/box/scripts/box.service stop", "Stopping ROX..."));
 
         return view;
     }
@@ -127,7 +127,7 @@ public class HomeFragment extends Fragment {
                          "ETIME=$(ps -p $PID -o etime= 2>/dev/null || echo \"00:00\"); " +
                          "echo \"$PID|$CORE|$ETIME\"";
             
-            String result = ShellHelper.runRootCommand(cmd);
+            String result = ShellHelper.runRootCommandOneShot(cmd);
             
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
@@ -166,7 +166,7 @@ public class HomeFragment extends Fragment {
                          "  echo \"$RSS|$CPU|$CORE_ID\"; " +
                          "else echo \"0|0|0\"; fi";
             
-            String res = ShellHelper.runRootCommand(cmd);
+            String res = ShellHelper.runRootCommandOneShot(cmd);
 
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {

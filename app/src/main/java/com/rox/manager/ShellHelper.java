@@ -8,13 +8,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.DataOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 import java.util.UUID;
 
 public class ShellHelper {
     private static final String TAG = "ShellHelper";
     private static final String ALLOWED_PATH = "/data/adb/box";
-    
-    // Persistent shell for light stats only
+
+    // Persistent shell for stats to avoid "su loop" spam
     private static Process persistentProcess;
     private static BufferedWriter persistentWriter;
     private static BufferedReader persistentReader;
@@ -36,6 +37,7 @@ public class ShellHelper {
 
     /**
      * runRootCommand: Used for frequent stats/checks via persistent shell.
+     * SILENT: No su loop spam.
      */
     public synchronized static String runRootCommand(String command) {
         if (!command.equals("id") && !command.contains(ALLOWED_PATH)) {
@@ -46,7 +48,7 @@ public class ShellHelper {
 
         final String endMarker = "END_" + UUID.randomUUID().toString();
         try {
-            persistentWriter.write(command + "\n");
+            persistentWriter.write(command + " 2>&1\n");
             persistentWriter.write("echo " + endMarker + "\n");
             persistentWriter.flush();
 
@@ -65,47 +67,86 @@ public class ShellHelper {
 
     /**
      * runRootCommandOneShot: Used for critical service start/stop/restart.
-     * This mimics BFR logic: opens su, runs command, exits immediately.
-     * This prevents background daemons from hanging the persistent shell.
+     * RELIABLE: Prevents hanging from complex background scripts.
      */
     public static String runRootCommandOneShot(String command) {
         if (!command.contains(ALLOWED_PATH)) return "Error: Unauthorized path.";
         
         StringBuilder output = new StringBuilder();
         try {
-            Process p = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(p.getOutputStream());
-            BufferedReader is = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            BufferedReader es = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            InputStream is = process.getInputStream();
+            InputStream es = process.getErrorStream();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            BufferedReader errorReader = new BufferedReader(new InputStreamReader(es));
 
             os.writeBytes(command + "\n");
             os.writeBytes("exit\n");
             os.flush();
 
-            String line;
-            // Read output
-            while ((line = is.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            // Read errors
-            while ((line = es.readLine()) != null) {
-                output.append("[Error] ").append(line).append("\n");
+            Thread t = new Thread(() -> {
+                try {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        output.append(line).append("\n");
+                    }
+                } catch (Exception ignored) {}
+            });
+            t.start();
+
+            StringBuilder errorOutput = new StringBuilder();
+            Thread et = new Thread(() -> {
+                try {
+                    String line;
+                    while ((line = errorReader.readLine()) != null) {
+                        errorOutput.append(line).append("\n");
+                    }
+                } catch (Exception ignored) {}
+            });
+            et.start();
+
+            // Wait for completion with a 15-second safety timeout
+            int exitCode = -1;
+            boolean finished = false;
+            long startTime = System.currentTimeMillis();
+            
+            while (System.currentTimeMillis() - startTime < 15000) {
+                try {
+                    exitCode = process.exitValue();
+                    finished = true;
+                    break;
+                } catch (IllegalThreadStateException e) {
+                    try { Thread.sleep(200); } catch (Exception ignored) {}
+                }
             }
 
-            p.waitFor();
+            if (!finished) {
+                process.destroy();
+                return "Error: Command timed out.";
+            }
+
+            t.join(2000);
+            et.join(1000);
+
             os.close();
-            is.close();
-            es.close();
+            reader.close();
+            errorReader.close();
             
-            return output.toString().trim();
+            String result = output.toString().trim();
+            if (result.isEmpty() && errorOutput.length() > 0) {
+                return "[Error]: " + errorOutput.toString().trim();
+            }
+            return result;
         } catch (Exception e) {
             return "Error: " + e.getMessage();
         }
     }
 
     public static String readRootFileBase64(String path) {
-        String res = runRootCommandOneShot("base64 " + path);
-        if (res == null || res.startsWith("Error:")) return null;
+        String res = runRootCommandOneShot("base64 \"" + path + "\"");
+        if (res == null || res.startsWith("Error:") || res.startsWith("[Error]")) return null;
         try {
             String cleanB64 = res.replaceAll("\\s+", "");
             byte[] data = Base64.decode(cleanB64, Base64.DEFAULT);
@@ -119,7 +160,7 @@ public class ShellHelper {
         try {
             byte[] data = content.getBytes(StandardCharsets.UTF_8);
             String b64 = Base64.encodeToString(data, Base64.NO_WRAP);
-            String cmd = "echo '" + b64 + "' | base64 -d > " + path;
+            String cmd = "echo \"" + b64 + "\" | base64 -d > \"" + path + "\"";
             String res = runRootCommandOneShot(cmd);
             return res != null && !res.startsWith("Error:");
         } catch (Exception e) {
