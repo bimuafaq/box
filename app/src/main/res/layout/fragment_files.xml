@@ -159,9 +159,8 @@
                             android:fontFamily="monospace"
                             android:textSize="12sp"
                             android:scrollHorizontally="true"
-                            android:inputType="textMultiLine|textNoSuggestions" />
-                    </HorizontalScrollView>
-                </LinearLayout>
+                            android:inputType="textMultiLine|textNoSuggestions|textVisiblePassword" />
+                        </HorizontalScrollView>                </LinearLayout>
             </ScrollView>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>

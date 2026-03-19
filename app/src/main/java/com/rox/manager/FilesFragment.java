@@ -164,23 +164,35 @@ public class FilesFragment extends Fragment {
         editorFileName.setText(name);
         fileListLayout.setVisibility(View.GONE);
         editorContainer.setVisibility(View.VISIBLE);
-        
-        if (getActivity() != null) {
-            View nav = getActivity().findViewById(R.id.bottomNavigation);
-            if (nav != null) nav.setVisibility(View.GONE);
-        }
 
         new Thread(() -> {
             String content = ShellHelper.readRootFileBase64(path);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (content != null) {
-                        // More efficient Anti-Freeze: Only break if lines are ridiculously long
-                        if (content.length() > 50000) {
-                            editorEditText.setText(content.substring(0, 50000) + "\n[File too large, showing partial content for stability]");
-                        } else {
-                            editorEditText.setText(content);
+                        String safeContent = content;
+                        // Anti-Freeze: Cap size and efficiently inject newlines for long lines
+                        if (safeContent.length() > 50000) {
+                            safeContent = safeContent.substring(0, 50000) + "\n[File too large, showing partial content for stability]";
                         }
+                        
+                        // Fast newline injection to prevent Android Layout engine from freezing on huge binary lines
+                        StringBuilder sb = new StringBuilder(safeContent.length() + (safeContent.length() / 200) + 100);
+                        int lineLen = 0;
+                        for (int i = 0; i < safeContent.length(); i++) {
+                            char c = safeContent.charAt(i);
+                            sb.append(c);
+                            if (c == '\n') {
+                                lineLen = 0;
+                            } else {
+                                lineLen++;
+                                if (lineLen >= 200) {
+                                    sb.append('\n');
+                                    lineLen = 0;
+                                }
+                            }
+                        }
+                        editorEditText.setText(sb.toString());
                     } else {
                         editorEditText.setText("");
                     }
@@ -195,10 +207,6 @@ public class FilesFragment extends Fragment {
         editorContainer.setVisibility(View.GONE);
         fileListLayout.setVisibility(View.VISIBLE);
         editingFilePath = "";
-        if (getActivity() != null) {
-            View nav = getActivity().findViewById(R.id.bottomNavigation);
-            if (nav != null) nav.setVisibility(View.VISIBLE);
-        }
     }
 
     private void saveFile() {
