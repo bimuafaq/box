@@ -5,13 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.materialswitch.MaterialSwitch;
 
 public class SettingsFragment extends Fragment {
     private TextView currentThemeText;
@@ -23,22 +21,10 @@ public class SettingsFragment extends Fragment {
         
         View themeSelection = view.findViewById(R.id.themeSelection);
         currentThemeText = view.findViewById(R.id.currentThemeText);
-        MaterialSwitch notifySwitch = view.findViewById(R.id.notifySwitch);
         
         updateThemeLabel();
 
         themeSelection.setOnClickListener(v -> showThemeDialog());
-
-        notifySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (getView() != null && getActivity() != null) {
-                Snackbar snackbar = Snackbar.make(getView(), isChecked ? "Notifications Enabled" : "Notifications Disabled", Snackbar.LENGTH_SHORT);
-                View nav = getActivity().findViewById(R.id.bottomNavigation);
-                if (nav != null && nav.getVisibility() == View.VISIBLE) {
-                    snackbar.setAnchorView(nav);
-                }
-                snackbar.show();
-            }
-        });
 
         return view;
     }

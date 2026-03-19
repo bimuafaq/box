@@ -19,6 +19,9 @@
         android:layout_alignParentBottom="true"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
+        app:itemIconSize="24dp"
+        app:itemPaddingTop="8dp"
+        app:itemPaddingBottom="8dp"
         app:paddingBottomSystemWindowInsets="false"
         style="@style/Widget.Material3.BottomNavigationView" />
 
