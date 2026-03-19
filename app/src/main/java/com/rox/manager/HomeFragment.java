@@ -237,7 +237,7 @@ public class HomeFragment extends Fragment {
         }
 
         new Thread(() -> {
-            ShellHelper.runRootCommand(command);
+            ShellHelper.runRootCommandOneShot(command);
             try { Thread.sleep(2200); } catch (InterruptedException ignored) {}
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
