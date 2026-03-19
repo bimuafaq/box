@@ -7,55 +7,44 @@
     android:padding="16dp"
     android:background="?attr/android:windowBackground">
 
-    <!-- Header Section -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:paddingBottom="12dp"
-        android:paddingStart="4dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SYSTEM LOGS"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface" />
-        
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-            
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="LIVE"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="?android:attr/textColorSecondary"
-                android:layout_marginEnd="4dp" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switchLiveLogs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-    </RelativeLayout>
-
-    <!-- File Selector Section -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SELECT LOG SOURCE"
-        android:textSize="10sp"
+        android:text="Logs"
+        android:textSize="26sp"
         android:textStyle="bold"
-        android:textColor="?android:attr/textColorSecondary"
-        android:letterSpacing="0.1"
-        android:paddingStart="4dp"
-        android:layout_marginBottom="8dp" />
+        android:textColor="?attr/colorOnSurface"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingStart="4dp" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="16dp"
+        style="?attr/materialCardViewFilledStyle">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Live Monitoring"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"
+                android:textColor="?attr/colorOnSurface" />
+            
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchLiveLogs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true" />
+        </RelativeLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -68,37 +57,38 @@
             android:layout_height="wrap_content"
             app:singleSelection="true"
             app:selectionRequired="true">
-            <!-- Chips will be added dynamically -->
+            <!-- Chips added dynamically -->
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
-    <!-- Log Content Area -->
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLogs"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        app:cardCornerRadius="16dp"
+        style="?attr/materialCardViewFilledStyle">
         
-        <com.google.android.material.card.MaterialCardView
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLogs"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            style="?attr/materialCardViewFilledStyle">
+            android:layout_height="match_parent">
+            
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/logScrollView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#111111"
-                android:padding="12dp">
+                android:padding="16dp"
+                android:fillViewport="true">
                 <TextView
                     android:id="@+id/logTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Initializing logs..."
-                    android:textColor="#00FF00"
                     android:fontFamily="monospace"
-                    android:textSize="12sp" />
+                    android:textSize="11sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:lineSpacingExtra="2dp" />
             </androidx.core.widget.NestedScrollView>
-        </com.google.android.material.card.MaterialCardView>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

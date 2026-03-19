@@ -24,9 +24,6 @@ import android.content.res.Configuration;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
 import io.github.rosemoe.sora.widget.schemes.SchemeNotepadXX;
-import io.github.rosemoe.sora.langs.textmate.TextMateLanguage;
-import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry;
-import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,23 +92,22 @@ public class FilesFragment extends Fragment {
                 .show();
         });
 
-        // Initialize Sora Editor Settings (BFR Style)
+        // Initialize Sora Editor Settings
         codeEditor.setWordwrap(true);
         codeEditor.setLineNumberEnabled(true);
 
-        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-            try {
-                codeEditor.setColorScheme(new SchemeDarcula());
-            } catch (Exception e) {}
-        } else {
-            try {
-                codeEditor.setColorScheme(new SchemeNotepadXX());
-            } catch (Exception e) {}
-        }
-
+        applyThemeToEditor();
         loadFiles();
         return view;
+    }
+
+    private void applyThemeToEditor() {
+        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+            try { codeEditor.setColorScheme(new SchemeDarcula()); } catch (Exception ignored) {}
+        } else {
+            try { codeEditor.setColorScheme(new SchemeNotepadXX()); } catch (Exception ignored) {}
+        }
     }
 
     private void loadFiles() {
@@ -180,9 +176,6 @@ public class FilesFragment extends Fragment {
         editorFileName.setText(name);
         fileListLayout.setVisibility(View.GONE);
         editorContainer.setVisibility(View.VISIBLE);
-
-        // Reset language before loading new file
-        codeEditor.setEditorLanguage(null);
 
         new Thread(() -> {
             String content = ShellHelper.readRootFileBase64(path);
@@ -292,10 +285,8 @@ public class FilesFragment extends Fragment {
                                 .setTitle("Delete")
                                 .setMessage("Are you sure you want to delete " + data.name + "?")
                                 .setPositiveButton("Delete", (d, w) -> {
-                                    // SAFETY GUARD: Prevent rm -rf / or deleting outside of box
-                                    if (data.fullPath == null || data.fullPath.trim().isEmpty() || data.fullPath.equals("/") || !data.fullPath.startsWith("/data/adb/box")) {
-                                        showSnackbar("Action blocked: Unsafe path detected!");
-                                        return;
+                                    if (data.fullPath == null || !data.fullPath.startsWith("/data/adb/box")) {
+                                        showSnackbar("Blocked: Unsafe path."); return;
                                     }
                                     executeCommand("rm -rf \"" + data.fullPath + "\"", "Deleted");
                                 })
