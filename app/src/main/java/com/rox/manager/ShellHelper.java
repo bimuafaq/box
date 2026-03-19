@@ -42,14 +42,17 @@ public class ShellHelper {
 
         StringBuilder output = new StringBuilder();
         try {
-            writer.write(command + "\n");
+            writer.write("(" + command + ") </dev/null 2>&1\n");
+            writer.write("echo ''\n"); // Ensure newline before END_MARKER
             writer.write("echo " + END_MARKER + "\n");
             writer.flush();
 
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.equals(END_MARKER)) break;
-                output.append(line).append("\n");
+                if (!line.trim().isEmpty()) {
+                    output.append(line).append("\n");
+                }
             }
             return output.toString().trim();
         } catch (Exception e) {

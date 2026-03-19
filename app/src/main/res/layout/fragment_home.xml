@@ -131,6 +131,7 @@
         style="@style/Widget.Material3.MaterialButtonGroup.Connected"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:spacing="4dp"
         android:gravity="center_horizontal">
 
         <com.google.android.material.button.MaterialButton
