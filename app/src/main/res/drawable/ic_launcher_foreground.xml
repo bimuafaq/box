@@ -5,18 +5,21 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     
-    <!-- Top Face (Lighter black/dark grey) -->
+    <!-- Outer Hexagon Outline -->
     <path
-        android:fillColor="#424242"
-        android:pathData="M 54 24 L 80 39 L 54 54 L 28 39 Z" />
+        android:fillColor="#00000000"
+        android:strokeColor="#000000"
+        android:strokeWidth="6"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:pathData="M 54 22 L 82 38 L 82 70 L 54 86 L 26 70 L 26 38 Z" />
         
-    <!-- Left Face (Mid black) -->
+    <!-- Inner Y Outline -->
     <path
-        android:fillColor="#212121"
-        android:pathData="M 28 39 L 54 54 L 54 84 L 28 69 Z" />
-        
-    <!-- Right Face (Pure black) -->
-    <path
-        android:fillColor="#000000"
-        android:pathData="M 54 54 L 80 39 L 80 69 L 54 84 Z" />
+        android:fillColor="#00000000"
+        android:strokeColor="#000000"
+        android:strokeWidth="6"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:pathData="M 54 54 L 54 86 M 54 54 L 82 38 M 54 54 L 26 38" />
 </vector>
