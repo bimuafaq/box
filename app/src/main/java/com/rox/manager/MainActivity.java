@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
         setupViewPager();
         setupBottomNav();
+        
+        ShellHelper.setCacheDir(getCacheDir().getAbsolutePath());
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
