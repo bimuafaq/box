@@ -34,36 +34,38 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:padding="8dp">
+                android:orientation="vertical">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/search_card"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/search_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    style="@style/Widget.Material3.CardView.Elevated">
+                    android:hint="Search files..."
+                    android:layout_margin="12dp"
+                    app:boxBackgroundColor="?attr/colorSurfaceContainerHighest"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp"
+                    app:endIconMode="clear_text"
+                    app:startIconDrawable="@android:drawable/ic_menu_search"
+                    style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/search_layout"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/searchEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Search files..."
-                        app:boxBackgroundColor="?attr/colorSurfaceContainerHighest"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="0dp"
-                        app:endIconMode="clear_text"
-                        app:startIconDrawable="@android:drawable/ic_menu_search"
-                        style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
+                        android:maxLines="1"
+                        android:imeOptions="actionSearch" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/searchEditText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:imeOptions="actionSearch" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </com.google.android.material.card.MaterialCardView>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/colorOutlineVariant"
+                    android:alpha="0.5" />
 
                 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                     android:id="@+id/swipeRefreshFiles"
@@ -74,8 +76,8 @@
                         android:id="@+id/fileRecyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:padding="4dp"
-                        android:clipToPadding="false" />
+                        android:clipToPadding="false"
+                        android:paddingBottom="80dp" />
                 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
