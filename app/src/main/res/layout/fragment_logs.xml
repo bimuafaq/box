@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logs"
+        android:text="@string/title_logs"
         android:textSize="26sp"
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"
@@ -41,7 +41,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Log Source"
+                    android:text="@string/label_log_source"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface" />
@@ -49,7 +49,7 @@
                     android:id="@+id/textSelectedLog"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="box.log"
+                    android:text="@string/default_log_file"
                     android:textSize="13sp"
                     android:textColor="?attr/colorPrimary" />
             </LinearLayout>
