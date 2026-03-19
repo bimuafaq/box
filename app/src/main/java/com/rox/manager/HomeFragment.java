@@ -142,12 +142,22 @@ public class HomeFragment extends Fragment {
                             long seconds = parseETimeToSeconds(etime);
                             startTimer(seconds);
                             coreText.setText(core.toUpperCase() + " (" + pid + ")");
+                            
+                            // Enable Stop/Restart, Disable Start
+                            startBtn.setEnabled(false);
+                            restartBtn.setEnabled(true);
+                            stopBtn.setEnabled(true);
                         } else {
                             statusText.setText(getString(R.string.status_stopped));
                             statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorError));
                             runtimeText.setText("00:00:00");
                             stopTimer();
                             coreText.setText("---");
+                            
+                            // Enable Start, Disable Stop/Restart
+                            startBtn.setEnabled(true);
+                            restartBtn.setEnabled(false);
+                            stopBtn.setEnabled(false);
                         }
                     }
                 });

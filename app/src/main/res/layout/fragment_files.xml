@@ -9,8 +9,7 @@
         android:id="@+id/fileListLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/title_files"
@@ -20,77 +19,56 @@
             android:textSize="26sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
-            android:paddingTop="16dp"
+            android:paddingTop="32dp"
             android:paddingBottom="12dp"
-            android:paddingStart="4dp" />
+            android:paddingStart="20dp" />
 
+        <!-- SEARCH BAR IN CARD (Matching Card Padding) -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            app:cardCornerRadius="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="16dp"
             app:cardBackgroundColor="?attr/colorSurfaceContainer"
             app:strokeWidth="0dp"
             style="?attr/materialCardViewFilledStyle">
-            
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
 
-                <!-- SEARCH BAR IN AN ELEVATED CARD -->
-                <!-- Use colorSurface to contrast against colorSurfaceContainer -->
-                <com.google.android.material.card.MaterialCardView
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Search files..."
+                app:boxBackgroundColor="@android:color/transparent"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:endIconMode="clear_text"
+                app:startIconDrawable="@android:drawable/ic_menu_search"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/searchEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="12dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="?attr/colorSurface"
-                    style="@style/Widget.Material3.CardView.Elevated">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/search_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Search files..."
-                        app:boxBackgroundColor="@android:color/transparent"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="0dp"
-                        app:endIconMode="clear_text"
-                        app:startIconDrawable="@android:drawable/ic_menu_search"
-                        style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/searchEditText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:paddingVertical="12dp"
-                            android:imeOptions="actionSearch" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="?attr/colorOutlineVariant"
-                    android:alpha="0.5" />
-
-                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                    android:id="@+id/swipeRefreshFiles"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/fileRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clipToPadding="false"
-                        android:paddingBottom="80dp" />
-                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-            </LinearLayout>
+                    android:maxLines="1"
+                    android:paddingVertical="14dp"
+                    android:imeOptions="actionSearch" />
+            </com.google.android.material.textfield.TextInputLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- FILE LIST (Polos on Background) -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshFiles"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fileRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="80dp" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -119,7 +97,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="8dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp">
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditorBack"
                 style="@style/Widget.Material3.Button.IconButton"
@@ -152,6 +131,8 @@
             android:layout_height="match_parent"
             android:layout_margin="12dp"
             app:cardCornerRadius="16dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainer"
+            app:strokeWidth="0dp"
             style="@style/Widget.Material3.CardView.Filled">
             
             <LinearLayout
