@@ -127,7 +127,7 @@ public class HomeFragment extends Fragment {
                          "ETIME=$(ps -p $PID -o etime= 2>/dev/null || echo \"00:00\"); " +
                          "echo \"$PID|$CORE|$ETIME\"";
             
-            String result = ShellHelper.runRootCommandOneShot(cmd);
+            String result = ShellHelper.runRootCommand(cmd);
             
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
@@ -166,7 +166,7 @@ public class HomeFragment extends Fragment {
                          "  echo \"$RSS|$CPU|$CORE_ID\"; " +
                          "else echo \"0|0|0\"; fi";
             
-            String res = ShellHelper.runRootCommandOneShot(cmd);
+            String res = ShellHelper.runRootCommand(cmd);
 
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
