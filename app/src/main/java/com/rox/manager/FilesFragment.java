@@ -19,6 +19,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.widget.PopupMenu;
+import io.github.rosemoe.sora.widget.CodeEditor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,10 +36,10 @@ public class FilesFragment extends Fragment {
     private SwipeRefreshLayout swipeRefresh;
     private EditText searchEditText;
 
-    // Natural Editor Components
+    // Sora Editor Components
     private View fileListLayout, editorContainer;
-    private EditText editorEditText;
-    private TextView editorFileName, lineNumbers;
+    private CodeEditor codeEditor;
+    private TextView editorFileName;
     private String editingFilePath = "";
 
     @Nullable
@@ -52,9 +54,8 @@ public class FilesFragment extends Fragment {
         
         // Editor UI
         editorContainer = view.findViewById(R.id.editorContainer);
-        editorEditText = view.findViewById(R.id.editorEditText);
+        codeEditor = view.findViewById(R.id.codeEditor);
         editorFileName = view.findViewById(R.id.editorFileName);
-        lineNumbers = view.findViewById(R.id.lineNumbers);
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
         
@@ -88,11 +89,9 @@ public class FilesFragment extends Fragment {
                 .show();
         });
 
-        editorEditText.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { updateLineNumbers(); }
-            @Override public void afterTextChanged(Editable s) {}
-        });
+        // Initialize Sora Editor Settings (BFR Style)
+        codeEditor.setWordwrap(true);
+        codeEditor.setLineNumberEnabled(true);
 
         loadFiles();
         return view;
@@ -170,34 +169,10 @@ public class FilesFragment extends Fragment {
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (content != null) {
-                        String safeContent = content;
-                        // Anti-Freeze: Cap size and efficiently inject newlines for long lines
-                        if (safeContent.length() > 50000) {
-                            safeContent = safeContent.substring(0, 50000) + "\n[File too large, showing partial content for stability]";
-                        }
-                        
-                        // Fast newline injection to prevent Android Layout engine from freezing on huge binary lines
-                        StringBuilder sb = new StringBuilder(safeContent.length() + (safeContent.length() / 200) + 100);
-                        int lineLen = 0;
-                        for (int i = 0; i < safeContent.length(); i++) {
-                            char c = safeContent.charAt(i);
-                            sb.append(c);
-                            if (c == '\n') {
-                                lineLen = 0;
-                            } else {
-                                lineLen++;
-                                if (lineLen >= 200) {
-                                    sb.append('\n');
-                                    lineLen = 0;
-                                }
-                            }
-                        }
-                        editorEditText.setText(sb.toString());
+                        codeEditor.setText(content);
                     } else {
-                        editorEditText.setText("");
+                        codeEditor.setText("");
                     }
-                    // Small delay to ensure layout is ready for line numbering
-                    editorEditText.postDelayed(this::updateLineNumbers, 100);
                 });
             }
         }).start();
@@ -210,7 +185,7 @@ public class FilesFragment extends Fragment {
     }
 
     private void saveFile() {
-        String content = editorEditText.getText().toString();
+        String content = codeEditor.getText().toString();
         new Thread(() -> {
             boolean success = ShellHelper.writeRootFileBase64(editingFilePath, content);
             if (getActivity() != null) {
@@ -250,16 +225,6 @@ public class FilesFragment extends Fragment {
                 .setAnchorView(getActivity().findViewById(R.id.bottomNavigation))
                 .show();
         }
-    }
-
-    private void updateLineNumbers() {
-        if (editorEditText == null || lineNumbers == null) return;
-        int lineCount = editorEditText.getLineCount();
-        if (lineCount <= 0) lineCount = 1;
-        
-        StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= lineCount; i++) { sb.append(i).append("\n"); }
-        lineNumbers.setText(sb.toString());
     }
 
     interface InputCallback { void onInput(String text); }
