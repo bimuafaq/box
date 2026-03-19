@@ -1,7 +1,6 @@
 package com.rox.manager;
 
 import android.os.Bundle;
-import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
