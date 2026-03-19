@@ -18,19 +18,19 @@
         android:paddingBottom="16dp"
         android:paddingStart="4dp" />
 
-    <!-- MODUL 1: STATUS & SYSTEM INFO -->
+    <!-- MODUL 1: STATUS & SYSTEM INFO (MD3 FILLED CARD) -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:contentPadding="20dp">
+        style="?attr/materialCardViewFilledStyle">
+        
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="24dp">
             
             <LinearLayout
                 android:layout_width="match_parent"
@@ -47,16 +47,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/label_service_status"
-                        android:textSize="10sp"
-                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textAllCaps="true"
+                        android:textStyle="bold"
                         android:letterSpacing="0.1" />
                     <TextView
                         android:id="@+id/statusText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/status_ready"
-                        android:textSize="18sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
                         android:layout_marginTop="2dp" />
@@ -71,16 +72,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="ACTIVE CORE"
-                        android:textSize="10sp"
-                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textAllCaps="true"
+                        android:textStyle="bold"
                         android:letterSpacing="0.1" />
                     <TextView
                         android:id="@+id/coreText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="---"
-                        android:textSize="18sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
                         android:layout_marginTop="2dp"
@@ -91,9 +93,9 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="#1A000000" />
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="?attr/colorOutlineVariant" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -101,23 +103,23 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CPU" android:textSize="9sp" android:textStyle="bold" android:textColor="?android:attr/textColorSecondary" />
-                    <TextView android:id="@+id/cpuText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CPU" android:textSize="10sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <TextView android:id="@+id/cpuText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:textSize="16sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
                 </LinearLayout>
-                <View android:layout_width="24dp" android:layout_height="0dp" />
+                <View android:layout_width="32dp" android:layout_height="0dp" />
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RAM" android:textSize="9sp" android:textStyle="bold" android:textColor="?android:attr/textColorSecondary" />
-                    <TextView android:id="@+id/ramText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 MB" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RAM" android:textSize="10sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <TextView android:id="@+id/ramText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 MB" android:textSize="16sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
                 </LinearLayout>
-                <View android:layout_width="24dp" android:layout_height="0dp" />
+                <View android:layout_width="32dp" android:layout_height="0dp" />
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CORE" android:textSize="9sp" android:textStyle="bold" android:textColor="?android:attr/textColorSecondary" />
-                    <TextView android:id="@+id/idCoreText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CORE" android:textSize="10sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <TextView android:id="@+id/idCoreText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-" android:textSize="16sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" />
                 </LinearLayout>
                 <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UPTIME" android:textSize="9sp" android:textStyle="bold" android:textColor="?android:attr/textColorSecondary" />
-                    <TextView android:id="@+id/runtimeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="00:00:00" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" android:gravity="end" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UPTIME" android:textSize="10sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <TextView android:id="@+id/runtimeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="00:00:00" android:textSize="16sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" android:layout_marginTop="1dp" android:gravity="end" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
