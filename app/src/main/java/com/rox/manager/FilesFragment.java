@@ -85,9 +85,9 @@ public class FilesFragment extends Fragment {
                 .setTitle("Create New")
                 .setItems(new String[]{"New File", "New Folder"}, (dialog, which) -> {
                     if (which == 0) {
-                        showInputDialog("New File", "Enter file name", name -> executeCommand("touch \"" + currentPath + "/" + name + "\"", "File created"));
+                        showInputDialog("New File", "Enter file name", "", name -> executeCommand("touch \"" + currentPath + "/" + name + "\"", "File created"));
                     } else {
-                        showInputDialog("New Folder", "Enter folder name", name -> executeCommand("mkdir -p \"" + currentPath + "/" + name + "\"", "Folder created"));
+                        showInputDialog("New Folder", "Enter folder name", "", name -> executeCommand("mkdir -p \"" + currentPath + "/" + name + "\"", "Folder created"));
                     }
                 })
                 .show();
@@ -233,9 +233,13 @@ public class FilesFragment extends Fragment {
         }).start();
     }
 
-    private void showInputDialog(String title, String hint, InputCallback callback) {
+    private void showInputDialog(String title, String hint, String initialText, InputCallback callback) {
         EditText input = new EditText(getContext());
         input.setHint(hint);
+        if (initialText != null && !initialText.isEmpty()) {
+            input.setText(initialText);
+            input.setSelection(initialText.length());
+        }
         new MaterialAlertDialogBuilder(getContext())
             .setTitle(title)
             .setView(input)
@@ -323,7 +327,7 @@ public class FilesFragment extends Fragment {
                                 })
                                 .setNegativeButton("Cancel", null).show();
                         } else { // Rename
-                            showInputDialog("Rename", "Enter new name", newName -> executeCommand("mv \"" + data.fullPath + "\" \"" + currentPath + "/" + newName + "\"", "Renamed"));
+                            showInputDialog("Rename", "Enter new name", data.name, newName -> executeCommand("mv \"" + data.fullPath + "\" \"" + currentPath + "/" + newName + "\"", "Renamed"));
                         }
                     })
                     .show();
