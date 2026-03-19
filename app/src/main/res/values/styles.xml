@@ -4,6 +4,27 @@
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Material3.SmallComponent</item>
     </style>
 
+    <style name="ShapeAppearance.StartButton" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">28dp</item>
+        <item name="cornerSizeBottomLeft">28dp</item>
+        <item name="cornerSizeTopRight">8dp</item>
+        <item name="cornerSizeBottomRight">8dp</item>
+    </style>
+    
+    <style name="ShapeAppearance.MiddleButton" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+    
+    <style name="ShapeAppearance.EndButton" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">8dp</item>
+        <item name="cornerSizeBottomLeft">8dp</item>
+        <item name="cornerSizeTopRight">28dp</item>
+        <item name="cornerSizeBottomRight">28dp</item>
+    </style>
+
     <!-- Light Theme Material 3 -->
     <style name="Theme.OXController" parent="Theme.Material3.Light.NoActionBar">
         <!-- Transparent Status Bar -->

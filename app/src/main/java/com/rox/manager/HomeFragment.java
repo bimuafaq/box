@@ -139,13 +139,13 @@ public class HomeFragment extends Fragment {
 
                         if (pid.matches("\\d+") && !pid.equals("0")) {
                             statusText.setText(getString(R.string.status_running));
-                            statusText.setTextColor(ContextCompat.getColor(getContext(), R.color.primary_indigo));
+                            statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorPrimary));
                             long seconds = parseETimeToSeconds(etime);
                             startTimer(seconds);
                             coreText.setText(core.toUpperCase() + " (" + pid + ")");
                         } else {
                             statusText.setText(getString(R.string.status_stopped));
-                            statusText.setTextColor(0xFFE53935);
+                            statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorError));
                             runtimeText.setText("00:00:00");
                             stopTimer();
                             coreText.setText("---");
@@ -223,6 +223,10 @@ public class HomeFragment extends Fragment {
         if (isActionRunning) return;
         isActionRunning = true;
         toggleButtons(false);
+        
+        statusText.setText(msg);
+        statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOutline));
+
         if (getView() != null && getActivity() != null) {
             Snackbar snackbar = Snackbar.make(getView(), msg, Snackbar.LENGTH_SHORT);
             View nav = getActivity().findViewById(R.id.bottomNavigation);
