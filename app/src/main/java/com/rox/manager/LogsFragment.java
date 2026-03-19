@@ -28,7 +28,7 @@ public class LogsFragment extends Fragment {
     private MaterialSwitch switchLiveLogs;
     private NestedScrollView logScrollView;
     private View cardLogSource;
-    private String selectedLogFile = "box.log";
+    private String selectedLogFile = "runs.log";
     private SharedPreferences prefs;
     
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -40,7 +40,7 @@ public class LogsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_logs, container, false);
 
         prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
-        selectedLogFile = prefs.getString("selected_log", "box.log");
+        selectedLogFile = prefs.getString("selected_log", "runs.log");
 
         logTextView = view.findViewById(R.id.logTextView);
         textSelectedLog = view.findViewById(R.id.textSelectedLog);
@@ -84,7 +84,7 @@ public class LogsFragment extends Fragment {
                 }
             }
             
-            if (logFiles.isEmpty()) logFiles.add("box.log");
+            if (logFiles.isEmpty()) logFiles.add("runs.log");
 
             String[] items = logFiles.toArray(new String[0]);
             if (getActivity() != null) {

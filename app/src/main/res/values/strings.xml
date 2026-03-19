@@ -34,7 +34,7 @@
 
     <!-- Logs Fragment -->
     <string name="label_log_source">Log Source</string>
-    <string name="default_log_file">box.log</string>
+    <string name="default_log_file">runs.log</string>
 
     <!-- Files Fragment -->
     <string name="hint_search_files">Search files...</string>
