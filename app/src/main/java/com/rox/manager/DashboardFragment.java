@@ -11,12 +11,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 
 public class DashboardFragment extends Fragment {
     private View initialLayout, webViewContainer, webHeader;
     private WebView webView;
     private TextView title;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Nullable
     @Override
@@ -28,11 +30,17 @@ public class DashboardFragment extends Fragment {
         webHeader = view.findViewById(R.id.webHeader);
         webView = view.findViewById(R.id.dashWebView);
         title = view.findViewById(R.id.dashTitle);
+        swipeRefresh = view.findViewById(R.id.swipeRefreshDash);
         
         MaterialButton btnOpen = view.findViewById(R.id.btnOpenFullWeb);
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         
         setupWebView();
+
+        swipeRefresh.setOnRefreshListener(() -> {
+            webView.reload();
+            swipeRefresh.setRefreshing(false);
+        });
 
         btnOpen.setOnClickListener(v -> {
             initialLayout.setVisibility(View.GONE);

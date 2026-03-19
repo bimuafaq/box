@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="?attr/android:windowBackground">
 
-    <!-- FILE LIST VIEW -->
     <LinearLayout
         android:id="@+id/fileListLayout"
         android:layout_width="match_parent"
@@ -26,54 +25,67 @@
             android:paddingStart="4dp" />
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/search_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            style="@style/Widget.Material3.CardView.Elevated">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/search_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Search files..."
-                app:boxBackgroundColor="?attr/colorSurfaceContainerHighest"
-                app:boxStrokeWidth="0dp"
-                app:boxStrokeWidthFocused="0dp"
-                app:endIconMode="clear_text"
-                app:startIconDrawable="@android:drawable/ic_menu_search"
-                style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/searchEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:imeOptions="actionSearch" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshFiles"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/fileRecyclerView"
+            android:layout_weight="1"
+            app:cardCornerRadius="20dp"
+            style="?attr/materialCardViewFilledStyle">
+            
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingBottom="8dp"
-                android:clipToPadding="false" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/search_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    style="@style/Widget.Material3.CardView.Elevated">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/search_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Search files..."
+                        app:boxBackgroundColor="?attr/colorSurfaceContainerHighest"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="0dp"
+                        app:endIconMode="clear_text"
+                        app:startIconDrawable="@android:drawable/ic_menu_search"
+                        style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/searchEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:imeOptions="actionSearch" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                    android:id="@+id/swipeRefreshFiles"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/fileRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="4dp"
+                        android:clipToPadding="false" />
+                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
-    <!-- FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddAction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="24dp"
         android:layout_gravity="end|bottom"
         android:src="@android:drawable/ic_input_add"
         app:tint="?attr/colorOnPrimaryContainer"

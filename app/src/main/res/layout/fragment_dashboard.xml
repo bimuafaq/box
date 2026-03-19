@@ -106,10 +106,16 @@
                     android:paddingBottom="12dp"
                     android:minHeight="0dp" />
 
-                <WebView
-                    android:id="@+id/dashWebView"
+                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                    android:id="@+id/swipeRefreshDash"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent">
+                    
+                    <WebView
+                        android:id="@+id/dashWebView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
