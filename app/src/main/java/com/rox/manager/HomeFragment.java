@@ -20,11 +20,11 @@ public class HomeFragment extends Fragment {
     private MaterialButton startBtn, stopBtn, restartBtn;
     private boolean isActionRunning = false;
     
-    private Handler timerHandler = new Handler();
+    private Handler timerHandler = new Handler(android.os.Looper.getMainLooper());
     private long currentRuntimeSeconds = 0;
     private boolean isTimerRunning = false;
     
-    private Handler statsHandler = new Handler();
+    private Handler statsHandler = new Handler(android.os.Looper.getMainLooper());
     private boolean isStatsRunning = false;
 
     @Nullable

@@ -1,33 +1,33 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace 'com.rox.manager'
-    compileSdk 34
+    namespace = 'com.rox.manager'
+    compileSdk = 34
 
     defaultConfig {
-        applicationId "com.rox.manager"
-        minSdk 28
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        applicationId = "com.rox.manager"
+        minSdk = 28
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
     }
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
         }
     }
 
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
