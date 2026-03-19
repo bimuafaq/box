@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class FilesFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -112,28 +114,39 @@ public class FilesFragment extends Fragment {
     private void loadFiles() {
         swipeRefresh.setRefreshing(true);
         new Thread(() -> {
-            String fullCmd = "ls -p \"" + currentPath + "\"";
-            String result = ShellHelper.runRootCommand(fullCmd);
+            String cmd = "for f in \"" + currentPath + "\"/* \"" + currentPath + "\"/.*; do " +
+                         "  name=$(basename \"$f\"); " +
+                         "  if [ \"$name\" != \".\" ] && [ \"$name\" != \"..\" ] && [ -e \"$f\" ]; then " +
+                         "    is_dir=0; [ -d \"$f\" ] && is_dir=1; " +
+                         "    size=$(stat -c '%s' \"$f\"); " +
+                         "    mtime=$(stat -c '%Y' \"$f\"); " +
+                         "    echo \"$is_dir|$size|$mtime|$name\"; " +
+                         "  fi; " +
+                         "done";
+            String result = ShellHelper.runRootCommand(cmd);
             
             List<FileData> list = new ArrayList<>();
             if (!currentPath.equals("/") && !currentPath.equals("/data/adb/box")) {
-                list.add(new FileData("..", getParentPath(currentPath), true, true, ""));
+                list.add(new FileData("..", getParentPath(currentPath), true, true, 0, 0));
             }
 
             if (result != null && !result.isEmpty()) {
                 String[] lines = result.split("\n");
                 for (String line : lines) {
-                    if (line.trim().isEmpty()) continue;
-                    boolean isDir = line.endsWith("/");
-                    String name = isDir ? line.substring(0, line.length()-1) : line;
-                    String fullPath = currentPath + "/" + name;
-                    
-                    String size = "";
-                    if (!isDir) {
-                        String s = ShellHelper.runRootCommand("du -h \"" + fullPath + "\" | cut -f1");
-                        size = s != null ? s.trim() : "";
+                    if (line.trim().isEmpty() || !line.contains("|")) continue;
+                    String[] parts = line.split("\\|", 4);
+                    if (parts.length == 4) {
+                        boolean isDir = parts[0].equals("1");
+                        long size = 0;
+                        long mtime = 0;
+                        try {
+                            size = Long.parseLong(parts[1]);
+                            mtime = Long.parseLong(parts[2]);
+                        } catch (NumberFormatException ignored) {}
+                        String name = parts[3];
+                        String fullPath = currentPath + "/" + name;
+                        list.add(new FileData(name, fullPath, isDir, false, size, mtime));
                     }
-                    list.add(new FileData(name, fullPath, isDir, false, size));
                 }
             }
             
@@ -242,10 +255,29 @@ public class FilesFragment extends Fragment {
     interface InputCallback { void onInput(String text); }
 
     static class FileData {
-        String name, fullPath, size = "";
+        String name, fullPath, displayMeta = "";
         boolean isDir, isBack;
-        FileData(String name, String fullPath, boolean isDir, boolean isBack, String size) {
-            this.name = name; this.fullPath = fullPath; this.isDir = isDir; this.isBack = isBack; this.size = size;
+        long size, mtime;
+        
+        FileData(String name, String fullPath, boolean isDir, boolean isBack, long size, long mtime) {
+            this.name = name; this.fullPath = fullPath; this.isDir = isDir; this.isBack = isBack;
+            this.size = size; this.mtime = mtime;
+            
+            if (!isBack) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yy HH.mm", Locale.getDefault());
+                String dateStr = sdf.format(new Date(mtime * 1000L));
+                if (isDir) {
+                    this.displayMeta = dateStr;
+                } else {
+                    this.displayMeta = dateStr + "   " + formatSize(size);
+                }
+            }
+        }
+        
+        private String formatSize(long v) {
+            if (v < 1024) return v + " B";
+            int z = (63 - Long.numberOfLeadingZeros(v)) / 10;
+            return String.format(Locale.getDefault(), "%.2f%s", (double)v / (1L << (z*10)), " KMGTPE".charAt(z));
         }
     }
 
@@ -256,14 +288,14 @@ public class FilesFragment extends Fragment {
         @Override public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             FileData data = filteredFiles.get(position);
             holder.name.setText(data.name);
-            holder.size.setText(data.size);
+            holder.size.setText(data.displayMeta);
             
             if (data.isBack) { 
                 holder.icon.setImageResource(R.drawable.ic_back_arrow); 
                 holder.size.setVisibility(View.GONE);
             } else if (data.isDir) { 
                 holder.icon.setImageResource(R.drawable.ic_folder); 
-                holder.size.setVisibility(View.GONE);
+                holder.size.setVisibility(View.VISIBLE);
             } else { 
                 holder.icon.setImageResource(R.drawable.ic_logs); 
                 holder.size.setVisibility(View.VISIBLE);
