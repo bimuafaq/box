@@ -29,6 +29,8 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainer"
+            app:strokeWidth="0dp"
             style="?attr/materialCardViewFilledStyle">
             
             <LinearLayout
@@ -37,12 +39,14 @@
                 android:orientation="vertical">
 
                 <!-- SEARCH BAR IN AN ELEVATED CARD -->
+                <!-- Use colorSurface to contrast against colorSurfaceContainer -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="12dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="2dp"
+                    app:cardBackgroundColor="?attr/colorSurface"
                     style="@style/Widget.Material3.CardView.Elevated">
 
                     <com.google.android.material.textfield.TextInputLayout

@@ -26,6 +26,8 @@
         app:cardCornerRadius="16dp"
         android:clickable="true"
         android:focusable="true"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        app:strokeWidth="0dp"
         style="?attr/materialCardViewFilledStyle">
         <RelativeLayout
             android:layout_width="match_parent"
@@ -66,6 +68,8 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        app:strokeWidth="0dp"
         style="?attr/materialCardViewFilledStyle">
         
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
