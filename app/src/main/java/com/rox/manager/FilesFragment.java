@@ -20,7 +20,10 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.widget.PopupMenu;
+import android.content.res.Configuration;
 import io.github.rosemoe.sora.widget.CodeEditor;
+import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
+import io.github.rosemoe.sora.widget.schemes.SchemeNotepadXX;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,6 +95,17 @@ public class FilesFragment extends Fragment {
         // Initialize Sora Editor Settings (BFR Style)
         codeEditor.setWordwrap(true);
         codeEditor.setLineNumberEnabled(true);
+
+        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+            try {
+                codeEditor.setColorScheme(new SchemeDarcula());
+            } catch (Exception e) {}
+        } else {
+            try {
+                codeEditor.setColorScheme(new SchemeNotepadXX());
+            } catch (Exception e) {}
+        }
 
         loadFiles();
         return view;
