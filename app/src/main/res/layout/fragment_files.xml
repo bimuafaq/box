@@ -6,10 +6,12 @@
     android:background="?attr/android:windowBackground">
 
     <!-- FILE LIST VIEW -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/fileListLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/title_files"
@@ -20,21 +22,15 @@
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
             android:paddingTop="16dp"
-            android:paddingBottom="16dp"
-            android:paddingStart="4dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="16dp" />
+            android:paddingBottom="12dp"
+            android:paddingStart="4dp" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/search_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            style="@style/Widget.Material3.CardView.Elevated"
-            app:layout_constraintTop_toBottomOf="@id/title_files">
+            android:layout_marginBottom="8dp"
+            style="@style/Widget.Material3.CardView.Elevated">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/search_layout"
@@ -61,18 +57,16 @@
             android:id="@+id/swipeRefreshFiles"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/search_card"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:layout_weight="1">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fileRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingBottom="88dp"
+                android:paddingBottom="8dp"
                 android:clipToPadding="false" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
     <!-- FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton

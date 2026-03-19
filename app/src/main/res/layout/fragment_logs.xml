@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp"
+        android:paddingBottom="12dp"
         android:paddingStart="4dp" />
 
     <com.google.android.material.card.MaterialCardView

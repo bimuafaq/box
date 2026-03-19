@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="16dp"
     android:background="?attr/android:windowBackground">
 
     <!-- DASHBOARD TOOLBAR (Outside Card) -->
@@ -44,9 +45,9 @@
         android:textSize="26sp"
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"
-        android:paddingTop="32dp"
-        android:paddingBottom="16dp"
-        android:paddingStart="20dp" />
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp"
+        android:paddingStart="4dp" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -88,7 +89,7 @@
             android:id="@+id/webViewContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="12dp"
+            android:layout_marginBottom="12dp"
             android:visibility="gone"
             style="?attr/materialCardViewFilledStyle">
             
