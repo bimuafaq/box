@@ -170,13 +170,13 @@
 
     </LinearLayout>
 
-    <!-- MODUL 2: PING TEST (REFINED MD3 CARD) -->
+    <!-- MODUL 2: PING TEST (COMPACT MD3 CARD) -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:cardCornerRadius="24dp"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:strokeWidth="0dp"
         style="?attr/materialCardViewFilledStyle">
 
@@ -184,40 +184,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="14dp">
 
-            <!-- REFINED HEADER -->
+            <!-- COMPACT HEADER -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="20dp">
+                android:layout_marginBottom="12dp">
                 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Connectivity"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface"
-                    android:letterSpacing="0.02" />
+                    android:letterSpacing="0.01" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnTestPing"
                     style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:padding="0dp"
                     app:icon="@drawable/ic_bolt"
-                    app:iconSize="20dp"
+                    app:iconSize="18dp"
                     app:iconGravity="textStart"
                     app:iconPadding="0dp"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.SmallComponent" />
             </LinearLayout>
 
-            <!-- HORIZONTAL TEXT-BASED LAYOUT -->
+            <!-- COMPACT HORIZONTAL LAYOUT -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -234,21 +234,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Google"
-                        android:textSize="11sp"
+                        android:text="GOOGLE"
+                        android:textSize="9sp"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textStyle="bold"
-                        android:textAllCaps="true"
                         android:letterSpacing="0.05" />
                     <TextView
                         android:id="@+id/pingGoogle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="---"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
 
                 <!-- URL 2: Cloudflare -->
@@ -261,21 +260,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Cloudflare"
-                        android:textSize="11sp"
+                        android:text="CLOUDFLARE"
+                        android:textSize="9sp"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textStyle="bold"
-                        android:textAllCaps="true"
                         android:letterSpacing="0.05" />
                     <TextView
                         android:id="@+id/pingCloudflare"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="---"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
 
                 <!-- URL 3: GitHub -->
@@ -288,21 +286,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="GitHub"
-                        android:textSize="11sp"
+                        android:text="GITHUB"
+                        android:textSize="9sp"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textStyle="bold"
-                        android:textAllCaps="true"
                         android:letterSpacing="0.05" />
                     <TextView
                         android:id="@+id/pingGithub"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="---"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
 
             </LinearLayout>
