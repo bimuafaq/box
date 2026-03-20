@@ -170,13 +170,13 @@
 
     </LinearLayout>
 
-    <!-- MODUL 2: PING TEST (MD3 CARD HORIZONTAL) -->
+    <!-- MODUL 2: PING TEST (MODERN MD3 CARD) -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        app:cardCornerRadius="20dp"
-        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        app:cardCornerRadius="24dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
         app:strokeWidth="0dp"
         style="?attr/materialCardViewFilledStyle">
 
@@ -184,56 +184,67 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
+            <!-- MODERN HEADER -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="20dp">
                 
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:srcCompat="@drawable/ic_bolt"
+                    app:tint="?attr/colorPrimary"
+                    android:layout_marginEnd="8dp" />
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Connectivity Test"
-                    android:textSize="14sp"
+                    android:text="Connectivity"
+                    android:textSize="15sp"
                     android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface" />
+                    android:textColor="?attr/colorOnSurface"
+                    android:letterSpacing="0.02" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnTestPing"
-                    style="?attr/borderlessButtonStyle"
+                    style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="TEST PING"
                     android:textSize="12sp"
+                    android:letterSpacing="0.05"
                     android:minWidth="0dp"
                     android:minHeight="0dp"
-                    android:padding="8dp" />
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    app:rippleColor="?attr/colorPrimaryContainer" />
             </LinearLayout>
 
+            <!-- HORIZONTAL ICON-BASED LAYOUT -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="3">
 
-                <!-- URL 1: Google -->
+                <!-- ICON 1: Google (Web) -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Google"
-                        android:textSize="11sp"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textStyle="bold" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:srcCompat="@drawable/ic_language"
+                        app:tint="?attr/colorOnSurfaceVariant" />
                     <TextView
                         android:id="@+id/pingGoogle"
                         android:layout_width="wrap_content"
@@ -242,23 +253,21 @@
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="8dp" />
                 </LinearLayout>
 
-                <!-- URL 2: Cloudflare -->
+                <!-- ICON 2: Cloudflare (Cloud) -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Cloudflare"
-                        android:textSize="11sp"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textStyle="bold" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:srcCompat="@drawable/ic_cloud"
+                        app:tint="?attr/colorOnSurfaceVariant" />
                     <TextView
                         android:id="@+id/pingCloudflare"
                         android:layout_width="wrap_content"
@@ -267,23 +276,21 @@
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="8dp" />
                 </LinearLayout>
 
-                <!-- URL 3: GitHub -->
+                <!-- ICON 3: GitHub (Code) -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="GitHub"
-                        android:textSize="11sp"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textStyle="bold" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:srcCompat="@drawable/ic_code"
+                        app:tint="?attr/colorOnSurfaceVariant" />
                     <TextView
                         android:id="@+id/pingGithub"
                         android:layout_width="wrap_content"
@@ -292,7 +299,7 @@
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="8dp" />
                 </LinearLayout>
 
             </LinearLayout>
