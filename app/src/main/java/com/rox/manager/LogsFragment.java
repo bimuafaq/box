@@ -41,6 +41,7 @@ public class LogsFragment extends Fragment {
 
         prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
         selectedLogFile = prefs.getString("selected_log", "runs.log");
+        isLive = prefs.getBoolean("is_live_logs", true);
 
         logTextView = view.findViewById(R.id.logTextView);
         textSelectedLog = view.findViewById(R.id.textSelectedLog);
@@ -50,9 +51,10 @@ public class LogsFragment extends Fragment {
         logScrollView = view.findViewById(R.id.logScrollView);
         cardLogSource = view.findViewById(R.id.cardLogSource);
 
-        switchLiveLogs.setChecked(true);
+        switchLiveLogs.setChecked(isLive);
         switchLiveLogs.setOnCheckedChangeListener((v, checked) -> {
             isLive = checked;
+            prefs.edit().putBoolean("is_live_logs", isLive).apply();
             if (isLive) startLiveLogs();
             else stopLiveLogs();
         });
