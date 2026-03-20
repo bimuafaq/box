@@ -170,7 +170,7 @@
 
     </LinearLayout>
 
-    <!-- MODUL 2: PING TEST (MODERN MD3 CARD) -->
+    <!-- MODUL 2: PING TEST (REFINED MD3 CARD) -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -186,7 +186,7 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- MODERN HEADER -->
+            <!-- REFINED HEADER -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -194,112 +194,115 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="20dp">
                 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    app:srcCompat="@drawable/ic_bolt"
-                    app:tint="?attr/colorPrimary"
-                    android:layout_marginEnd="8dp" />
-
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Connectivity"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface"
                     android:letterSpacing="0.02" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnTestPing"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TEST PING"
-                    android:textSize="12sp"
-                    android:letterSpacing="0.05"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="8dp"
-                    app:rippleColor="?attr/colorPrimaryContainer" />
+                    style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="0dp"
+                    app:icon="@drawable/ic_bolt"
+                    app:iconSize="20dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.SmallComponent" />
             </LinearLayout>
 
-            <!-- HORIZONTAL ICON-BASED LAYOUT -->
+            <!-- HORIZONTAL TEXT-BASED LAYOUT -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="3">
 
-                <!-- ICON 1: Google (Web) -->
+                <!-- URL 1: Google -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        app:srcCompat="@drawable/ic_language"
-                        app:tint="?attr/colorOnSurfaceVariant" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Google"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.05" />
                     <TextView
                         android:id="@+id/pingGoogle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="---"
-                        android:textSize="15sp"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="4dp" />
                 </LinearLayout>
 
-                <!-- ICON 2: Cloudflare (Cloud) -->
+                <!-- URL 2: Cloudflare -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        app:srcCompat="@drawable/ic_cloud"
-                        app:tint="?attr/colorOnSurfaceVariant" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cloudflare"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.05" />
                     <TextView
                         android:id="@+id/pingCloudflare"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="---"
-                        android:textSize="15sp"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="4dp" />
                 </LinearLayout>
 
-                <!-- ICON 3: GitHub (Code) -->
+                <!-- URL 3: GitHub -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        app:srcCompat="@drawable/ic_code"
-                        app:tint="?attr/colorOnSurfaceVariant" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="GitHub"
+                        android:textSize="11sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.05" />
                     <TextView
                         android:id="@+id/pingGithub"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="---"
-                        android:textSize="15sp"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="4dp" />
                 </LinearLayout>
 
             </LinearLayout>
