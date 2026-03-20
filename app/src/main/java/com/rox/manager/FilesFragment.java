@@ -126,8 +126,20 @@ public class FilesFragment extends Fragment {
             }
         });
 
-        btnSearchNext.setOnClickListener(v -> codeEditor.getSearcher().gotoNext());
-        btnSearchPrev.setOnClickListener(v -> codeEditor.getSearcher().gotoPrevious());
+        btnSearchNext.setOnClickListener(v -> {
+            if (codeEditor.getSearcher().hasQuery()) {
+                try {
+                    codeEditor.getSearcher().gotoNext();
+                } catch (IllegalStateException ignored) {}
+            }
+        });
+        btnSearchPrev.setOnClickListener(v -> {
+            if (codeEditor.getSearcher().hasQuery()) {
+                try {
+                    codeEditor.getSearcher().gotoPrevious();
+                } catch (IllegalStateException ignored) {}
+            }
+        });
 
         editorSearchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
