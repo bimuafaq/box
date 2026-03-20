@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ROX</string>
+    <string name="title_home">ROX Manager</string>
+    <string name="title_logs">Logs</string>
+    <string name="title_files">Files</string>
+    <string name="title_settings">Settings</string>
+
+    <!-- Home Fragment -->
+    <string name="label_service_status">SERVICE STATUS</string>
+    <string name="status_ready">READY</string>
+    <string name="status_running">RUNNING</string>
+    <string name="status_stopped">STOPPED</string>
+    
+    <string name="label_controls">CONTROLS</string>
+    <string name="btn_start">START</string>
+    <string name="btn_stop">STOP</string>
+    
+    <string name="label_dashboard">DASHBOARD</string>
+    <string name="btn_open_dashboard">OPEN WEB DASHBOARD</string>
+
+    <!-- Settings Fragment -->
+    <string name="cat_appearance">APPEARANCE</string>
+    <string name="label_dark_mode">Dark Mode</string>
+    <string name="cat_system">SYSTEM</string>
+    <string name="label_notifications">Enable Notifications</string>
+    <string name="cat_advanced">ADVANCED</string>
+    <string name="btn_clear_cache">Clear Cache</string>
+    <string name="btn_about">About ROX</string>
+</resources>
