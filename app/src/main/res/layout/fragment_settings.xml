@@ -43,6 +43,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                app:strokeWidth="0dp"
                 style="?attr/materialCardViewFilledStyle">
                 
                 <LinearLayout
@@ -87,6 +89,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                app:strokeWidth="0dp"
                 style="?attr/materialCardViewFilledStyle">
                 
                 <LinearLayout
@@ -141,6 +145,44 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
+                    <!-- DISABLE QUIC (Now at the top) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="72dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Disable QUIC"
+                                android:textSize="16sp"
+                                android:textColor="?attr/colorOnSurface" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Block UDP 443/80 (Iptables)"
+                                android:textSize="13sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchQuic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:alpha="0.2"
+                        android:layout_marginHorizontal="16dp" />
 
                     <!-- IPv6 -->
                     <LinearLayout
@@ -270,44 +312,6 @@
                             android:text="mihomo"
                             android:textSize="13sp"
                             android:textColor="?android:attr/textColorSecondary" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?attr/colorOutlineVariant"
-                        android:alpha="0.2"
-                        android:layout_marginHorizontal="16dp" />
-
-                    <!-- DISABLE QUIC -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="72dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="16dp">
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Disable QUIC"
-                                android:textSize="16sp"
-                                android:textColor="?attr/colorOnSurface" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Block UDP 443/80 (Iptables)"
-                                android:textSize="13sp"
-                                android:textColor="?android:attr/textColorSecondary" />
-                        </LinearLayout>
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/switchQuic"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
                     </LinearLayout>
 
                 </LinearLayout>
