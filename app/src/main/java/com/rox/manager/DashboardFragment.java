@@ -22,17 +22,22 @@ import android.os.Looper;
 import java.util.Locale;
 import com.google.android.material.card.MaterialCardView;
 
+import android.widget.LinearLayout;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+
 public class DashboardFragment extends Fragment {
-    private View initialLayout, webViewContainer, webHeader, emptyStatsView;
+    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader;
     private WebView webView;
-    private TextView title;
+    private TextView title, labelProxyGroups;
     private SwipeRefreshLayout swipeRefresh;
     private OnBackPressedCallback backPressedCallback;
     private SharedPreferences prefs;
+    private LinearLayout proxyGroupsContainer;
 
     private TextView clashConnectionsText, clashDownloadText, clashUploadText;
     private View clashStatsCard;
-    private MaterialButton btnOpen;
+    private MaterialButton btnOpen, btnRefresh;
     private boolean showClashStats = false;
     
     private final Handler statsHandler = new Handler(Looper.getMainLooper());
@@ -48,10 +53,14 @@ public class DashboardFragment extends Fragment {
         initialLayout = view.findViewById(R.id.initialLayout);
         webViewContainer = view.findViewById(R.id.webViewContainer);
         webHeader = view.findViewById(R.id.webHeader);
+        dashHeader = view.findViewById(R.id.dashHeader);
         webView = view.findViewById(R.id.dashWebView);
         title = view.findViewById(R.id.dashTitle);
         swipeRefresh = view.findViewById(R.id.swipeRefreshDash);
         emptyStatsView = view.findViewById(R.id.emptyStatsView);
+        
+        proxyGroupsContainer = view.findViewById(R.id.proxyGroupsContainer);
+        labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
 
         clashStatsCard = view.findViewById(R.id.clashStatsCard);
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
@@ -59,9 +68,15 @@ public class DashboardFragment extends Fragment {
         clashUploadText = view.findViewById(R.id.clashUploadText);
         
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
+        btnRefresh = view.findViewById(R.id.btnRefreshDash);
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         
         setupWebView();
+
+        btnRefresh.setOnClickListener(v -> {
+            refreshClashStats();
+            refreshProxies();
+        });
 
         backPressedCallback = new OnBackPressedCallback(false) {
             @Override
@@ -79,7 +94,7 @@ public class DashboardFragment extends Fragment {
         btnOpen.setOnClickListener(v -> {
             stopStats(); // Stop background updates when webview is open
             initialLayout.setVisibility(View.GONE);
-            title.setVisibility(View.GONE);
+            dashHeader.setVisibility(View.GONE);
             btnOpen.setVisibility(View.GONE);
             
             webHeader.setVisibility(View.VISIBLE);
@@ -94,7 +109,7 @@ public class DashboardFragment extends Fragment {
             webViewContainer.setVisibility(View.GONE);
             
             initialLayout.setVisibility(View.VISIBLE);
-            title.setVisibility(View.VISIBLE);
+            dashHeader.setVisibility(View.VISIBLE);
             btnOpen.setVisibility(View.VISIBLE);
             webView.loadUrl("about:blank");
             if (backPressedCallback != null) backPressedCallback.setEnabled(false);
@@ -111,13 +126,90 @@ public class DashboardFragment extends Fragment {
         // Only show card if feature enabled AND webview is not open
         if (showClashStats && initialLayout.getVisibility() == View.VISIBLE) {
             clashStatsCard.setVisibility(View.VISIBLE);
+            labelProxyGroups.setVisibility(View.VISIBLE);
             emptyStatsView.setVisibility(View.GONE);
+            refreshProxies();
             startStats();
         } else {
             clashStatsCard.setVisibility(View.GONE);
+            labelProxyGroups.setVisibility(View.GONE);
             emptyStatsView.setVisibility(initialLayout.getVisibility() == View.VISIBLE ? View.VISIBLE : View.GONE);
             stopStats();
         }
+    }
+
+    private void refreshProxies() {
+        if (!showClashStats) return;
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = getApiUrl();
+            String res = ShellHelper.runRootCommandOneShot("curl -s " + apiUrl + "/proxies");
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
+                    renderProxies(res);
+                });
+            }
+        });
+    }
+
+    private void renderProxies(String json) {
+        if (json == null || !json.contains("\"proxies\"")) return;
+        proxyGroupsContainer.removeAllViews();
+        try {
+            // Simplified manual parsing for proxy groups
+            // In a real app, use a JSON library like Org.Json or Gson
+            String proxiesContent = json.split("\"proxies\":\\{")[1];
+            String[] groups = proxiesContent.split("\\},\"");
+            
+            for (String groupStr : groups) {
+                if (!groupStr.contains("\"all\":[")) continue;
+                
+                String name = groupStr.split("\":\\{")[0].replace("\"", "");
+                String type = groupStr.split("\"type\":\"")[1].split("\"")[0];
+                
+                if (!type.equals("Selector") && !type.equals("URLTest") && !type.equals("Fallback")) continue;
+
+                String now = groupStr.split("\"now\":\"")[1].split("\"")[0];
+                String allStr = groupStr.split("\"all\":\\[")[1].split("\\]")[0];
+                String[] allProxies = allStr.replace("\"", "").split(",");
+
+                addProxyGroupView(name, now, allProxies);
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private void addProxyGroupView(String groupName, String selected, String[] options) {
+        View card = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy_group, proxyGroupsContainer, false);
+        TextView title = card.findViewById(R.id.proxyGroupName);
+        ChipGroup chipGroup = card.findViewById(R.id.proxyChipGroup);
+        
+        title.setText(groupName);
+        for (String opt : options) {
+            Chip chip = new Chip(getContext());
+            chip.setText(opt);
+            chip.setCheckable(true);
+            chip.setChecked(opt.equals(selected));
+            chip.setClickable(true);
+            chip.setOnClickListener(v -> switchProxy(groupName, opt));
+            chipGroup.addView(chip);
+        }
+        proxyGroupsContainer.addView(card);
+    }
+
+    private void switchProxy(String group, String name) {
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = getApiUrl();
+            String payload = "{\"name\":\"" + name + "\"}";
+            ShellHelper.runRootCommandOneShot("curl -s -X PUT -d '" + payload + "' " + apiUrl + "/proxies/" + group);
+            getActivity().runOnUiThread(this::refreshProxies);
+        });
+    }
+
+    private String getApiUrl() {
+        String dashUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
+        String apiUrl = dashUrl.replaceAll("/(ui|dashboard)/?$", "");
+        if (apiUrl.endsWith("/ui")) apiUrl = apiUrl.substring(0, apiUrl.length() - 3);
+        return apiUrl;
     }
 
     @Override
