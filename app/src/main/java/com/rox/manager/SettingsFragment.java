@@ -10,23 +10,63 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.widget.EditText;
 
 public class SettingsFragment extends Fragment {
-    private TextView currentThemeText;
+    private TextView currentThemeText, currentDashUrlText;
+    private SharedPreferences prefs;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         
+        prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
+
         View themeSelection = view.findViewById(R.id.themeSelection);
         currentThemeText = view.findViewById(R.id.currentThemeText);
         
+        View dashUrlSelection = view.findViewById(R.id.dashUrlSelection);
+        currentDashUrlText = view.findViewById(R.id.currentDashUrlText);
+        
         updateThemeLabel();
+        updateDashUrlLabel();
 
         themeSelection.setOnClickListener(v -> showThemeDialog());
+        dashUrlSelection.setOnClickListener(v -> showDashUrlDialog());
 
         return view;
+    }
+
+    private void updateDashUrlLabel() {
+        String url = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
+        currentDashUrlText.setText(url);
+    }
+
+    private void showDashUrlDialog() {
+        EditText input = new EditText(getContext());
+        String currentUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
+        input.setText(currentUrl);
+        input.setSelection(currentUrl.length());
+        input.setHint("http://127.0.0.1:9090/ui");
+
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Dashboard URL")
+                .setView(input)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String newUrl = input.getText().toString().trim();
+                    if (newUrl.isEmpty()) newUrl = "http://127.0.0.1:9090/ui";
+                    prefs.edit().putString("dash_url", newUrl).apply();
+                    updateDashUrlLabel();
+                })
+                .setNegativeButton("Cancel", null)
+                .setNeutralButton("Default", (dialog, which) -> {
+                    prefs.edit().putString("dash_url", "http://127.0.0.1:9090/ui").apply();
+                    updateDashUrlLabel();
+                })
+                .show();
     }
 
     private void updateThemeLabel() {

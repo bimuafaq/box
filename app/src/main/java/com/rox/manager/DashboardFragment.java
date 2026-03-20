@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 import androidx.activity.OnBackPressedCallback;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class DashboardFragment extends Fragment {
     private View initialLayout, webViewContainer, webHeader;
@@ -21,12 +23,15 @@ public class DashboardFragment extends Fragment {
     private TextView title;
     private SwipeRefreshLayout swipeRefresh;
     private OnBackPressedCallback backPressedCallback;
+    private SharedPreferences prefs;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
         
+        prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
+
         initialLayout = view.findViewById(R.id.initialLayout);
         webViewContainer = view.findViewById(R.id.webViewContainer);
         webHeader = view.findViewById(R.id.webHeader);
@@ -58,7 +63,8 @@ public class DashboardFragment extends Fragment {
             
             webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
-            webView.loadUrl("http://127.0.0.1:9090/ui");
+            String url = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
+            webView.loadUrl(url);
             if (backPressedCallback != null) backPressedCallback.setEnabled(true);
         });
 
