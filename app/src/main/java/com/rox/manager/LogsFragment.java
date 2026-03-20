@@ -81,7 +81,7 @@ public class LogsFragment extends Fragment {
     }
 
     private void showLogSelectionDialog() {
-        new Thread(() -> {
+        ThreadManager.runOnShell(() -> {
             String res = ShellHelper.runRootCommand("ls /data/adb/box/run/*.log");
             List<String> logFiles = new ArrayList<>();
             if (res != null && !res.isEmpty()) {
@@ -97,8 +97,9 @@ public class LogsFragment extends Fragment {
             if (logFiles.isEmpty()) logFiles.add("runs.log");
 
             String[] items = logFiles.toArray(new String[0]);
-            if (getActivity() != null) {
+            if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     new MaterialAlertDialogBuilder(getContext())
                         .setTitle("Select Log Source")
                         .setItems(items, (dialog, which) -> {
@@ -110,7 +111,7 @@ public class LogsFragment extends Fragment {
                         .show();
                 });
             }
-        }).start();
+        });
     }
 
     private final Runnable liveRunnable = new Runnable() {
@@ -134,20 +135,21 @@ public class LogsFragment extends Fragment {
 
     private void loadLogs() {
         if (!isResumed()) return;
-        new Thread(() -> {
+        ThreadManager.runOnShell(() -> {
             String path = "/data/adb/box/run/" + selectedLogFile;
             String cmd = "tail -n 100 " + path + " 2>/dev/null || echo 'Log file not found or empty.'";
             String result = ShellHelper.runRootCommand(cmd);
             
-            if (getActivity() != null && isResumed()) {
+            if (isAdded() && getActivity() != null && isResumed()) {
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     if (result != null) {
                         logTextView.setText(formatLogText(result));
                         logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
                     }
                 });
             }
-        }).start();
+        });
     }
 
     private CharSequence formatLogText(String text) {

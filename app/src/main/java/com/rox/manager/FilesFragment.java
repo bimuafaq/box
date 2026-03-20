@@ -132,7 +132,7 @@ public class FilesFragment extends Fragment {
 
     private void loadFiles() {
         // Only show spinner if manually pulled, not during navigation
-        new Thread(() -> {
+        ThreadManager.runOnShell(() -> {
             // Optimized stat command: one process for all files
             String cmd = "stat -c '%F|%s|%Y|%n' \"" + currentPath + "\"/* \"" + currentPath + "\"/.* 2>/dev/null";
             String result = ShellHelper.runRootCommand(cmd);
@@ -170,8 +170,9 @@ public class FilesFragment extends Fragment {
                 return a.name.compareToIgnoreCase(b.name);
             });
 
-            if (getActivity() != null) {
+            if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     // Update fixed back button visibility and path info
                     boolean isRoot = currentPath.equals("/data/adb/box") || currentPath.equals("/");
                     btnBackParent.setVisibility(isRoot ? View.GONE : View.VISIBLE);
@@ -183,7 +184,7 @@ public class FilesFragment extends Fragment {
                     swipeRefresh.setRefreshing(false);
                 });
             }
-        }).start();
+        });
     }
 
     private String getParentPath(String path) {
@@ -209,10 +210,11 @@ public class FilesFragment extends Fragment {
         if (btnAddAction != null) btnAddAction.setVisibility(View.GONE);
         if (backPressedCallback != null) backPressedCallback.setEnabled(true);
 
-        new Thread(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             String content = ShellHelper.readRootFileDirect(path);
-            if (getActivity() != null) {
+            if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     if (content != null) {
                         codeEditor.setText(content);
                         codeEditor.requestFocus();
@@ -221,7 +223,7 @@ public class FilesFragment extends Fragment {
                     }
                 });
             }
-        }).start();
+        });
     }
 
     private void closeEditor() {
@@ -234,26 +236,28 @@ public class FilesFragment extends Fragment {
 
     private void saveFile() {
         String content = codeEditor.getText().toString();
-        new Thread(() -> {
+        ThreadManager.runOnShell(() -> {
             boolean success = ShellHelper.writeRootFileDirect(editingFilePath, content);
-            if (getActivity() != null) {
+            if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     showSnackbar(success ? "Saved Successfully!" : "Save Failed!");
                 });
             }
-        }).start();
+        });
     }
 
     private void executeCommand(String cmd, String successMsg) {
-        new Thread(() -> {
+        ThreadManager.runOnShell(() -> {
             ShellHelper.runRootCommand(cmd);
-            if (getActivity() != null) {
+            if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     showSnackbar(successMsg);
                     loadFiles();
                 });
             }
-        }).start();
+        });
     }
 
     private void showInputDialog(String title, String hint, String initialText, InputCallback callback) {

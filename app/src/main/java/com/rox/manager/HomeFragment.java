@@ -130,7 +130,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void refreshAllInfo() {
-        new Thread(() -> {
+        if (!isResumed()) return;
+        ThreadManager.runOnShell(() -> {
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
                          "CORE=$(grep '^bin_name=' /data/adb/box/settings.ini | cut -d '\"' -f 2); " +
                          "ETIME=$(ps -p $PID -o etime= 2>/dev/null || echo \"00:00\"); " +
@@ -138,8 +139,9 @@ public class HomeFragment extends Fragment {
             
             String result = ShellHelper.runRootCommand(cmd);
             
-            if (getActivity() != null) {
+            if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     if (result != null && result.contains("|")) {
                         String[] parts = result.split("\\|");
                         String pid = parts[0].trim();
@@ -153,7 +155,6 @@ public class HomeFragment extends Fragment {
                             startTimer(seconds);
                             coreText.setText(core.toUpperCase() + " (" + pid + ")");
                             
-                            // Enable Stop/Restart, Disable Start
                             startBtn.setEnabled(false);
                             restartBtn.setEnabled(true);
                             stopBtn.setEnabled(true);
@@ -164,7 +165,6 @@ public class HomeFragment extends Fragment {
                             stopTimer();
                             coreText.setText("---");
                             
-                            // Enable Start, Disable Stop/Restart
                             startBtn.setEnabled(true);
                             restartBtn.setEnabled(false);
                             stopBtn.setEnabled(false);
@@ -172,11 +172,12 @@ public class HomeFragment extends Fragment {
                     }
                 });
             }
-        }).start();
+        });
     }
 
     private void refreshCoreStats() {
-        new Thread(() -> {
+        if (!isResumed()) return;
+        ThreadManager.runOnShell(() -> {
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
                          "if [ \"$PID\" != \"0\" ]; then " +
                          "  RSS=$(grep VmRSS /proc/$PID/status | awk '{print $2}'); " +
@@ -187,8 +188,9 @@ public class HomeFragment extends Fragment {
             
             String res = ShellHelper.runRootCommand(cmd);
 
-            if (getActivity() != null) {
+            if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     if (res != null && res.contains("|")) {
                         String[] parts = res.split("\\|");
                         try {
@@ -214,7 +216,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
             }
-        }).start();
+        });
     }
 
     private long parseETimeToSeconds(String etime) {
@@ -255,17 +257,18 @@ public class HomeFragment extends Fragment {
             snackbar.show();
         }
 
-        new Thread(() -> {
+        ThreadManager.runOnShell(() -> {
             ShellHelper.runRootCommandOneShot(command);
             try { Thread.sleep(2200); } catch (InterruptedException ignored) {}
-            if (getActivity() != null) {
+            if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
                     refreshAllInfo();
                     isActionRunning = false;
                     toggleButtons(true);
                 });
             }
-        }).start();
+        });
     }
 
     private void toggleButtons(boolean enabled) {
