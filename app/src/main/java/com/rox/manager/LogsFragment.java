@@ -66,14 +66,18 @@ public class LogsFragment extends Fragment {
             swipeRefresh.setRefreshing(false);
         });
 
-        loadLogs();
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (isLive) startLiveLogs();
+        if (isLive) {
+            startLiveLogs();
+        } else {
+            // Auto refresh once when app/fragment is relogged/resumed if live logs is off
+            loadLogs();
+        }
     }
 
     @Override
