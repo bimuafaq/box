@@ -131,45 +131,41 @@ public class FilesFragment extends Fragment {
     }
 
     private void loadFiles() {
-        swipeRefresh.setRefreshing(true);
+        // Only show spinner if manually pulled, not during navigation
         new Thread(() -> {
-            String cmd = "for f in \"" + currentPath + "\"/* \"" + currentPath + "\"/.*; do " +
-                         "  name=$(basename \"$f\"); " +
-                         "  if [ \"$name\" != \".\" ] && [ \"$name\" != \"..\" ] && [ -e \"$f\" ]; then " +
-                         "    is_dir=0; [ -d \"$f\" ] && is_dir=1; " +
-                         "    size=$(stat -c '%s' \"$f\"); " +
-                         "    mtime=$(stat -c '%Y' \"$f\"); " +
-                         "    echo \"$is_dir|$size|$mtime|$name\"; " +
-                         "  fi; " +
-                         "done";
+            // Optimized stat command: one process for all files
+            String cmd = "stat -c '%F|%s|%Y|%n' \"" + currentPath + "\"/* \"" + currentPath + "\"/.* 2>/dev/null";
             String result = ShellHelper.runRootCommand(cmd);
             
             List<FileData> list = new ArrayList<>();
-            // FIXED BACK BUTTON logic handles visibility now, no need for list item
 
             if (result != null && !result.isEmpty()) {
                 String[] lines = result.split("\n");
                 for (String line : lines) {
                     if (line.trim().isEmpty() || !line.contains("|")) continue;
-                    String[] parts = line.split("\\|", 4);
-                    if (parts.length == 4) {
-                        boolean isDir = parts[0].equals("1");
+                    String[] parts = line.split("\\|");
+                    if (parts.length >= 4) {
+                        String type = parts[0];
                         long size = 0;
                         long mtime = 0;
                         try {
                             size = Long.parseLong(parts[1]);
                             mtime = Long.parseLong(parts[2]);
                         } catch (NumberFormatException ignored) {}
-                        String name = parts[3];
-                        String fullPath = currentPath + "/" + name;
+                        
+                        String fullPath = parts[3];
+                        String name = fullPath.substring(fullPath.lastIndexOf("/") + 1);
+                        
+                        // Filter out . and ..
+                        if (name.equals(".") || name.equals("..")) continue;
+
+                        boolean isDir = type.contains("directory");
                         list.add(new FileData(name, fullPath, isDir, false, size, mtime));
                     }
                 }
             }
             
             Collections.sort(list, (a, b) -> {
-                if (a.isBack) return -1;
-                if (b.isBack) return 1;
                 if (a.isDir != b.isDir) return a.isDir ? -1 : 1;
                 return a.name.compareToIgnoreCase(b.name);
             });
