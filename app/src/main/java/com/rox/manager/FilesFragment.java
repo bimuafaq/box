@@ -23,7 +23,6 @@ import android.content.res.Configuration;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
 import io.github.rosemoe.sora.widget.schemes.SchemeNotepadXX;
-import io.github.rosemoe.sora.widget.EditorSearcher;
 import androidx.activity.OnBackPressedCallback;
 
 import java.util.ArrayList;
@@ -46,13 +45,9 @@ public class FilesFragment extends Fragment {
     private View fileListLayout, editorContainer;
     private CodeEditor codeEditor;
     private TextView editorFileName;
-    private EditText editorSearchInput;
     private String editingFilePath = "";
     private OnBackPressedCallback backPressedCallback;
     private FloatingActionButton btnAddAction;
-    
-    private final android.os.Handler searchHandler = new android.os.Handler(android.os.Looper.getMainLooper());
-    private Runnable searchRunnable;
 
     @Nullable
     @Override
@@ -68,21 +63,15 @@ public class FilesFragment extends Fragment {
         editorContainer = view.findViewById(R.id.editorContainer);
         codeEditor = view.findViewById(R.id.codeEditor);
         editorFileName = view.findViewById(R.id.editorFileName);
-        editorSearchInput = view.findViewById(R.id.editorSearchInput);
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
-        MaterialButton btnSearch = view.findViewById(R.id.btnEditorSearch);
         
         btnAddAction = view.findViewById(R.id.btnAddAction);
 
         backPressedCallback = new OnBackPressedCallback(false) {
             @Override
             public void handleOnBackPressed() {
-                if (editorSearchInput.getVisibility() == View.VISIBLE) {
-                    toggleEditorSearch(false);
-                } else {
-                    closeEditor();
-                }
+                closeEditor();
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), backPressedCallback);
@@ -101,41 +90,6 @@ public class FilesFragment extends Fragment {
 
         btnBack.setOnClickListener(v -> closeEditor());
         btnSave.setOnClickListener(v -> saveFile());
-        
-        btnSearch.setOnClickListener(v -> {
-            boolean showing = editorSearchInput.getVisibility() == View.VISIBLE;
-            toggleEditorSearch(!showing);
-        });
-
-        editorSearchInput.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (searchRunnable != null) searchHandler.removeCallbacks(searchRunnable);
-                String query = s.toString();
-                searchRunnable = () -> {
-                    if (!query.isEmpty()) {
-                        // Temporarily disable focus on editor to prevent stealing
-                        codeEditor.setFocusable(false);
-                        codeEditor.setFocusableInTouchMode(false);
-                        
-                        codeEditor.getSearcher().search(query, new EditorSearcher.SearchOptions(EditorSearcher.SearchOptions.TYPE_NORMAL, true));
-                        
-                        // Re-request focus for input and restore cursor position
-                        editorSearchInput.post(() -> {
-                            editorSearchInput.requestFocus();
-                            // Ensure cursor stays at the correct position
-                            // No need to reset selection if focus wasn't lost, but just in case
-                        });
-                    } else {
-                        codeEditor.getSearcher().stopSearch();
-                        codeEditor.setFocusable(true);
-                        codeEditor.setFocusableInTouchMode(true);
-                    }
-                };
-                searchHandler.postDelayed(searchRunnable, 300);
-            }
-            @Override public void afterTextChanged(Editable s) {}
-        });
         
         btnAddAction.setOnClickListener(v -> {
             new MaterialAlertDialogBuilder(getContext())
@@ -262,39 +216,7 @@ public class FilesFragment extends Fragment {
         }).start();
     }
 
-    private void toggleEditorSearch(boolean show) {
-        if (show) {
-            editorFileName.setVisibility(View.GONE);
-            editorSearchInput.setVisibility(View.VISIBLE);
-            editorSearchInput.requestFocus();
-            
-            // Force show keyboard
-            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) 
-                requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(editorSearchInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
-            }
-        } else {
-            // Hide keyboard
-            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) 
-                requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.hideSoftInputFromWindow(editorSearchInput.getWindowToken(), 0);
-            }
-            
-            editorSearchInput.setVisibility(View.GONE);
-            editorFileName.setVisibility(View.VISIBLE);
-            editorSearchInput.setText("");
-            codeEditor.getSearcher().stopSearch();
-            
-            // Restore focusability
-            codeEditor.setFocusable(true);
-            codeEditor.setFocusableInTouchMode(true);
-        }
-    }
-
     private void closeEditor() {
-        toggleEditorSearch(false);
         editorContainer.setVisibility(View.GONE);
         fileListLayout.setVisibility(View.VISIBLE);
         if (btnAddAction != null) btnAddAction.setVisibility(View.VISIBLE);
