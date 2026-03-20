@@ -13,9 +13,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.widget.EditText;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 public class SettingsFragment extends Fragment {
     private TextView currentThemeText, currentDashUrlText;
+    private TextView currentBinNameText, currentNetworkModeText, currentClashOptionText;
+    private MaterialSwitch switchIpv6;
     private SharedPreferences prefs;
 
     @Nullable
@@ -30,14 +33,79 @@ public class SettingsFragment extends Fragment {
         
         View dashUrlSelection = view.findViewById(R.id.dashUrlSelection);
         currentDashUrlText = view.findViewById(R.id.currentDashUrlText);
+
+        // Module Config Views
+        switchIpv6 = view.findViewById(R.id.switchIpv6);
+        currentBinNameText = view.findViewById(R.id.currentBinNameText);
+        currentNetworkModeText = view.findViewById(R.id.currentNetworkModeText);
+        currentClashOptionText = view.findViewById(R.id.currentClashOptionText);
+        View binNameSelection = view.findViewById(R.id.binNameSelection);
+        View networkModeSelection = view.findViewById(R.id.networkModeSelection);
+        View clashOptionSelection = view.findViewById(R.id.clashOptionSelection);
         
         updateThemeLabel();
         updateDashUrlLabel();
+        loadModuleSettings();
 
         themeSelection.setOnClickListener(v -> showThemeDialog());
         dashUrlSelection.setOnClickListener(v -> showDashUrlDialog());
 
+        switchIpv6.setOnCheckedChangeListener((v, checked) -> updateSettingsIni("ipv6", String.valueOf(checked)));
+        binNameSelection.setOnClickListener(v -> showBinNameDialog());
+        networkModeSelection.setOnClickListener(v -> showNetworkModeDialog());
+        clashOptionSelection.setOnClickListener(v -> showClashOptionDialog());
+
         return view;
+    }
+
+    private void loadModuleSettings() {
+        ThreadManager.runOnShell(() -> {
+            String ipv6 = ShellHelper.runRootCommand("grep '^ipv6=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
+            String binName = ShellHelper.runRootCommand("grep '^bin_name=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
+            String netMode = ShellHelper.runRootCommand("grep '^network_mode=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
+            String clashOpt = ShellHelper.runRootCommand("grep '^xclash_option=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
+
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
+                    switchIpv6.setChecked("true".equalsIgnoreCase(ipv6));
+                    currentBinNameText.setText(binName.isEmpty() ? "clash" : binName);
+                    currentNetworkModeText.setText(netMode.isEmpty() ? "tproxy" : netMode);
+                    currentClashOptionText.setText(clashOpt.isEmpty() ? "mihomo" : clashOpt);
+                });
+            }
+        });
+    }
+
+    private void updateSettingsIni(String key, String value) {
+        ThreadManager.runOnShell(() -> {
+            ShellHelper.runRootCommand("sed -i 's/^" + key + "=.*/" + key + "=\"" + value + "\"/' /data/adb/box/settings.ini");
+            loadModuleSettings();
+        });
+    }
+
+    private void showBinNameDialog() {
+        String[] options = {"clash", "sing-box", "xray", "v2fly", "hysteria"};
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Select Binary Name")
+                .setItems(options, (dialog, which) -> updateSettingsIni("bin_name", options[which]))
+                .show();
+    }
+
+    private void showNetworkModeDialog() {
+        String[] options = {"redirect", "tproxy", "mixed", "enhance", "tun"};
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Select Network Mode")
+                .setItems(options, (dialog, which) -> updateSettingsIni("network_mode", options[which]))
+                .show();
+    }
+
+    private void showClashOptionDialog() {
+        String[] options = {"mihomo", "premium"};
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Select Clash Option")
+                .setItems(options, (dialog, which) -> updateSettingsIni("xclash_option", options[which]))
+                .show();
     }
 
     private void updateDashUrlLabel() {
