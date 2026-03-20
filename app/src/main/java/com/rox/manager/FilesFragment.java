@@ -254,7 +254,21 @@ public class FilesFragment extends Fragment {
             editorFileName.setVisibility(View.GONE);
             editorSearchInput.setVisibility(View.VISIBLE);
             editorSearchInput.requestFocus();
+            
+            // Force show keyboard
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) 
+                requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(editorSearchInput, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+            }
         } else {
+            // Hide keyboard
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) 
+                requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(editorSearchInput.getWindowToken(), 0);
+            }
+            
             editorSearchInput.setVisibility(View.GONE);
             editorFileName.setVisibility(View.VISIBLE);
             editorSearchInput.setText("");
