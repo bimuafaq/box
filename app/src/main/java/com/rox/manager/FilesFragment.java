@@ -50,6 +50,9 @@ public class FilesFragment extends Fragment {
     private String editingFilePath = "";
     private OnBackPressedCallback backPressedCallback;
     private FloatingActionButton btnAddAction;
+    
+    private final android.os.Handler searchHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable searchRunnable;
 
     @Nullable
     @Override
@@ -107,12 +110,16 @@ public class FilesFragment extends Fragment {
         editorSearchInput.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (searchRunnable != null) searchHandler.removeCallbacks(searchRunnable);
                 String query = s.toString();
-                if (!query.isEmpty()) {
-                    codeEditor.getSearcher().search(query, new EditorSearcher.SearchOptions(EditorSearcher.SearchOptions.TYPE_NORMAL, true));
-                } else {
-                    codeEditor.getSearcher().stopSearch();
-                }
+                searchRunnable = () -> {
+                    if (!query.isEmpty()) {
+                        codeEditor.getSearcher().search(query, new EditorSearcher.SearchOptions(EditorSearcher.SearchOptions.TYPE_NORMAL, true));
+                    } else {
+                        codeEditor.getSearcher().stopSearch();
+                    }
+                };
+                searchHandler.postDelayed(searchRunnable, 300);
             }
             @Override public void afterTextChanged(Editable s) {}
         });
