@@ -170,4 +170,119 @@
 
     </LinearLayout>
 
+    <!-- MODUL 2: PING TEST (MD3 CARD) -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        app:strokeWidth="0dp"
+        style="?attr/materialCardViewFilledStyle">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+                
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Connectivity Test"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTestPing"
+                    style="?attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TEST PING"
+                    android:textSize="12sp"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:padding="8dp" />
+            </LinearLayout>
+
+            <!-- URL 1: Google -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Google"
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+                <TextView
+                    android:id="@+id/pingGoogle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--- ms"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
+            </LinearLayout>
+
+            <!-- URL 2: Cloudflare -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Cloudflare"
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+                <TextView
+                    android:id="@+id/pingCloudflare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--- ms"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
+            </LinearLayout>
+
+            <!-- URL 3: GitHub -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="GitHub"
+                    android:textSize="13sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+                <TextView
+                    android:id="@+id/pingGithub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--- ms"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
 </LinearLayout>

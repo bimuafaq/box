@@ -16,14 +16,16 @@ import java.util.Locale;
 
 public class HomeFragment extends Fragment {
     private TextView statusText, coreText, runtimeText, cpuText, ramText, idCoreText;
-    private MaterialButton startBtn, stopBtn, restartBtn;
+    private TextView pingGoogle, pingCloudflare, pingGithub;
+    private MaterialButton startBtn, stopBtn, restartBtn, btnTestPing;
     private boolean isActionRunning = false;
+    private boolean isPingRunning = false;
     
-    private Handler timerHandler = new Handler(android.os.Looper.getMainLooper());
+    private final Handler timerHandler = new Handler(android.os.Looper.getMainLooper());
     private long currentRuntimeSeconds = 0;
     private boolean isTimerRunning = false;
     
-    private Handler statsHandler = new Handler(android.os.Looper.getMainLooper());
+    private final Handler statsHandler = new Handler(android.os.Looper.getMainLooper());
     private boolean isStatsRunning = false;
 
     @Nullable
@@ -37,10 +39,15 @@ public class HomeFragment extends Fragment {
         cpuText = view.findViewById(R.id.cpuText);
         ramText = view.findViewById(R.id.ramText);
         idCoreText = view.findViewById(R.id.idCoreText);
+
+        pingGoogle = view.findViewById(R.id.pingGoogle);
+        pingCloudflare = view.findViewById(R.id.pingCloudflare);
+        pingGithub = view.findViewById(R.id.pingGithub);
         
         startBtn = view.findViewById(R.id.startBtn);
         restartBtn = view.findViewById(R.id.restartBtn);
         stopBtn = view.findViewById(R.id.stopBtn);
+        btnTestPing = view.findViewById(R.id.btnTestPing);
 
         refreshAllInfo();
 
@@ -58,7 +65,47 @@ public class HomeFragment extends Fragment {
                 "/data/adb/box/scripts/net.inotify w manual)", "Restarting Box..."));
         stopBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.iptables disable && /data/adb/box/scripts/box.service stop && pkill -f inotifyd", "Stopping Box..."));
 
+        btnTestPing.setOnClickListener(v -> runPingTest());
+
         return view;
+    }
+
+    private void runPingTest() {
+        if (isPingRunning) return;
+        isPingRunning = true;
+        btnTestPing.setEnabled(false);
+        pingGoogle.setText("Testing...");
+        pingCloudflare.setText("Testing...");
+        pingGithub.setText("Testing...");
+
+        ThreadManager.runOnShell(() -> {
+            String pingCmd = "ping -c 1 -W 2 %s 2>&1 | grep 'time=' | awk -F'time=' '{print $2}' | awk '{print $1}'";
+            
+            String googlePing = ShellHelper.runRootCommandOneShot(String.format(pingCmd, "google.com"));
+            String cloudflarePing = ShellHelper.runRootCommandOneShot(String.format(pingCmd, "1.1.1.1"));
+            String githubPing = ShellHelper.runRootCommandOneShot(String.format(pingCmd, "github.com"));
+
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
+                    pingGoogle.setText(formatPing(googlePing));
+                    pingCloudflare.setText(formatPing(cloudflarePing));
+                    pingGithub.setText(formatPing(githubPing));
+                    btnTestPing.setEnabled(true);
+                    isPingRunning = false;
+                });
+            }
+        });
+    }
+
+    private String formatPing(String result) {
+        if (result == null || result.isEmpty() || result.startsWith("Error")) return "Timeout";
+        try {
+            double val = Double.parseDouble(result.trim());
+            return String.format(Locale.getDefault(), "%.0f ms", val);
+        } catch (Exception e) {
+            return "Timeout";
+        }
     }
 
     private final Runnable timerRunnable = new Runnable() {
