@@ -20,6 +20,7 @@ public class SettingsFragment extends Fragment {
     private TextView currentBinNameText, currentNetworkModeText, currentClashOptionText;
     private MaterialSwitch switchIpv6;
     private SharedPreferences prefs;
+    private boolean isUpdatingUI = false;
 
     @Nullable
     @Override
@@ -50,7 +51,11 @@ public class SettingsFragment extends Fragment {
         themeSelection.setOnClickListener(v -> showThemeDialog());
         dashUrlSelection.setOnClickListener(v -> showDashUrlDialog());
 
-        switchIpv6.setOnCheckedChangeListener((v, checked) -> updateSettingsIni("ipv6", String.valueOf(checked)));
+        switchIpv6.setOnCheckedChangeListener((v, checked) -> {
+            if (!isUpdatingUI) {
+                updateSettingsIni("ipv6", String.valueOf(checked));
+            }
+        });
         binNameSelection.setOnClickListener(v -> showBinNameDialog());
         networkModeSelection.setOnClickListener(v -> showNetworkModeDialog());
         clashOptionSelection.setOnClickListener(v -> showClashOptionDialog());
@@ -68,10 +73,12 @@ public class SettingsFragment extends Fragment {
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
+                    isUpdatingUI = true;
                     switchIpv6.setChecked("true".equalsIgnoreCase(ipv6));
                     currentBinNameText.setText(binName.isEmpty() ? "clash" : binName);
                     currentNetworkModeText.setText(netMode.isEmpty() ? "tproxy" : netMode);
                     currentClashOptionText.setText(clashOpt.isEmpty() ? "mihomo" : clashOpt);
+                    isUpdatingUI = false;
                 });
             }
         });
