@@ -42,7 +42,7 @@ public class FilesFragment extends Fragment {
     private EditText searchEditText;
 
     // Sora Editor Components
-    private View fileListLayout, editorContainer;
+    private View fileListLayout, editorContainer, btnBackParent;
     private CodeEditor codeEditor;
     private TextView editorFileName;
     private String editingFilePath = "";
@@ -58,6 +58,7 @@ public class FilesFragment extends Fragment {
         swipeRefresh = view.findViewById(R.id.swipeRefreshFiles);
         searchEditText = view.findViewById(R.id.searchEditText);
         fileListLayout = view.findViewById(R.id.fileListLayout);
+        btnBackParent = view.findViewById(R.id.btnBackParent);
         
         // Editor UI
         editorContainer = view.findViewById(R.id.editorContainer);
@@ -91,6 +92,11 @@ public class FilesFragment extends Fragment {
         btnBack.setOnClickListener(v -> closeEditor());
         btnSave.setOnClickListener(v -> saveFile());
         
+        btnBackParent.setOnClickListener(v -> {
+            currentPath = getParentPath(currentPath);
+            loadFiles();
+        });
+
         btnAddAction.setOnClickListener(v -> {
             new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Create New")
@@ -137,9 +143,7 @@ public class FilesFragment extends Fragment {
             String result = ShellHelper.runRootCommand(cmd);
             
             List<FileData> list = new ArrayList<>();
-            if (!currentPath.equals("/") && !currentPath.equals("/data/adb/box")) {
-                list.add(new FileData("..", getParentPath(currentPath), true, true, 0, 0));
-            }
+            // FIXED BACK BUTTON logic handles visibility now, no need for list item
 
             if (result != null && !result.isEmpty()) {
                 String[] lines = result.split("\n");
@@ -170,6 +174,10 @@ public class FilesFragment extends Fragment {
 
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
+                    // Update fixed back button visibility
+                    boolean isRoot = currentPath.equals("/data/adb/box") || currentPath.equals("/");
+                    btnBackParent.setVisibility(isRoot ? View.GONE : View.VISIBLE);
+
                     allFiles.clear();
                     allFiles.addAll(list);
                     filter(searchEditText.getText().toString());

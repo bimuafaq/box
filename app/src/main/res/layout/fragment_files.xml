@@ -54,9 +54,37 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="4dp"
             android:background="?attr/colorOutlineVariant"
             android:alpha="0.3" />
+
+        <!-- FIXED BACK BUTTON (Only visible when in subfolder) -->
+        <LinearLayout
+            android:id="@+id/btnBackParent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="12dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_back_arrow"
+                app:tint="?attr/colorOnSurfaceVariant" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Back to Parent"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
 
         <!-- FILE LIST (Polos on Background) -->
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
