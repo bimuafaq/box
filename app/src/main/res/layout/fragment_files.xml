@@ -23,17 +23,48 @@
             android:paddingBottom="12dp"
             android:paddingStart="20dp" />
 
-        <!-- MD3 SEARCH BAR -->
-        <com.google.android.material.search.SearchBar
-            android:id="@+id/search_bar"
-            style="@style/Widget.App.SearchBar"
+        <!-- INLINE MD3 SEARCH BAR (NOT PLAYSTORE STYLE) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/searchCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:hint="@string/hint_search_files"
-            app:backgroundTint="?attr/colorSurfaceContainerHigh" />
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+            app:strokeWidth="0dp">
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+                
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_search_material"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+                
+                <EditText
+                    android:id="@+id/searchEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/hint_search_files"
+                    android:textSize="15sp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:imeOptions="actionSearch"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textColorHint="?attr/colorOutline" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- FIXED BACK BUTTON (Only visible when in subfolder) -->
         <LinearLayout
@@ -100,17 +131,6 @@
         android:src="@android:drawable/ic_input_add"
         app:tint="?attr/colorOnPrimaryContainer"
         app:backgroundTint="?attr/colorPrimaryContainer" />
-
-    <!-- SEARCH VIEW AS OVERLAY -->
-    <com.google.android.material.search.SearchView
-        android:id="@+id/search_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:hint="@string/hint_search_files"
-        app:layout_anchor="@id/search_bar"
-        app:backgroundTint="?attr/colorSurfaceContainerHigh">
-        <!-- Search content can be added here if needed -->
-    </com.google.android.material.search.SearchView>
 
     <!-- NATURAL EDITOR OVERLAY -->
     <LinearLayout

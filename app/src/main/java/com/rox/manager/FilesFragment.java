@@ -39,8 +39,7 @@ public class FilesFragment extends Fragment {
     private List<FileData> filteredFiles = new ArrayList<>();
     private String currentPath = "/data/adb/box";
     private SwipeRefreshLayout swipeRefresh;
-    private com.google.android.material.search.SearchBar searchBar;
-    private com.google.android.material.search.SearchView searchView;
+    private EditText searchEditText;
 
     // Sora Editor Components
     private View fileListLayout, editorContainer, btnBackParent;
@@ -58,12 +57,7 @@ public class FilesFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.fileRecyclerView);
         swipeRefresh = view.findViewById(R.id.swipeRefreshFiles);
-        searchBar = view.findViewById(R.id.search_bar);
-        searchView = view.findViewById(R.id.search_view);
-        
-        // Manual setup to ensure it opens
-        searchBar.setOnClickListener(v -> searchView.show());
-
+        searchEditText = view.findViewById(R.id.searchEditText);
         fileListLayout = view.findViewById(R.id.fileListLayout);
         btnBackParent = view.findViewById(R.id.btnBackParent);
         textCurrentPath = view.findViewById(R.id.textCurrentPath);
@@ -91,16 +85,10 @@ public class FilesFragment extends Fragment {
 
         swipeRefresh.setOnRefreshListener(this::loadFiles);
         
-        searchView.getEditText().addTextChangedListener(new TextWatcher() {
+        searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { filter(s.toString()); }
             @Override public void afterTextChanged(Editable s) {}
-        });
-
-        searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
-            searchBar.setText(searchView.getText());
-            searchView.hide();
-            return false;
         });
 
         btnBack.setOnClickListener(v -> closeEditor());
@@ -143,9 +131,7 @@ public class FilesFragment extends Fragment {
     }
 
     private void loadFiles() {
-        // Only show spinner if manually pulled, not during navigation
         ThreadManager.runOnShell(() -> {
-            // Optimized stat command: one process for all files
             String cmd = "stat -c '%F|%s|%Y|%n' \"" + currentPath + "\"/* \"" + currentPath + "\"/.* 2>/dev/null";
             String result = ShellHelper.runRootCommand(cmd);
             
@@ -168,7 +154,6 @@ public class FilesFragment extends Fragment {
                         String fullPath = parts[3];
                         String name = fullPath.substring(fullPath.lastIndexOf("/") + 1);
                         
-                        // Filter out . and ..
                         if (name.equals(".") || name.equals("..")) continue;
 
                         boolean isDir = type.contains("directory");
@@ -185,14 +170,13 @@ public class FilesFragment extends Fragment {
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
-                    // Update fixed back button visibility and path info
                     boolean isRoot = currentPath.equals("/data/adb/box") || currentPath.equals("/");
                     btnBackParent.setVisibility(isRoot ? View.GONE : View.VISIBLE);
                     textCurrentPath.setText(currentPath);
 
                     allFiles.clear();
                     allFiles.addAll(list);
-                    filter(searchView.getText().toString());
+                    filter(searchEditText.getText().toString());
                     swipeRefresh.setRefreshing(false);
                 });
             }
