@@ -21,12 +21,9 @@ import android.content.SharedPreferences;
 public class HomeFragment extends Fragment {
     private TextView statusText, coreText, runtimeText, cpuText, ramText, idCoreText;
     private TextView pingGoogle, pingCloudflare, pingGithub;
-    private TextView clashConnectionsText, clashDownloadText, clashUploadText;
-    private MaterialCardView clashStatsCard;
     private MaterialButton startBtn, stopBtn, restartBtn, btnTestPing;
     private boolean isActionRunning = false;
     private boolean isPingRunning = false;
-    private boolean showClashStats = false;
     
     private final Handler timerHandler = new Handler(android.os.Looper.getMainLooper());
     private long currentRuntimeSeconds = 0;
@@ -50,11 +47,6 @@ public class HomeFragment extends Fragment {
         pingGoogle = view.findViewById(R.id.pingGoogle);
         pingCloudflare = view.findViewById(R.id.pingCloudflare);
         pingGithub = view.findViewById(R.id.pingGithub);
-
-        clashStatsCard = view.findViewById(R.id.clashStatsCard);
-        clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
-        clashDownloadText = view.findViewById(R.id.clashDownloadText);
-        clashUploadText = view.findViewById(R.id.clashUploadText);
         
         startBtn = view.findViewById(R.id.startBtn);
         restartBtn = view.findViewById(R.id.restartBtn);
@@ -155,10 +147,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        SharedPreferences prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
-        showClashStats = prefs.getBoolean("show_clash_stats", false);
-        clashStatsCard.setVisibility(showClashStats ? View.VISIBLE : View.GONE);
-        
         refreshAllInfo();
         startStats();
     }
@@ -243,11 +231,6 @@ public class HomeFragment extends Fragment {
                             startBtn.setEnabled(true);
                             restartBtn.setEnabled(false);
                             stopBtn.setEnabled(false);
-                            
-                            // Reset clash stats if stopped
-                            clashConnectionsText.setText("0");
-                            clashDownloadText.setText("0 B");
-                            clashUploadText.setText("0 B");
                         }
                     }
                 });
@@ -258,12 +241,6 @@ public class HomeFragment extends Fragment {
     private void refreshCoreStats() {
         if (!isResumed()) return;
         ThreadManager.runOnShell(() -> {
-            SharedPreferences prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
-            String dashUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
-            // Extract base API URL (remove /ui or /dashboard suffix)
-            String apiUrl = dashUrl.replaceAll("/(ui|dashboard)/?$", "");
-            if (apiUrl.endsWith("/ui")) apiUrl = apiUrl.substring(0, apiUrl.length() - 3);
-            
             // Base stats (CPU/RAM)
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
                          "if [ \"$PID\" != \"0\" ]; then " +
@@ -274,18 +251,6 @@ public class HomeFragment extends Fragment {
                          "else echo \"0|0|0\"; fi";
             
             String res = ShellHelper.runRootCommand(cmd);
-
-            // Optional Clash stats (Connections/Traffic)
-            String clashRes = null;
-            if (showClashStats) {
-                // Fetch connections which includes downloadTotal and uploadTotal in MD3/Mihomo/Meta
-                // We use -H if secret is needed, but for local root curl it's often not needed.
-                // However, we should try to get the secret from config if possible or just use the URL.
-                String clashCmd = "curl -s " + apiUrl + "/connections";
-                clashRes = ShellHelper.runRootCommandOneShot(clashCmd);
-            }
-
-            final String fClashRes = clashRes;
 
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
@@ -314,37 +279,6 @@ public class HomeFragment extends Fragment {
                             cpuText.setText("---");
                             idCoreText.setText("-");
                         }
-                    }
-
-                    // Update Clash Stats from /connections JSON
-                    if (showClashStats && fClashRes != null && fClashRes.contains("\"connections\"")) {
-                        try {
-                            // Manual simple JSON extraction for performance without library
-                            // "downloadTotal":12345,"uploadTotal":67890
-                            String dlTotal = "0";
-                            String ulTotal = "0";
-                            String connCount = "0";
-                            
-                            if (fClashRes.contains("\"downloadTotal\":")) {
-                                dlTotal = fClashRes.split("\"downloadTotal\":")[1].split("[,}]")[0];
-                            }
-                            if (fClashRes.contains("\"uploadTotal\":")) {
-                                ulTotal = fClashRes.split("\"uploadTotal\":")[1].split("[,}]")[0];
-                            }
-                            
-                            // Count "id" occurrences to get connection count
-                            int count = 0;
-                            int lastIndex = 0;
-                            while ((lastIndex = fClashRes.indexOf("\"id\":", lastIndex)) != -1) {
-                                count++;
-                                lastIndex += 5;
-                            }
-                            connCount = String.valueOf(count);
-                            
-                            clashConnectionsText.setText(connCount);
-                            clashUploadText.setText(formatSize(Long.parseLong(ulTotal)));
-                            clashDownloadText.setText(formatSize(Long.parseLong(dlTotal)));
-                        } catch (Exception ignored) {}
                     }
                 });
             }
