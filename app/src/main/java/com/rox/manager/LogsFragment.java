@@ -65,9 +65,19 @@ public class LogsFragment extends Fragment {
         });
 
         loadLogs();
-        startLiveLogs();
-
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isLive) startLiveLogs();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopLiveLogs();
     }
 
     private void showLogSelectionDialog() {
@@ -123,12 +133,13 @@ public class LogsFragment extends Fragment {
     }
 
     private void loadLogs() {
+        if (!isResumed()) return;
         new Thread(() -> {
             String path = "/data/adb/box/run/" + selectedLogFile;
             String cmd = "tail -n 100 " + path + " 2>/dev/null || echo 'Log file not found or empty.'";
             String result = ShellHelper.runRootCommand(cmd);
             
-            if (getActivity() != null) {
+            if (getActivity() != null && isResumed()) {
                 getActivity().runOnUiThread(() -> {
                     if (result != null) {
                         logTextView.setText(formatLogText(result));
