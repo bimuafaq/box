@@ -88,11 +88,34 @@ public class ShellHelper {
             os.writeBytes(command + "\n");
             os.writeBytes("exit\n");
             os.flush();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
+            
+            // Non-blocking read with 2 second timeout
+            long startTime = System.currentTimeMillis();
+            while (true) {
+                if (reader.ready()) {
+                    String line = reader.readLine();
+                    if (line == null) break;
+                    output.append(line).append("\n");
+                } else {
+                    if (System.currentTimeMillis() - startTime > 2000) {
+                        process.destroy();
+                        return "Error: Timeout";
+                    }
+                    Thread.sleep(10);
+                }
+                
+                // Exit condition for process
+                try {
+                    process.exitValue();
+                    // If we get here, process is done. Check if reader still has data.
+                    while (reader.ready()) {
+                        String line = reader.readLine();
+                        if (line != null) output.append(line).append("\n");
+                    }
+                    break;
+                } catch (IllegalThreadStateException ignored) {}
             }
-            process.waitFor();
+            
             os.close();
             reader.close();
             return output.toString().trim();

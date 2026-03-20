@@ -14,6 +14,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigationrail.NavigationRailView;
 import androidx.activity.OnBackPressedCallback;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         updateNavigationVisibility();
         
         ShellHelper.setCacheDir(getCacheDir().getAbsolutePath());
+        checkRootAccess();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -48,6 +50,25 @@ public class MainActivity extends AppCompatActivity {
                     setEnabled(false);
                     getOnBackPressedDispatcher().onBackPressed();
                 }
+            }
+        });
+    }
+
+    private void checkRootAccess() {
+        ThreadManager.runOnShell(() -> {
+            boolean hasRoot = ShellHelper.isRootAvailable();
+            if (!hasRoot) {
+                runOnUiThread(() -> {
+                    new MaterialAlertDialogBuilder(this)
+                        .setTitle("Root Access Required")
+                        .setMessage("This application requires root access to function properly. Please grant root access and restart the app.")
+                        .setCancelable(false)
+                        .setPositiveButton("Exit", (dialog, which) -> {
+                            finishAffinity();
+                            System.exit(0);
+                        })
+                        .show();
+                });
             }
         });
     }
