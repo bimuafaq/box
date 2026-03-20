@@ -39,7 +39,8 @@ public class FilesFragment extends Fragment {
     private List<FileData> filteredFiles = new ArrayList<>();
     private String currentPath = "/data/adb/box";
     private SwipeRefreshLayout swipeRefresh;
-    private EditText searchEditText;
+    private com.google.android.material.search.SearchBar searchBar;
+    private com.google.android.material.search.SearchView searchView;
 
     // Sora Editor Components
     private View fileListLayout, editorContainer, btnBackParent;
@@ -57,7 +58,8 @@ public class FilesFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.fileRecyclerView);
         swipeRefresh = view.findViewById(R.id.swipeRefreshFiles);
-        searchEditText = view.findViewById(R.id.searchEditText);
+        searchBar = view.findViewById(R.id.search_bar);
+        searchView = view.findViewById(R.id.search_view);
         fileListLayout = view.findViewById(R.id.fileListLayout);
         btnBackParent = view.findViewById(R.id.btnBackParent);
         textCurrentPath = view.findViewById(R.id.textCurrentPath);
@@ -85,10 +87,16 @@ public class FilesFragment extends Fragment {
 
         swipeRefresh.setOnRefreshListener(this::loadFiles);
         
-        searchEditText.addTextChangedListener(new TextWatcher() {
+        searchView.getEditText().addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { filter(s.toString()); }
             @Override public void afterTextChanged(Editable s) {}
+        });
+
+        searchView.getEditText().setOnEditorActionListener((v, actionId, event) -> {
+            searchBar.setText(searchView.getText());
+            searchView.hide();
+            return false;
         });
 
         btnBack.setOnClickListener(v -> closeEditor());
@@ -180,7 +188,7 @@ public class FilesFragment extends Fragment {
 
                     allFiles.clear();
                     allFiles.addAll(list);
-                    filter(searchEditText.getText().toString());
+                    filter(searchView.getText().toString());
                     swipeRefresh.setRefreshing(false);
                 });
             }

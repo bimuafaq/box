@@ -23,42 +23,29 @@
             android:paddingBottom="12dp"
             android:paddingStart="20dp" />
 
-        <!-- SEARCH BAR (No Card, just a thin divider below it) -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_layout"
+        <!-- MD3 SEARCH BAR -->
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            app:hintEnabled="false"
-            app:boxBackgroundColor="@android:color/transparent"
-            app:boxStrokeWidth="0dp"
-            app:boxStrokeWidthFocused="0dp"
-            app:endIconMode="clear_text"
-            app:startIconDrawable="@drawable/ic_search_material"
-            style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense">
+            android:hint="@string/hint_search_files"
+            app:cardCornerRadius="12dp"
+            app:backgroundTint="?attr/colorSurfaceContainerHigh" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/searchEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/hint_search_files"
-                android:maxLines="1"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:imeOptions="actionSearch" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- THIN DIVIDER -->
-        <View
+        <com.google.android.material.search.SearchView
+            android:id="@+id/search_view"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="4dp"
-            android:background="?attr/colorOutlineVariant"
-            android:alpha="0.3" />
+            android:layout_height="match_parent"
+            android:hint="@string/hint_search_files"
+            app:layout_anchor="@id/search_bar"
+            app:backgroundTint="?attr/colorSurfaceContainerHigh">
+            <!-- Search content can be added here if needed -->
+        </com.google.android.material.search.SearchView>
 
-        <!-- FIXED BACK BUTTON (Only visible when in subfolder) -->
+        <!-- FILE LIST (Polos on Background) -->
         <LinearLayout
             android:id="@+id/btnBackParent"
             android:layout_width="match_parent"
