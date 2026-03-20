@@ -74,23 +74,24 @@ public class HomeFragment extends Fragment {
         if (isPingRunning) return;
         isPingRunning = true;
         btnTestPing.setEnabled(false);
-        pingGoogle.setText("Testing...");
-        pingCloudflare.setText("Testing...");
-        pingGithub.setText("Testing...");
+        pingGoogle.setText("...");
+        pingCloudflare.setText("...");
+        pingGithub.setText("...");
 
         ThreadManager.runOnShell(() -> {
-            String pingCmd = "ping -c 1 -W 2 %s 2>&1 | grep 'time=' | awk -F'time=' '{print $2}' | awk '{print $1}'";
+            // Precise timing using curl -w %{time_total}
+            String curlCmd = "curl -o /dev/null -s -w '%%{time_total}' --connect-timeout 2 --max-time 3 %s";
             
-            String googlePing = ShellHelper.runRootCommandOneShot(String.format(pingCmd, "google.com"));
-            String cloudflarePing = ShellHelper.runRootCommandOneShot(String.format(pingCmd, "1.1.1.1"));
-            String githubPing = ShellHelper.runRootCommandOneShot(String.format(pingCmd, "github.com"));
+            String googlePing = ShellHelper.runRootCommandOneShot(String.format(curlCmd, "http://www.gstatic.com/generate_204"));
+            String cloudflarePing = ShellHelper.runRootCommandOneShot(String.format(curlCmd, "http://1.1.1.1/generate_204"));
+            String githubPing = ShellHelper.runRootCommandOneShot(String.format(curlCmd, "https://github.com/favicon.ico"));
 
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
-                    pingGoogle.setText(formatPing(googlePing));
-                    pingCloudflare.setText(formatPing(cloudflarePing));
-                    pingGithub.setText(formatPing(githubPing));
+                    pingGoogle.setText(formatCurlTime(googlePing));
+                    pingCloudflare.setText(formatCurlTime(cloudflarePing));
+                    pingGithub.setText(formatCurlTime(githubPing));
                     btnTestPing.setEnabled(true);
                     isPingRunning = false;
                 });
@@ -98,13 +99,15 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private String formatPing(String result) {
-        if (result == null || result.isEmpty() || result.startsWith("Error")) return "Timeout";
+    private String formatCurlTime(String result) {
+        if (result == null || result.isEmpty() || result.startsWith("Error")) return "err";
         try {
-            double val = Double.parseDouble(result.trim());
-            return String.format(Locale.getDefault(), "%.0f ms", val);
+            // curl returns time in seconds (e.g., 0.123)
+            double seconds = Double.parseDouble(result.trim().replace(",", "."));
+            if (seconds <= 0) return "err";
+            return (int)(seconds * 1000) + " ms";
         } catch (Exception e) {
-            return "Timeout";
+            return "err";
         }
     }
 
