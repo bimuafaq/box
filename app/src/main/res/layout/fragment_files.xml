@@ -23,7 +23,7 @@
             android:paddingBottom="12dp"
             android:paddingStart="20dp" />
 
-        <!-- INLINE MD3 SEARCH BAR (NOT PLAYSTORE STYLE) -->
+        <!-- INLINE MD3 SEARCH BAR -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/searchCard"
             android:layout_width="match_parent"
@@ -66,7 +66,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- FIXED BACK BUTTON (Only visible when in subfolder) -->
+        <!-- FIXED BACK BUTTON -->
         <LinearLayout
             android:id="@+id/btnBackParent"
             android:layout_width="match_parent"
@@ -142,6 +142,7 @@
         android:visibility="gone"
         android:clickable="true">
 
+        <!-- EDITOR HEADER -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -189,10 +190,76 @@
                 app:iconTint="?attr/colorPrimary" />
         </LinearLayout>
 
+        <!-- FLOATING EDITOR SEARCH BAR -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/editorSearchLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+            app:strokeWidth="0dp"
+            android:visibility="gone">
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+                
+                <EditText
+                    android:id="@+id/editorSearchEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:hint="Search text..."
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:imeOptions="actionSearch" />
+                    
+                <ImageButton
+                    android:id="@+id/btnEditorSearchClear"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_close_material"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="24dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/colorOutlineVariant" />
+
+                <ImageButton
+                    android:id="@+id/btnEditorSearchPrev"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_arrow_up_material"
+                    app:tint="?attr/colorPrimary" />
+
+                <ImageButton
+                    android:id="@+id/btnEditorSearchNext"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_arrow_down_material"
+                    app:tint="?attr/colorPrimary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- CODE EDITOR CONTAINER -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="12dp"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginBottom="12dp"
             app:cardCornerRadius="16dp"
             app:cardBackgroundColor="?attr/colorSurfaceContainer"
             app:strokeWidth="0dp"
@@ -209,74 +276,6 @@
                     android:minHeight="0dp"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp" />
-
-                <!-- EDITOR SEARCH LAYOUT -->
-                <LinearLayout
-                    android:id="@+id/editorSearchLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp"
-                    android:paddingBottom="12dp"
-                    android:visibility="gone">
-                    
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        app:cardCornerRadius="8dp"
-                        app:cardElevation="0dp"
-                        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-                        app:strokeWidth="0dp">
-                        
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:paddingStart="12dp">
-                            
-                            <EditText
-                                android:id="@+id/editorSearchEditText"
-                                android:layout_width="0dp"
-                                android:layout_height="match_parent"
-                                android:layout_weight="1"
-                                android:background="@android:color/transparent"
-                                android:hint="Find text..."
-                                android:textSize="14sp"
-                                android:maxLines="1"
-                                android:singleLine="true"
-                                android:imeOptions="actionSearch" />
-                                
-                            <ImageButton
-                                android:id="@+id/btnEditorSearchClear"
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                                app:tint="?attr/colorOutline" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <ImageButton
-                        android:id="@+id/btnEditorSearchPrev"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/arrow_up_float"
-                        app:tint="?attr/colorPrimary" />
-
-                    <ImageButton
-                        android:id="@+id/btnEditorSearchNext"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="4dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/arrow_down_float"
-                        app:tint="?attr/colorPrimary" />
-                </LinearLayout>
 
                 <io.github.rosemoe.sora.widget.CodeEditor
                     android:id="@+id/codeEditor"
