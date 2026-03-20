@@ -23,7 +23,7 @@ import java.util.Locale;
 import com.google.android.material.card.MaterialCardView;
 
 public class DashboardFragment extends Fragment {
-    private View initialLayout, webViewContainer, webHeader;
+    private View initialLayout, webViewContainer, webHeader, emptyStatsView;
     private WebView webView;
     private TextView title;
     private SwipeRefreshLayout swipeRefresh;
@@ -31,7 +31,8 @@ public class DashboardFragment extends Fragment {
     private SharedPreferences prefs;
 
     private TextView clashConnectionsText, clashDownloadText, clashUploadText;
-    private MaterialCardView clashStatsCard;
+    private View clashStatsCard;
+    private MaterialButton btnOpen;
     private boolean showClashStats = false;
     
     private final Handler statsHandler = new Handler(Looper.getMainLooper());
@@ -50,13 +51,14 @@ public class DashboardFragment extends Fragment {
         webView = view.findViewById(R.id.dashWebView);
         title = view.findViewById(R.id.dashTitle);
         swipeRefresh = view.findViewById(R.id.swipeRefreshDash);
+        emptyStatsView = view.findViewById(R.id.emptyStatsView);
 
         clashStatsCard = view.findViewById(R.id.clashStatsCard);
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
         clashDownloadText = view.findViewById(R.id.clashDownloadText);
         clashUploadText = view.findViewById(R.id.clashUploadText);
         
-        MaterialButton btnOpen = view.findViewById(R.id.btnOpenFullWeb);
+        btnOpen = view.findViewById(R.id.btnOpenFullWeb);
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         
         setupWebView();
@@ -78,6 +80,7 @@ public class DashboardFragment extends Fragment {
             stopStats(); // Stop background updates when webview is open
             initialLayout.setVisibility(View.GONE);
             title.setVisibility(View.GONE);
+            btnOpen.setVisibility(View.GONE);
             
             webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
@@ -92,6 +95,7 @@ public class DashboardFragment extends Fragment {
             
             initialLayout.setVisibility(View.VISIBLE);
             title.setVisibility(View.VISIBLE);
+            btnOpen.setVisibility(View.VISIBLE);
             webView.loadUrl("about:blank");
             if (backPressedCallback != null) backPressedCallback.setEnabled(false);
             startStats(); // Resume background updates
@@ -107,9 +111,11 @@ public class DashboardFragment extends Fragment {
         // Only show card if feature enabled AND webview is not open
         if (showClashStats && initialLayout.getVisibility() == View.VISIBLE) {
             clashStatsCard.setVisibility(View.VISIBLE);
+            emptyStatsView.setVisibility(View.GONE);
             startStats();
         } else {
             clashStatsCard.setVisibility(View.GONE);
+            emptyStatsView.setVisibility(initialLayout.getVisibility() == View.VISIBLE ? View.VISIBLE : View.GONE);
             stopStats();
         }
     }

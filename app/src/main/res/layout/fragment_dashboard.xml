@@ -49,7 +49,7 @@
         android:paddingBottom="12dp"
         android:paddingStart="4dp" />
 
-    <FrameLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -57,173 +57,190 @@
             android:id="@+id/initialLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
             android:orientation="vertical"
-            android:padding="32dp">
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:src="@drawable/ic_dashboard"
-                app:tint="?attr/colorPrimary"
-                android:alpha="0.8" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_rox_web_interface"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp"
-                android:textColor="?attr/colorOnSurface" />
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnOpenFullWeb"
-                android:layout_width="240dp"
-                android:layout_height="56dp"
-                android:layout_marginTop="32dp"
-                android:text="@string/btn_open_dashboard"
-                app:cornerRadius="28dp"
-                app:backgroundTint="?attr/colorPrimary" />
+            android:paddingHorizontal="4dp">
 
-            <!-- TRAFFIC & CONNECTIONS CARD (Moved from Home) -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- STATS GRID (Connections + Traffic in separate cards) -->
+            <LinearLayout
                 android:id="@+id/clashStatsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                app:cardCornerRadius="20dp"
-                app:cardBackgroundColor="?attr/colorSurfaceContainer"
-                app:strokeWidth="0dp"
-                style="?attr/materialCardViewFilledStyle">
+                android:orientation="vertical"
+                android:visibility="gone">
 
-                <LinearLayout
+                <!-- CONNECTIONS CARD (Full Width) -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="14dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Traffic &amp; Connections"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
-                        android:letterSpacing="0.01"
-                        android:layout_marginBottom="12dp" />
-
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                    app:strokeWidth="0dp"
+                    style="?attr/materialCardViewFilledStyle">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:padding="16dp"
                         android:orientation="horizontal"
-                        android:weightSum="3">
-
-                        <!-- ACTIVE CONNECTIONS -->
-                        <LinearLayout
+                        android:gravity="center_vertical">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_dashboard"
+                            app:tint="?attr/colorPrimary" />
+                        <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:gravity="center"
+                            android:layout_marginStart="12dp"
+                            android:text="Active Connections"
+                            android:textSize="14sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+                        <TextView
+                            android:id="@+id/clashConnectionsText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorPrimary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- TRAFFIC ROW (DL / UL side by side) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <!-- DOWNLOAD CARD -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                        app:strokeWidth="0dp"
+                        style="?attr/materialCardViewFilledStyle">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="16dp"
                             android:orientation="vertical">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="ACTIVE"
-                                android:textSize="9sp"
-                                android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textStyle="bold" />
-                            <TextView
-                                android:id="@+id/clashConnectionsText"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                android:textSize="14sp"
+                                android:text="DOWNLOAD"
+                                android:textSize="10sp"
                                 android:textStyle="bold"
-                                android:textColor="?attr/colorPrimary"
-                                android:layout_marginTop="2dp" />
-                        </LinearLayout>
-
-                        <!-- DOWNLOAD TOTAL -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="TOTAL DL"
-                                android:textSize="9sp"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textStyle="bold" />
+                                android:alpha="0.7" />
                             <TextView
                                 android:id="@+id/clashDownloadText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0 B"
-                                android:textSize="14sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="?attr/colorPrimary"
-                                android:layout_marginTop="2dp" />
+                                android:layout_marginTop="4dp" />
                         </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
-                        <!-- UPLOAD TOTAL -->
+                    <!-- UPLOAD CARD -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                        app:strokeWidth="0dp"
+                        style="?attr/materialCardViewFilledStyle">
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
+                            android:padding="16dp"
                             android:orientation="vertical">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="TOTAL UL"
-                                android:textSize="9sp"
+                                android:text="UPLOAD"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
                                 android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textStyle="bold" />
+                                android:alpha="0.7" />
                             <TextView
                                 android:id="@+id/clashUploadText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0 B"
-                                android:textSize="14sp"
+                                android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="?attr/colorPrimary"
-                                android:layout_marginTop="2dp" />
+                                android:layout_marginTop="4dp" />
                         </LinearLayout>
-                    </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- CENTER PLACEHOLDER WHEN NO STATS -->
+            <LinearLayout
+                android:id="@+id/emptyStatsView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="visible">
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/ic_dashboard"
+                    app:tint="?attr/colorPrimary"
+                    android:alpha="0.3" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dashboard Statistics"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginTop="16dp" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- WEBVIEW IN A BOX (Filled Card) -->
+        <!-- FLOATING ACTION BUTTON -->
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/btnOpenFullWeb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:text="OPEN PANEL"
+            app:icon="@drawable/ic_dashboard"
+            style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary" />
+
+        <!-- WEBVIEW CONTAINER (OVERLAY) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/webViewContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="12dp"
             android:visibility="gone"
-            app:cardBackgroundColor="?attr/colorSurfaceContainer"
+            app:cardBackgroundColor="?attr/colorSurface"
             app:strokeWidth="0dp"
-            style="?attr/materialCardViewFilledStyle">
+            app:cardCornerRadius="0dp">
             
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <com.google.android.material.bottomsheet.BottomSheetDragHandleView
-                    android:id="@+id/dragHandle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:minHeight="0dp" />
-
                 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                     android:id="@+id/swipeRefreshDash"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
-                    
                     <WebView
                         android:id="@+id/dashWebView"
                         android:layout_width="match_parent"
@@ -231,5 +248,6 @@
                 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-    </FrameLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>
