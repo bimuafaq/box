@@ -47,6 +47,7 @@ public class FilesFragment extends Fragment {
     private TextView editorFileName;
     private String editingFilePath = "";
     private OnBackPressedCallback backPressedCallback;
+    private FloatingActionButton btnAddAction;
 
     @Nullable
     @Override
@@ -65,7 +66,7 @@ public class FilesFragment extends Fragment {
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
         
-        FloatingActionButton btnAddAction = view.findViewById(R.id.btnAddAction);
+        btnAddAction = view.findViewById(R.id.btnAddAction);
 
         backPressedCallback = new OnBackPressedCallback(false) {
             @Override
@@ -198,6 +199,7 @@ public class FilesFragment extends Fragment {
         editorFileName.setText(name);
         fileListLayout.setVisibility(View.GONE);
         editorContainer.setVisibility(View.VISIBLE);
+        if (btnAddAction != null) btnAddAction.setVisibility(View.GONE);
         if (backPressedCallback != null) backPressedCallback.setEnabled(true);
 
         new Thread(() -> {
@@ -217,6 +219,7 @@ public class FilesFragment extends Fragment {
     private void closeEditor() {
         editorContainer.setVisibility(View.GONE);
         fileListLayout.setVisibility(View.VISIBLE);
+        if (btnAddAction != null) btnAddAction.setVisibility(View.VISIBLE);
         editingFilePath = "";
         if (backPressedCallback != null) backPressedCallback.setEnabled(false);
     }
