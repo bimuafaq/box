@@ -258,6 +258,12 @@ public class HomeFragment extends Fragment {
     private void refreshCoreStats() {
         if (!isResumed()) return;
         ThreadManager.runOnShell(() -> {
+            SharedPreferences prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
+            String dashUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
+            // Extract base API URL (remove /ui or /dashboard suffix)
+            String apiUrl = dashUrl.replaceAll("/(ui|dashboard)/?$", "");
+            if (apiUrl.endsWith("/ui")) apiUrl = apiUrl.substring(0, apiUrl.length() - 3);
+            
             // Base stats (CPU/RAM)
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
                          "if [ \"$PID\" != \"0\" ]; then " +
@@ -272,11 +278,10 @@ public class HomeFragment extends Fragment {
             // Optional Clash stats (Connections/Traffic)
             String clashRes = null;
             if (showClashStats) {
-                // Fetch connections count and total traffic
-                // We use curl to local clash API (9090 is default)
-                String clashCmd = "CONN=$(curl -s http://127.0.0.1:9090/connections | grep -o '\"metadata\"' | wc -l); " +
-                                  "TRAFFIC=$(curl -s http://127.0.0.1:9090/traffic); " +
-                                  "echo \"$CONN|$TRAFFIC\"";
+                // Fetch connections which includes downloadTotal and uploadTotal in MD3/Mihomo/Meta
+                // We use -H if secret is needed, but for local root curl it's often not needed.
+                // However, we should try to get the secret from config if possible or just use the URL.
+                String clashCmd = "curl -s " + apiUrl + "/connections";
                 clashRes = ShellHelper.runRootCommandOneShot(clashCmd);
             }
 
@@ -311,22 +316,34 @@ public class HomeFragment extends Fragment {
                         }
                     }
 
-                    // Update Clash Stats
-                    if (showClashStats && fClashRes != null && fClashRes.contains("|")) {
+                    // Update Clash Stats from /connections JSON
+                    if (showClashStats && fClashRes != null && fClashRes.contains("\"connections\"")) {
                         try {
-                            String[] cParts = fClashRes.split("\\|");
-                            String connCount = cParts[0].trim();
-                            String trafficJson = (cParts.length > 1) ? cParts[1].trim() : "";
+                            // Manual simple JSON extraction for performance without library
+                            // "downloadTotal":12345,"uploadTotal":67890
+                            String dlTotal = "0";
+                            String ulTotal = "0";
+                            String connCount = "0";
                             
-                            clashConnectionsText.setText(connCount.isEmpty() ? "0" : connCount);
-                            
-                            // Simple parsing of {"up":123,"down":456} from /traffic
-                            if (trafficJson.contains("\"up\"") && trafficJson.contains("\"down\"")) {
-                                String up = trafficJson.split("\"up\":")[1].split("[,}]")[0];
-                                String down = trafficJson.split("\"down\":")[1].split("[,}]")[0];
-                                clashUploadText.setText(formatSize(Long.parseLong(up)));
-                                clashDownloadText.setText(formatSize(Long.parseLong(down)));
+                            if (fClashRes.contains("\"downloadTotal\":")) {
+                                dlTotal = fClashRes.split("\"downloadTotal\":")[1].split("[,}]")[0];
                             }
+                            if (fClashRes.contains("\"uploadTotal\":")) {
+                                ulTotal = fClashRes.split("\"uploadTotal\":")[1].split("[,}]")[0];
+                            }
+                            
+                            // Count "id" occurrences to get connection count
+                            int count = 0;
+                            int lastIndex = 0;
+                            while ((lastIndex = fClashRes.indexOf("\"id\":", lastIndex)) != -1) {
+                                count++;
+                                lastIndex += 5;
+                            }
+                            connCount = String.valueOf(count);
+                            
+                            clashConnectionsText.setText(connCount);
+                            clashUploadText.setText(formatSize(Long.parseLong(ulTotal)));
+                            clashDownloadText.setText(formatSize(Long.parseLong(dlTotal)));
                         } catch (Exception ignored) {}
                     }
                 });
