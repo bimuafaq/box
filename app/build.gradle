@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     namespace = 'com.rox.manager'
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.rox.manager"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }
@@ -26,17 +26,17 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.13.0-alpha11'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.fragment:fragment:1.6.2'
-    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.fragment:fragment:1.8.6'
+    implementation 'androidx.viewpager2:viewpager2:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'io.github.Rosemoe.sora-editor:editor:0.23.6'
+    implementation 'io.github.rosemoe:editor:0.24.5'
 }
