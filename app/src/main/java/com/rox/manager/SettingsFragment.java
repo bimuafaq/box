@@ -18,7 +18,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 public class SettingsFragment extends Fragment {
     private TextView currentThemeText, currentDashUrlText;
     private TextView currentBinNameText, currentNetworkModeText, currentClashOptionText;
-    private MaterialSwitch switchIpv6;
+    private MaterialSwitch switchIpv6, switchQuic;
     private SharedPreferences prefs;
     private boolean isUpdatingUI = false;
 
@@ -37,6 +37,7 @@ public class SettingsFragment extends Fragment {
 
         // Module Config Views
         switchIpv6 = view.findViewById(R.id.switchIpv6);
+        switchQuic = view.findViewById(R.id.switchQuic);
         currentBinNameText = view.findViewById(R.id.currentBinNameText);
         currentNetworkModeText = view.findViewById(R.id.currentNetworkModeText);
         currentClashOptionText = view.findViewById(R.id.currentClashOptionText);
@@ -52,10 +53,13 @@ public class SettingsFragment extends Fragment {
         dashUrlSelection.setOnClickListener(v -> showDashUrlDialog());
 
         switchIpv6.setOnCheckedChangeListener((v, checked) -> {
-            if (!isUpdatingUI) {
-                updateSettingsIni("ipv6", String.valueOf(checked));
-            }
+            if (!isUpdatingUI) updateSettingsIni("ipv6", String.valueOf(checked));
         });
+
+        switchQuic.setOnCheckedChangeListener((v, checked) -> {
+            if (!isUpdatingUI) updateQuicSetting(checked);
+        });
+
         binNameSelection.setOnClickListener(v -> showBinNameDialog());
         networkModeSelection.setOnClickListener(v -> showNetworkModeDialog());
         clashOptionSelection.setOnClickListener(v -> showClashOptionDialog());
@@ -69,12 +73,17 @@ public class SettingsFragment extends Fragment {
             String binName = ShellHelper.runRootCommand("grep '^bin_name=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
             String netMode = ShellHelper.runRootCommand("grep '^network_mode=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
             String clashOpt = ShellHelper.runRootCommand("grep '^xclash_option=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
+            
+            // Read QUIC from box.iptables
+            String quicValue = ShellHelper.runRootCommand("grep '^quic=' /data/adb/box/scripts/box.iptables | cut -d '\"' -f 2");
 
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
                     isUpdatingUI = true;
                     switchIpv6.setChecked("true".equalsIgnoreCase(ipv6));
+                    switchQuic.setChecked("disable".equalsIgnoreCase(quicValue));
+                    
                     currentBinNameText.setText(binName.isEmpty() ? "clash" : binName);
                     currentNetworkModeText.setText(netMode.isEmpty() ? "tproxy" : netMode);
                     currentClashOptionText.setText(clashOpt.isEmpty() ? "mihomo" : clashOpt);
@@ -87,6 +96,14 @@ public class SettingsFragment extends Fragment {
     private void updateSettingsIni(String key, String value) {
         ThreadManager.runOnShell(() -> {
             ShellHelper.runRootCommand("sed -i 's/^" + key + "=.*/" + key + "=\"" + value + "\"/' /data/adb/box/settings.ini");
+            loadModuleSettings();
+        });
+    }
+
+    private void updateQuicSetting(boolean disable) {
+        String val = disable ? "disable" : "enable";
+        ThreadManager.runOnShell(() -> {
+            ShellHelper.runRootCommand("sed -i 's/^quic=.*/quic=\"" + val + "\"/' /data/adb/box/scripts/box.iptables");
             loadModuleSettings();
         });
     }
