@@ -208,6 +208,7 @@ public class FilesFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     if (content != null) {
                         codeEditor.setText(content);
+                        codeEditor.requestFocus();
                     } else {
                         codeEditor.setText("");
                     }
