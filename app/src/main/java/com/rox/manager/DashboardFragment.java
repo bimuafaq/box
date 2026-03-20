@@ -81,6 +81,17 @@ public class DashboardFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        if (webView != null) {
+            webView.stopLoading();
+            webView.clearHistory();
+            webView.removeAllViews();
+            webView.destroy();
+        }
+        super.onDestroyView();
+    }
+
     private void setupWebView() {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);

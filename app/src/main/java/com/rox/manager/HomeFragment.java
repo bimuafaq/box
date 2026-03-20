@@ -104,6 +104,15 @@ public class HomeFragment extends Fragment {
         stopStats();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        stopTimer();
+        stopStats();
+        timerHandler.removeCallbacksAndMessages(null);
+        statsHandler.removeCallbacksAndMessages(null);
+    }
+
     private void startTimer(long initialSeconds) {
         this.currentRuntimeSeconds = initialSeconds;
         if (!isTimerRunning) {

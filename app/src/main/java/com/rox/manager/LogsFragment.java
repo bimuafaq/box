@@ -82,6 +82,13 @@ public class LogsFragment extends Fragment {
         stopLiveLogs();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        stopLiveLogs();
+        handler.removeCallbacksAndMessages(null);
+    }
+
     private void showLogSelectionDialog() {
         ThreadManager.runOnShell(() -> {
             String res = ShellHelper.runRootCommand("ls /data/adb/box/run/*.log");

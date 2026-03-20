@@ -51,14 +51,29 @@ public class ShellHelper {
             persistentWriter.write(command + " 2>&1\n");
             persistentWriter.write("echo " + endMarker + "\n");
             persistentWriter.flush();
+            
             StringBuilder output = new StringBuilder();
-            String line;
-            while ((line = persistentReader.readLine()) != null) {
-                if (line.contains(endMarker)) break;
-                output.append(line).append("\n");
+            long startTime = System.currentTimeMillis();
+            while (true) {
+                if (persistentReader.ready()) {
+                    String line = persistentReader.readLine();
+                    if (line == null) break;
+                    if (line.contains(endMarker)) break;
+                    output.append(line).append("\n");
+                } else {
+                    Thread.sleep(10);
+                }
+                
+                // 5 second timeout to prevent infinite looping
+                if (System.currentTimeMillis() - startTime > 5000) {
+                    Log.e(TAG, "Command timeout: " + command);
+                    closePersistentShell();
+                    return "Error: Command timeout.";
+                }
             }
             return output.toString().trim();
         } catch (Exception e) {
+            Log.e(TAG, "Shell execution error", e);
             closePersistentShell();
             return "Error: " + e.getMessage();
         }
