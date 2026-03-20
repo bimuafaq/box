@@ -51,6 +51,13 @@ public class LogsFragment extends Fragment {
         logScrollView = view.findViewById(R.id.logScrollView);
         cardLogSource = view.findViewById(R.id.cardLogSource);
 
+        // Load cached logs from previous session
+        String cachedLogs = prefs.getString("last_logs_cache", "");
+        if (!cachedLogs.isEmpty()) {
+            logTextView.setText(formatLogText(cachedLogs));
+            logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
+        }
+
         switchLiveLogs.setChecked(isLive);
         switchLiveLogs.setOnCheckedChangeListener((v, checked) -> {
             isLive = checked;
@@ -157,6 +164,7 @@ public class LogsFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
                     if (result != null) {
+                        prefs.edit().putString("last_logs_cache", result).apply();
                         logTextView.setText(formatLogText(result));
                         logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
                     }
