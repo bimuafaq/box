@@ -43,6 +43,7 @@ public class FilesFragment extends Fragment {
 
     // Sora Editor Components
     private View fileListLayout, editorContainer, btnBackParent;
+    private TextView textCurrentPath;
     private CodeEditor codeEditor;
     private TextView editorFileName;
     private String editingFilePath = "";
@@ -59,6 +60,7 @@ public class FilesFragment extends Fragment {
         searchEditText = view.findViewById(R.id.searchEditText);
         fileListLayout = view.findViewById(R.id.fileListLayout);
         btnBackParent = view.findViewById(R.id.btnBackParent);
+        textCurrentPath = view.findViewById(R.id.textCurrentPath);
         
         // Editor UI
         editorContainer = view.findViewById(R.id.editorContainer);
@@ -174,9 +176,10 @@ public class FilesFragment extends Fragment {
 
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    // Update fixed back button visibility
+                    // Update fixed back button visibility and path info
                     boolean isRoot = currentPath.equals("/data/adb/box") || currentPath.equals("/");
                     btnBackParent.setVisibility(isRoot ? View.GONE : View.VISIBLE);
+                    textCurrentPath.setText(currentPath);
 
                     allFiles.clear();
                     allFiles.addAll(list);

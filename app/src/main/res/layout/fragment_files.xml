@@ -76,14 +76,26 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_back_arrow"
                 app:tint="?attr/colorOnSurfaceVariant" />
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Back to Parent"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginStart="16dp"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Back to Parent"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+                <TextView
+                    android:id="@+id/textCurrentPath"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="/data/adb/box"
+                    android:textSize="11sp"
+                    android:textColor="?attr/colorOutline" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- FILE LIST (Polos on Background) -->
