@@ -43,10 +43,10 @@ public class SettingsFragment extends Fragment {
         currentNetworkModeText = view.findViewById(R.id.currentNetworkModeText);
         currentClashOptionText = view.findViewById(R.id.currentClashOptionText);
         
-        // Load Clash Stats preference
-        switchClashStats.setChecked(prefs.getBoolean("show_clash_stats", false));
+        // Load Clash API preference
+        switchClashStats.setChecked(prefs.getBoolean("enable_clash_api", false));
         switchClashStats.setOnCheckedChangeListener((v, checked) -> {
-            prefs.edit().putBoolean("show_clash_stats", checked).apply();
+            prefs.edit().putBoolean("enable_clash_api", checked).apply();
         });
 
         View binNameSelection = view.findViewById(R.id.binNameSelection);

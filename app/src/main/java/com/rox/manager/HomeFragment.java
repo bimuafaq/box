@@ -22,8 +22,10 @@ public class HomeFragment extends Fragment {
     private TextView statusText, coreText, runtimeText, cpuText, ramText, idCoreText;
     private TextView pingGoogle, pingCloudflare, pingGithub;
     private MaterialButton startBtn, stopBtn, restartBtn, btnTestPing;
+    private View cardConnectivity;
     private boolean isActionRunning = false;
     private boolean isPingRunning = false;
+    private SharedPreferences prefs;
     
     private final Handler timerHandler = new Handler(android.os.Looper.getMainLooper());
     private long currentRuntimeSeconds = 0;
@@ -37,6 +39,8 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         
+        prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
+
         statusText = view.findViewById(R.id.statusText);
         coreText = view.findViewById(R.id.coreText);
         runtimeText = view.findViewById(R.id.runtimeText);
@@ -52,6 +56,7 @@ public class HomeFragment extends Fragment {
         restartBtn = view.findViewById(R.id.restartBtn);
         stopBtn = view.findViewById(R.id.stopBtn);
         btnTestPing = view.findViewById(R.id.btnTestPing);
+        cardConnectivity = view.findViewById(R.id.cardConnectivity);
 
         refreshAllInfo();
 
@@ -147,6 +152,10 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        boolean enableClashApi = prefs.getBoolean("enable_clash_api", false);
+        if (cardConnectivity != null) {
+            cardConnectivity.setVisibility(enableClashApi ? View.VISIBLE : View.GONE);
+        }
         refreshAllInfo();
         startStats();
     }

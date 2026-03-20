@@ -122,7 +122,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        showClashStats = prefs.getBoolean("show_clash_stats", false);
+        showClashStats = prefs.getBoolean("enable_clash_api", false);
         // Only show card if feature enabled AND webview is not open
         if (showClashStats && initialLayout.getVisibility() == View.VISIBLE) {
             clashStatsCard.setVisibility(View.VISIBLE);
@@ -142,7 +142,8 @@ public class DashboardFragment extends Fragment {
         if (!showClashStats) return;
         ThreadManager.runOnShell(() -> {
             String apiUrl = getApiUrl();
-            String res = ShellHelper.runRootCommandOneShot("curl -s " + apiUrl + "/proxies");
+            // Use standard curl with 1s timeout, no root needed for localhost API
+            String res = ShellHelper.runRootCommandOneShot("curl -s --connect-timeout 1 " + apiUrl + "/proxies");
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
@@ -153,7 +154,10 @@ public class DashboardFragment extends Fragment {
     }
 
     private void renderProxies(String json) {
-        if (json == null || !json.contains("\"proxies\"")) return;
+        if (json == null || !json.contains("\"proxies\"")) {
+            proxyGroupsContainer.removeAllViews();
+            return;
+        }
         proxyGroupsContainer.removeAllViews();
         try {
             // Simplified manual parsing for proxy groups
@@ -200,7 +204,7 @@ public class DashboardFragment extends Fragment {
         ThreadManager.runOnShell(() -> {
             String apiUrl = getApiUrl();
             String payload = "{\"name\":\"" + name + "\"}";
-            ShellHelper.runRootCommandOneShot("curl -s -X PUT -d '" + payload + "' " + apiUrl + "/proxies/" + group);
+            ShellHelper.runRootCommandOneShot("curl -s -X PUT --connect-timeout 1 -d '" + payload + "' " + apiUrl + "/proxies/" + group);
             getActivity().runOnUiThread(this::refreshProxies);
         });
     }
@@ -255,11 +259,8 @@ public class DashboardFragment extends Fragment {
     private void refreshClashStats() {
         if (!isResumed() || !showClashStats) return;
         ThreadManager.runOnShell(() -> {
-            String dashUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
-            String apiUrl = dashUrl.replaceAll("/(ui|dashboard)/?$", "");
-            if (apiUrl.endsWith("/ui")) apiUrl = apiUrl.substring(0, apiUrl.length() - 3);
-            
-            String clashCmd = "curl -s " + apiUrl + "/connections";
+            String apiUrl = getApiUrl();
+            String clashCmd = "curl -s --connect-timeout 1 " + apiUrl + "/connections";
             String result = ShellHelper.runRootCommandOneShot(clashCmd);
 
             if (isAdded() && getActivity() != null) {
