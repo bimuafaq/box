@@ -1,6 +1,8 @@
 package com.rox.manager;
 
 import android.os.Bundle;
+import android.view.View;
+import android.content.res.Configuration;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
@@ -9,12 +11,16 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.navigationrail.NavigationRailView;
 import androidx.activity.OnBackPressedCallback;
 
 public class MainActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
     private BottomNavigationView bottomNavigation;
+    private NavigationRailView navigationRail;
+    private boolean isSyncing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,9 +30,11 @@ public class MainActivity extends AppCompatActivity {
 
         viewPager = findViewById(R.id.viewPager);
         bottomNavigation = findViewById(R.id.bottomNavigation);
+        navigationRail = findViewById(R.id.navigationRail);
 
         setupViewPager();
-        setupBottomNav();
+        setupNavigation();
+        updateNavigationVisibility();
         
         ShellHelper.setCacheDir(getCacheDir().getAbsolutePath());
 
@@ -35,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
             public void handleOnBackPressed() {
                 if (viewPager.getCurrentItem() != 0) {
                     viewPager.setCurrentItem(0, false);
-                    bottomNavigation.setSelectedItemId(R.id.nav_home);
+                    syncNavSelection(R.id.nav_home);
                 } else {
                     setEnabled(false);
                     getOnBackPressedDispatcher().onBackPressed();
@@ -51,32 +59,66 @@ public class MainActivity extends AppCompatActivity {
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                bottomNavigation.getMenu().getItem(position).setChecked(true);
+                if (isSyncing) return;
+                int itemId = bottomNavigation.getMenu().getItem(position).getItemId();
+                syncNavSelection(itemId);
             }
         });
     }
 
-    private void setupBottomNav() {
-        bottomNavigation.setOnItemSelectedListener(item -> {
+    private void setupNavigation() {
+        NavigationBarView.OnItemSelectedListener listener = item -> {
+            if (isSyncing) return true;
             int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                viewPager.setCurrentItem(0, false);
-                return true;
-            } else if (itemId == R.id.nav_dashboard) {
-                viewPager.setCurrentItem(1, false);
-                return true;
-            } else if (itemId == R.id.nav_logs) {
-                viewPager.setCurrentItem(2, false);
-                return true;
-            } else if (itemId == R.id.nav_files) {
-                viewPager.setCurrentItem(3, false);
-                return true;
-            } else if (itemId == R.id.nav_settings) {
-                viewPager.setCurrentItem(4, false);
+            int index = -1;
+            if (itemId == R.id.nav_home) index = 0;
+            else if (itemId == R.id.nav_dashboard) index = 1;
+            else if (itemId == R.id.nav_logs) index = 2;
+            else if (itemId == R.id.nav_files) index = 3;
+            else if (itemId == R.id.nav_settings) index = 4;
+
+            if (index != -1) {
+                viewPager.setCurrentItem(index, false);
+                syncNavSelection(itemId);
                 return true;
             }
             return false;
-        });
+        };
+
+        bottomNavigation.setOnItemSelectedListener(listener);
+        navigationRail.setOnItemSelectedListener(listener);
+    }
+
+    private void syncNavSelection(int itemId) {
+        if (isSyncing) return;
+        isSyncing = true;
+        try {
+            if (bottomNavigation.getSelectedItemId() != itemId) {
+                bottomNavigation.setSelectedItemId(itemId);
+            }
+            if (navigationRail.getSelectedItemId() != itemId) {
+                navigationRail.setSelectedItemId(itemId);
+            }
+        } finally {
+            isSyncing = false;
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        updateNavigationVisibility();
+    }
+
+    private void updateNavigationVisibility() {
+        boolean isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        if (isLandscape) {
+            navigationRail.setVisibility(View.VISIBLE);
+            bottomNavigation.setVisibility(View.GONE);
+        } else {
+            navigationRail.setVisibility(View.GONE);
+            bottomNavigation.setVisibility(View.VISIBLE);
+        }
     }
 
     private static class ViewPager2Adapter extends FragmentStateAdapter {
