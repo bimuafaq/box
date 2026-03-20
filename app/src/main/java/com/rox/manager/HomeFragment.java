@@ -14,12 +14,19 @@ import com.google.android.material.button.MaterialButton;
 
 import java.util.Locale;
 
+import com.google.android.material.card.MaterialCardView;
+import android.content.Context;
+import android.content.SharedPreferences;
+
 public class HomeFragment extends Fragment {
     private TextView statusText, coreText, runtimeText, cpuText, ramText, idCoreText;
     private TextView pingGoogle, pingCloudflare, pingGithub;
+    private TextView clashConnectionsText, clashDownloadText, clashUploadText;
+    private MaterialCardView clashStatsCard;
     private MaterialButton startBtn, stopBtn, restartBtn, btnTestPing;
     private boolean isActionRunning = false;
     private boolean isPingRunning = false;
+    private boolean showClashStats = false;
     
     private final Handler timerHandler = new Handler(android.os.Looper.getMainLooper());
     private long currentRuntimeSeconds = 0;
@@ -43,6 +50,11 @@ public class HomeFragment extends Fragment {
         pingGoogle = view.findViewById(R.id.pingGoogle);
         pingCloudflare = view.findViewById(R.id.pingCloudflare);
         pingGithub = view.findViewById(R.id.pingGithub);
+
+        clashStatsCard = view.findViewById(R.id.clashStatsCard);
+        clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
+        clashDownloadText = view.findViewById(R.id.clashDownloadText);
+        clashUploadText = view.findViewById(R.id.clashUploadText);
         
         startBtn = view.findViewById(R.id.startBtn);
         restartBtn = view.findViewById(R.id.restartBtn);
@@ -143,6 +155,10 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        SharedPreferences prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
+        showClashStats = prefs.getBoolean("show_clash_stats", false);
+        clashStatsCard.setVisibility(showClashStats ? View.VISIBLE : View.GONE);
+        
         refreshAllInfo();
         startStats();
     }
@@ -227,6 +243,11 @@ public class HomeFragment extends Fragment {
                             startBtn.setEnabled(true);
                             restartBtn.setEnabled(false);
                             stopBtn.setEnabled(false);
+                            
+                            // Reset clash stats if stopped
+                            clashConnectionsText.setText("0");
+                            clashDownloadText.setText("0 B");
+                            clashUploadText.setText("0 B");
                         }
                     }
                 });
@@ -237,6 +258,7 @@ public class HomeFragment extends Fragment {
     private void refreshCoreStats() {
         if (!isResumed()) return;
         ThreadManager.runOnShell(() -> {
+            // Base stats (CPU/RAM)
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
                          "if [ \"$PID\" != \"0\" ]; then " +
                          "  RSS=$(grep VmRSS /proc/$PID/status | awk '{print $2}'); " +
@@ -247,9 +269,24 @@ public class HomeFragment extends Fragment {
             
             String res = ShellHelper.runRootCommand(cmd);
 
+            // Optional Clash stats (Connections/Traffic)
+            String clashRes = null;
+            if (showClashStats) {
+                // Fetch connections count and total traffic
+                // We use curl to local clash API (9090 is default)
+                String clashCmd = "CONN=$(curl -s http://127.0.0.1:9090/connections | grep -o '\"metadata\"' | wc -l); " +
+                                  "TRAFFIC=$(curl -s http://127.0.0.1:9090/traffic); " +
+                                  "echo \"$CONN|$TRAFFIC\"";
+                clashRes = ShellHelper.runRootCommandOneShot(clashCmd);
+            }
+
+            final String fClashRes = clashRes;
+
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
+                    
+                    // Update Core Stats
                     if (res != null && res.contains("|")) {
                         String[] parts = res.split("\\|");
                         try {
@@ -273,9 +310,35 @@ public class HomeFragment extends Fragment {
                             idCoreText.setText("-");
                         }
                     }
+
+                    // Update Clash Stats
+                    if (showClashStats && fClashRes != null && fClashRes.contains("|")) {
+                        try {
+                            String[] cParts = fClashRes.split("\\|");
+                            String connCount = cParts[0].trim();
+                            String trafficJson = (cParts.length > 1) ? cParts[1].trim() : "";
+                            
+                            clashConnectionsText.setText(connCount.isEmpty() ? "0" : connCount);
+                            
+                            // Simple parsing of {"up":123,"down":456} from /traffic
+                            if (trafficJson.contains("\"up\"") && trafficJson.contains("\"down\"")) {
+                                String up = trafficJson.split("\"up\":")[1].split("[,}]")[0];
+                                String down = trafficJson.split("\"down\":")[1].split("[,}]")[0];
+                                clashUploadText.setText(formatSize(Long.parseLong(up)));
+                                clashDownloadText.setText(formatSize(Long.parseLong(down)));
+                            }
+                        } catch (Exception ignored) {}
+                    }
                 });
             }
         });
+    }
+
+    private String formatSize(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(1024));
+        char pre = "KMGTPE".charAt(exp - 1);
+        return String.format(Locale.getDefault(), "%.1f %cB", bytes / Math.pow(1024, exp), pre);
     }
 
     private long parseETimeToSeconds(String etime) {

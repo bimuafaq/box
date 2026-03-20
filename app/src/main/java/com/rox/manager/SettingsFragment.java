@@ -18,7 +18,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 public class SettingsFragment extends Fragment {
     private TextView currentThemeText, currentDashUrlText;
     private TextView currentBinNameText, currentNetworkModeText, currentClashOptionText;
-    private MaterialSwitch switchIpv6, switchQuic;
+    private MaterialSwitch switchIpv6, switchQuic, switchClashStats;
     private SharedPreferences prefs;
     private boolean isUpdatingUI = false;
 
@@ -38,9 +38,17 @@ public class SettingsFragment extends Fragment {
         // Module Config Views
         switchIpv6 = view.findViewById(R.id.switchIpv6);
         switchQuic = view.findViewById(R.id.switchQuic);
+        switchClashStats = view.findViewById(R.id.switchClashStats);
         currentBinNameText = view.findViewById(R.id.currentBinNameText);
         currentNetworkModeText = view.findViewById(R.id.currentNetworkModeText);
         currentClashOptionText = view.findViewById(R.id.currentClashOptionText);
+        
+        // Load Clash Stats preference
+        switchClashStats.setChecked(prefs.getBoolean("show_clash_stats", false));
+        switchClashStats.setOnCheckedChangeListener((v, checked) -> {
+            prefs.edit().putBoolean("show_clash_stats", checked).apply();
+        });
+
         View binNameSelection = view.findViewById(R.id.binNameSelection);
         View networkModeSelection = view.findViewById(R.id.networkModeSelection);
         View clashOptionSelection = view.findViewById(R.id.clashOptionSelection);
