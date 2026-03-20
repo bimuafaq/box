@@ -114,9 +114,22 @@ public class FilesFragment extends Fragment {
                 String query = s.toString();
                 searchRunnable = () -> {
                     if (!query.isEmpty()) {
+                        // Temporarily disable focus on editor to prevent stealing
+                        codeEditor.setFocusable(false);
+                        codeEditor.setFocusableInTouchMode(false);
+                        
                         codeEditor.getSearcher().search(query, new EditorSearcher.SearchOptions(EditorSearcher.SearchOptions.TYPE_NORMAL, true));
+                        
+                        // Re-request focus for input and restore cursor position
+                        editorSearchInput.post(() -> {
+                            editorSearchInput.requestFocus();
+                            // Ensure cursor stays at the correct position
+                            // No need to reset selection if focus wasn't lost, but just in case
+                        });
                     } else {
                         codeEditor.getSearcher().stopSearch();
+                        codeEditor.setFocusable(true);
+                        codeEditor.setFocusableInTouchMode(true);
                     }
                 };
                 searchHandler.postDelayed(searchRunnable, 300);
@@ -273,6 +286,10 @@ public class FilesFragment extends Fragment {
             editorFileName.setVisibility(View.VISIBLE);
             editorSearchInput.setText("");
             codeEditor.getSearcher().stopSearch();
+            
+            // Restore focusability
+            codeEditor.setFocusable(true);
+            codeEditor.setFocusableInTouchMode(true);
         }
     }
 
