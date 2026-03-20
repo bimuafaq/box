@@ -26,26 +26,16 @@
         <!-- MD3 SEARCH BAR -->
         <com.google.android.material.search.SearchBar
             android:id="@+id/search_bar"
+            style="@style/Widget.App.SearchBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:hint="@string/hint_search_files"
-            app:cardCornerRadius="12dp"
             app:backgroundTint="?attr/colorSurfaceContainerHigh" />
 
-        <com.google.android.material.search.SearchView
-            android:id="@+id/search_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="@string/hint_search_files"
-            app:layout_anchor="@id/search_bar"
-            app:backgroundTint="?attr/colorSurfaceContainerHigh">
-            <!-- Search content can be added here if needed -->
-        </com.google.android.material.search.SearchView>
-
-        <!-- FILE LIST (Polos on Background) -->
+        <!-- FIXED BACK BUTTON (Only visible when in subfolder) -->
         <LinearLayout
             android:id="@+id/btnBackParent"
             android:layout_width="match_parent"
@@ -85,7 +75,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- FILE LIST (Polos on Background) -->
+        <!-- FILE LIST -->
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshFiles"
             android:layout_width="match_parent"
@@ -110,6 +100,17 @@
         android:src="@android:drawable/ic_input_add"
         app:tint="?attr/colorOnPrimaryContainer"
         app:backgroundTint="?attr/colorPrimaryContainer" />
+
+    <!-- SEARCH VIEW AS OVERLAY -->
+    <com.google.android.material.search.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="@string/hint_search_files"
+        app:layout_anchor="@id/search_bar"
+        app:backgroundTint="?attr/colorSurfaceContainerHigh">
+        <!-- Search content can be added here if needed -->
+    </com.google.android.material.search.SearchView>
 
     <!-- NATURAL EDITOR OVERLAY -->
     <LinearLayout

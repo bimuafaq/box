@@ -60,6 +60,10 @@ public class FilesFragment extends Fragment {
         swipeRefresh = view.findViewById(R.id.swipeRefreshFiles);
         searchBar = view.findViewById(R.id.search_bar);
         searchView = view.findViewById(R.id.search_view);
+        
+        // Manual setup to ensure it opens
+        searchBar.setOnClickListener(v -> searchView.show());
+
         fileListLayout = view.findViewById(R.id.fileListLayout);
         btnBackParent = view.findViewById(R.id.btnBackParent);
         textCurrentPath = view.findViewById(R.id.textCurrentPath);
