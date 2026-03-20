@@ -46,6 +46,8 @@ public class FilesFragment extends Fragment {
     private TextView textCurrentPath;
     private CodeEditor codeEditor;
     private TextView editorFileName;
+    private View editorSearchLayout;
+    private EditText editorSearchEditText;
     private String editingFilePath = "";
     private OnBackPressedCallback backPressedCallback;
     private FloatingActionButton btnAddAction;
@@ -68,13 +70,24 @@ public class FilesFragment extends Fragment {
         editorFileName = view.findViewById(R.id.editorFileName);
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
+        MaterialButton btnSearch = view.findViewById(R.id.btnEditorSearch);
         
+        editorSearchLayout = view.findViewById(R.id.editorSearchLayout);
+        editorSearchEditText = view.findViewById(R.id.editorSearchEditText);
+        View btnSearchClear = view.findViewById(R.id.btnEditorSearchClear);
+        View btnSearchPrev = view.findViewById(R.id.btnEditorSearchPrev);
+        View btnSearchNext = view.findViewById(R.id.btnEditorSearchNext);
+
         btnAddAction = view.findViewById(R.id.btnAddAction);
 
         backPressedCallback = new OnBackPressedCallback(false) {
             @Override
             public void handleOnBackPressed() {
-                closeEditor();
+                if (editorSearchLayout.getVisibility() == View.VISIBLE) {
+                    closeSearch();
+                } else {
+                    closeEditor();
+                }
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), backPressedCallback);
@@ -93,6 +106,41 @@ public class FilesFragment extends Fragment {
 
         btnBack.setOnClickListener(v -> closeEditor());
         btnSave.setOnClickListener(v -> saveFile());
+
+        btnSearch.setOnClickListener(v -> {
+            if (editorSearchLayout.getVisibility() == View.VISIBLE) {
+                closeSearch();
+            } else {
+                editorSearchLayout.setVisibility(View.VISIBLE);
+                editorSearchEditText.requestFocus();
+                android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getActivity().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+                if (imm != null) imm.showSoftInput(editorSearchEditText, 0);
+            }
+        });
+
+        btnSearchClear.setOnClickListener(v -> {
+            if (editorSearchEditText.getText().length() > 0) {
+                editorSearchEditText.setText("");
+            } else {
+                closeSearch();
+            }
+        });
+
+        btnSearchNext.setOnClickListener(v -> codeEditor.getSearcher().gotoNext());
+        btnSearchPrev.setOnClickListener(v -> codeEditor.getSearcher().gotoPrevious());
+
+        editorSearchEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = s.toString();
+                if (text.isEmpty()) {
+                    codeEditor.getSearcher().stopSearch();
+                } else {
+                    codeEditor.getSearcher().search(text, new io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions(false, false));
+                }
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
         
         btnBackParent.setOnClickListener(v -> {
             currentPath = getParentPath(currentPath);
@@ -222,7 +270,18 @@ public class FilesFragment extends Fragment {
         });
     }
 
+    private void closeSearch() {
+        if (editorSearchLayout.getVisibility() == View.VISIBLE) {
+            codeEditor.getSearcher().stopSearch();
+            editorSearchEditText.setText("");
+            editorSearchLayout.setVisibility(View.GONE);
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getActivity().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) imm.hideSoftInputFromWindow(editorSearchEditText.getWindowToken(), 0);
+        }
+    }
+
     private void closeEditor() {
+        closeSearch();
         editorContainer.setVisibility(View.GONE);
         fileListLayout.setVisibility(View.VISIBLE);
         if (btnAddAction != null) btnAddAction.setVisibility(View.VISIBLE);

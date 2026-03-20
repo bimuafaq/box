@@ -171,6 +171,15 @@
                 android:ellipsize="end" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditorSearch"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:icon="@drawable/ic_search_material"
+                app:iconSize="24dp"
+                app:iconTint="?attr/colorOnSurfaceVariant" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditorSave"
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="48dp"
@@ -200,6 +209,74 @@
                     android:minHeight="0dp"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp" />
+
+                <!-- EDITOR SEARCH LAYOUT -->
+                <LinearLayout
+                    android:id="@+id/editorSearchLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingBottom="12dp"
+                    android:visibility="gone">
+                    
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                        app:strokeWidth="0dp">
+                        
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingStart="12dp">
+                            
+                            <EditText
+                                android:id="@+id/editorSearchEditText"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@android:color/transparent"
+                                android:hint="Find text..."
+                                android:textSize="14sp"
+                                android:maxLines="1"
+                                android:singleLine="true"
+                                android:imeOptions="actionSearch" />
+                                
+                            <ImageButton
+                                android:id="@+id/btnEditorSearchClear"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                                app:tint="?attr/colorOutline" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <ImageButton
+                        android:id="@+id/btnEditorSearchPrev"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/arrow_up_float"
+                        app:tint="?attr/colorPrimary" />
+
+                    <ImageButton
+                        android:id="@+id/btnEditorSearchNext"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="4dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/arrow_down_float"
+                        app:tint="?attr/colorPrimary" />
+                </LinearLayout>
 
                 <io.github.rosemoe.sora.widget.CodeEditor
                     android:id="@+id/codeEditor"
