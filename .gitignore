@@ -13,6 +13,6 @@
 /captures
 .externalNativeBuild
 .cxx
+/rox/
 local.properties
-rox/
-local.properties
+android.suppressUnsupportedCompileSdk=36

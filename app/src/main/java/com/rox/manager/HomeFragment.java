@@ -150,7 +150,7 @@ public class HomeFragment extends Fragment {
 
                         if (pid.matches("\\d+") && !pid.equals("0")) {
                             statusText.setText(getString(R.string.status_running));
-                            statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorPrimary));
+                            statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText.getContext(), android.R.attr.colorPrimary, android.graphics.Color.BLUE));
                             long seconds = parseETimeToSeconds(etime);
                             startTimer(seconds);
                             coreText.setText(core.toUpperCase() + " (" + pid + ")");
@@ -160,7 +160,7 @@ public class HomeFragment extends Fragment {
                             stopBtn.setEnabled(true);
                         } else {
                             statusText.setText(getString(R.string.status_stopped));
-                            statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorError));
+                            statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText.getContext(), android.R.attr.colorError, android.graphics.Color.RED));
                             runtimeText.setText("00:00:00");
                             stopTimer();
                             coreText.setText("---");
