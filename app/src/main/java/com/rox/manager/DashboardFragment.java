@@ -49,9 +49,7 @@ public class DashboardFragment extends Fragment {
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private LinearLayout proxyGroupsContainer;
     private MaterialButton btnRefresh;
-    private View modeSelectorContainer;
-    private com.google.android.material.button.MaterialButtonToggleGroup modeToggleGroup;
-    private MaterialButton btnUpdateProviders;
+    private FloatingActionButton btnUpdateProviders;
     
     // Logic State
     private boolean isServiceRunning = false;
@@ -60,7 +58,6 @@ public class DashboardFragment extends Fragment {
     private long currentRuntimeSeconds = 0;
     private long statsCounter = 0;
     private int fastPollRemaining = 0;
-    private String currentMode = "";
     
     private SharedPreferences prefs;
     private OnBackPressedCallback backPressedCallback;
@@ -88,7 +85,6 @@ public class DashboardFragment extends Fragment {
                 if (showClashStats) {
                     refreshClashStats();
                     refreshProxies();
-                    if (statsCounter % 10 == 0) refreshConfigMode(); // Check mode every 10s
                 }
                 if (isFastPoll) fastPollRemaining--;
             }
@@ -115,8 +111,6 @@ public class DashboardFragment extends Fragment {
         proxyGroupsContainer = view.findViewById(R.id.proxyGroupsContainer);
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
         clashStatsCard = view.findViewById(R.id.clashStatsCard);
-        modeSelectorContainer = view.findViewById(R.id.modeSelectorContainer);
-        modeToggleGroup = view.findViewById(R.id.modeToggleGroup);
         btnUpdateProviders = view.findViewById(R.id.btnUpdateProviders);
         
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
@@ -150,26 +144,12 @@ public class DashboardFragment extends Fragment {
             if (webView != null) webView.reload();
         });
 
-        
         btnService.setOnClickListener(v -> handleServiceToggle());
         btnLatency.setOnClickListener(v -> testAllProxiesLatency());
         btnRefresh.setOnClickListener(v -> triggerManualRefresh(v));
         
         btnUpdateProviders.setOnClickListener(v -> updateAllProviders(v));
         
-        modeToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (isChecked) {
-                String newMode = "";
-                if (checkedId == R.id.modeRule) newMode = "rule";
-                else if (checkedId == R.id.modeGlobal) newMode = "global";
-                else if (checkedId == R.id.modeDirect) newMode = "direct";
-                
-                if (!newMode.isEmpty() && !newMode.equalsIgnoreCase(currentMode)) {
-                    switchMode(newMode);
-                }
-            }
-        });
-
         btnOpen.setOnClickListener(v -> toggleWebView(true));
         btnClose.setOnClickListener(v -> toggleWebView(false));
 
@@ -204,39 +184,6 @@ public class DashboardFragment extends Fragment {
                     fastPollRemaining = 5;
                 });
             } catch (Exception ignored) {}
-        });
-    }
-
-    private void switchMode(String newMode) {
-        ThreadManager.runOnShell(() -> {
-            String apiUrl = getApiUrl();
-            ShellHelper.runCommand("curl -s -X PATCH -d '{\"mode\":\"" + newMode + "\"}' " + apiUrl + "/configs");
-            runOnUI(() -> {
-                currentMode = newMode;
-                fastPollRemaining = 2;
-            });
-        });
-    }
-
-    private void refreshConfigMode() {
-        ThreadManager.runOnShell(() -> {
-            String apiUrl = getApiUrl();
-            String res = ShellHelper.runCommand("curl -s " + apiUrl + "/configs");
-            runOnUI(() -> {
-                if (res != null && !res.startsWith("Error")) {
-                    try {
-                        JSONObject root = new JSONObject(res);
-                        String mode = root.optString("mode", "").toLowerCase();
-                        if (!mode.equals(currentMode)) {
-                            currentMode = mode;
-                            modeToggleGroup.clearChecked();
-                            if (mode.equals("rule")) modeToggleGroup.check(R.id.modeRule);
-                            else if (mode.equals("global")) modeToggleGroup.check(R.id.modeGlobal);
-                            else if (mode.equals("direct")) modeToggleGroup.check(R.id.modeDirect);
-                        }
-                    } catch (Exception ignored) {}
-                }
-            });
         });
     }
 
@@ -313,9 +260,10 @@ public class DashboardFragment extends Fragment {
         labelProxyGroups.setVisibility(visibility);
         cardRules.setVisibility(visibility);
         btnLatency.setVisibility(visibility);
-        modeSelectorContainer.setVisibility(visibility);
         btnOpen.setVisibility(View.VISIBLE); // Always visible in header
         emptyStatsView.setVisibility(showClashStats ? View.GONE : View.VISIBLE);
+        // btnUpdateProviders visibility will be managed dynamically after checking API
+        if (!showClashStats) btnUpdateProviders.setVisibility(View.GONE);
     }
 
     private void refreshServiceStatus() {
@@ -402,9 +350,38 @@ public class DashboardFragment extends Fragment {
 
     private void refreshProxies() {
         ThreadManager.runOnShell(() -> {
-            String res = ShellHelper.runCommand("curl -s --connect-timeout 1 " + getApiUrl() + "/proxies");
-            runOnUI(() -> renderProxies(res));
+            String apiUrl = getApiUrl();
+            String res = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/proxies");
+            String provRes = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/providers/proxies");
+            
+            runOnUI(() -> {
+                renderProxies(res);
+                checkProvidersVisibility(provRes);
+            });
         });
+    }
+
+    private void checkProvidersVisibility(String json) {
+        if (json == null || json.startsWith("Error")) return;
+        try {
+            JSONObject root = new JSONObject(json);
+            JSONObject providers = root.optJSONObject("providers");
+            boolean hasExternalProviders = false;
+            
+            if (providers != null) {
+                Iterator<String> keys = providers.keys();
+                while (keys.hasNext()) {
+                    String name = keys.next();
+                    JSONObject provider = providers.getJSONObject(name);
+                    String vehicleType = provider.optString("vehicleType", "");
+                    if (!vehicleType.equals("Compatible") && !vehicleType.equals("Inline")) {
+                        hasExternalProviders = true;
+                        break;
+                    }
+                }
+            }
+            btnUpdateProviders.setVisibility(hasExternalProviders ? View.VISIBLE : View.GONE);
+        } catch (Exception ignored) {}
     }
 
     private void renderProxies(String json) {
