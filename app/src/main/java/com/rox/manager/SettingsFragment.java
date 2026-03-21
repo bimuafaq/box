@@ -79,7 +79,11 @@ public class SettingsFragment extends Fragment {
     }
 
     private void clearFakeIpCache(View btn) {
-        btn.animate().rotationBy(360).setDuration(500).start();
+        View icon = ((ViewGroup) btn).getChildAt(1); // The ImageView is the second child of the LinearLayout
+        if (icon != null) {
+            icon.animate().rotationBy(360).setDuration(500).start();
+        }
+        
         ThreadManager.runOnShell(() -> {
             String apiUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui").replaceAll("/(ui|dashboard)/?$", "");
             ShellHelper.runCommand("curl -s -X POST " + apiUrl + "/cache/fakeip/flush");
