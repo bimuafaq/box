@@ -227,6 +227,11 @@ public class DashboardFragment extends Fragment {
 
             nameTxt.setText(proxyName);
             
+            // Hide latency UI for DIRECT and REJECT as they have no ping
+            if (proxyName.equalsIgnoreCase("DIRECT") || proxyName.equalsIgnoreCase("REJECT")) {
+                latencyTxt.setVisibility(View.GONE);
+            }
+
             try {
                 JSONObject p = allProxies.getJSONObject(proxyName);
                 typeTxt.setText(p.getString("type"));
@@ -267,7 +272,6 @@ public class DashboardFragment extends Fragment {
         
         // Porting YACD behavior: test ALL unique proxies found in all groups
         fastPollRemaining = 20; // 10 seconds of fast polling (20 * 500ms)
-        if (getView() != null) Snackbar.make(getView(), "Testing all proxies (YACD style)...", Snackbar.LENGTH_SHORT).show();
 
         ThreadManager.runOnShell(() -> {
             String apiUrl = getApiUrl();
