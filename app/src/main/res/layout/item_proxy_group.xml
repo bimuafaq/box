@@ -13,22 +13,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="8dp">
 
         <TextView
             android:id="@+id/proxyGroupName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Proxy Group"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface" />
+            android:textColor="?attr/colorOnSurface"
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp" />
 
         <GridLayout
             android:id="@+id/proxyItemsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="4dp"
             android:columnCount="2"
             android:alignmentMode="alignMargins" />
 
