@@ -419,7 +419,8 @@ public class DashboardFragment extends Fragment {
     private void testAllProxiesLatency() {
         fastPollRemaining = 15;
         ThreadManager.runOnShell(() -> {
-            String res = ShellHelper.runCommand("curl -s " + getApiUrl() + "/proxies");
+            String apiUrl = getApiUrl();
+            String res = ShellHelper.runCommand("curl -s " + apiUrl + "/proxies");
             if (res == null || res.startsWith("Error")) return;
             try {
                 JSONObject proxies = new JSONObject(res).getJSONObject("proxies");
@@ -441,18 +442,26 @@ public class DashboardFragment extends Fragment {
                     }
                 }
 
-                StringBuilder batch = new StringBuilder();
-                int count = 0;
+                java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(15);
                 for (String proxyName : uniqueProxies) {
                     if (proxyName.equalsIgnoreCase("DIRECT") || proxyName.equalsIgnoreCase("REJECT")) continue;
                     
-                    batch.append("curl -s -X GET \"").append(getApiUrl()).append("/proxies/").append(Uri.encode(proxyName))
-                         .append("/delay?timeout=5000&url=http://www.gstatic.com/generate_204\" & ");
-                    
-                    count++;
-                    if (count % 15 == 0) batch.append("wait; ");
+                    executor.submit(() -> {
+                        java.net.HttpURLConnection conn = null;
+                        try {
+                            java.net.URL url = new java.net.URL(apiUrl + "/proxies/" + Uri.encode(proxyName) + "/delay?timeout=5000&url=http%3A%2F%2Fwww.gstatic.com%2Fgenerate_204");
+                            conn = (java.net.HttpURLConnection) url.openConnection();
+                            conn.setConnectTimeout(3000);
+                            conn.setReadTimeout(5000);
+                            conn.setRequestMethod("GET");
+                            conn.getResponseCode();
+                        } catch (Exception ignored) {
+                        } finally {
+                            if (conn != null) conn.disconnect();
+                        }
+                    });
                 }
-                if (batch.length() > 0) ShellHelper.runCommand(batch.append("wait").toString());
+                executor.shutdown();
             } catch (Exception ignored) {}
         });
     }
