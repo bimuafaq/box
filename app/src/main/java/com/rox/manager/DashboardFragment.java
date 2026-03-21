@@ -44,7 +44,7 @@ public class DashboardFragment extends Fragment {
     
     // View References
     private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, cardRules, clashStatsCard, btnService;
-    private TextView statusText, runtimeText, cpuText, ramText;
+    private TextView statusText, coreText, runtimeText, cpuText, ramText;
     private WebView webView;
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private LinearLayout proxyGroupsContainer;
@@ -118,6 +118,7 @@ public class DashboardFragment extends Fragment {
         clashUploadText = view.findViewById(R.id.clashUploadText);
         
         statusText = view.findViewById(R.id.statusText);
+        coreText = view.findViewById(R.id.coreText);
         runtimeText = view.findViewById(R.id.runtimeText);
         cpuText = view.findViewById(R.id.cpuText);
         ramText = view.findViewById(R.id.ramText);
@@ -268,34 +269,38 @@ public class DashboardFragment extends Fragment {
         if (isActionRunning) return; // Don't overwrite starting/stopping text
         ThreadManager.runOnShell(() -> {
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
+                         "CORE=$(grep '^bin_name=' /data/adb/box/settings.ini | cut -d '\"' -f 2); " +
                          "ETIME=$(ps -p $PID -o etime= 2>/dev/null || echo \"00:00\"); " +
-                         "echo \"$PID|$ETIME\"";
+                         "echo \"$PID|$CORE|$ETIME\"";
             String result = ShellHelper.runRootCommand(cmd);
             
             runOnUI(() -> {
                 if (result != null && result.contains("|")) {
                     String[] parts = result.split("\\|");
                     String pid = parts[0].trim();
-                    String etime = (parts.length > 1) ? parts[1].trim() : "00:00";
+                    String core = (parts.length > 1) ? parts[1].trim() : "---";
+                    String etime = (parts.length > 2) ? parts[2].trim() : "00:00";
 
                     isServiceRunning = pid.matches("\\d+") && !pid.equals("0");
-                    updateServiceUI(isServiceRunning, etime);
+                    updateServiceUI(isServiceRunning, core, pid, etime);
                 }
             });
         });
     }
 
-    private void updateServiceUI(boolean running, String etime) {
+    private void updateServiceUI(boolean running, String core, String pid, String etime) {
         FloatingActionButton fab = (FloatingActionButton) btnService;
         if (running) {
             statusText.setText(R.string.status_running);
             statusText.setTextColor(MaterialColors.getColor(statusText, android.R.attr.colorPrimary));
+            coreText.setText(String.format("%s (%s)", core.toUpperCase(), pid));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
             fab.setImageResource(R.drawable.ic_stop);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
         } else {
             statusText.setText(R.string.status_stopped);
             statusText.setTextColor(MaterialColors.getColor(statusText, android.R.attr.colorError));
+            coreText.setText("---");
             runtimeText.setText("00:00:00");
             fab.setImageResource(R.drawable.ic_play_arrow);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
@@ -573,7 +578,7 @@ public class DashboardFragment extends Fragment {
 
     private void nullifyViews() {
         initialLayout = webViewContainer = webHeader = emptyStatsView = dashHeader = btnLatency = btnOpen = cardRules = clashStatsCard = btnService = null;
-        statusText = runtimeText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
+        statusText = coreText = runtimeText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
         proxyGroupsContainer = null;
         btnRefresh = null;
         btnUpdateProviders = null;
