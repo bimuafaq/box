@@ -261,7 +261,12 @@ public class DashboardFragment extends Fragment {
 
     private void testAllProxiesLatency() {
         if (!showClashStats) return;
-        btnLatency.setEnabled(false);
+        
+        // Instant visual feedback
+        if (getView() != null) {
+            com.google.android.material.snackbar.Snackbar.make(getView(), "Latency test started...", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show();
+        }
+
         ThreadManager.runOnShell(() -> {
             String apiUrl = getApiUrl();
             // Get all groups first
@@ -270,27 +275,14 @@ public class DashboardFragment extends Fragment {
                 try {
                     String proxiesPart = res.split("\"proxies\":\\{")[1];
                     String[] parts = proxiesPart.split("\\},\"");
-                    StringBuilder combinedCmd = new StringBuilder();
                     for (String part : parts) {
                         if (part.contains("\"type\":\"Selector\"") || part.contains("\"type\":\"URLTest\"") || part.contains("\"type\":\"Fallback\"")) {
                             String groupName = part.split("\":\\{")[0].replace("\"", "").replace("{", "");
-                            combinedCmd.append("curl -s -X GET --connect-timeout 1 \"")
-                                       .append(apiUrl).append("/proxies/")
-                                       .append(Uri.encode(groupName))
-                                       .append("/delay?timeout=5000&url=http://www.gstatic.com/generate_204\" & ");
+                            // Fire background curl without wait
+                            ShellHelper.runRootCommandOneShot("curl -s -X GET --connect-timeout 1 \"" + apiUrl + "/proxies/" + Uri.encode(groupName) + "/delay?timeout=5000&url=http://www.gstatic.com/generate_204\" &");
                         }
                     }
-                    if (combinedCmd.length() > 0) {
-                        combinedCmd.append("wait");
-                        ShellHelper.runRootCommandOneShot(combinedCmd.toString());
-                    }
                 } catch (Exception ignored) {}
-            }
-            if (isAdded() && getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    btnLatency.setEnabled(true);
-                    refreshProxies();
-                });
             }
         });
     }
@@ -329,11 +321,17 @@ public class DashboardFragment extends Fragment {
         super.onDestroyView();
     }
 
+    private long statsCounter = 0;
     private final Runnable statsRunnable = new Runnable() {
         @Override
         public void run() {
             if (isStatsRunning) {
                 refreshClashStats();
+                // Refresh proxies every 4 seconds (every 2 cycles)
+                if (statsCounter % 2 == 0) {
+                    refreshProxies();
+                }
+                statsCounter++;
                 statsHandler.postDelayed(this, 2000);
             }
         }
@@ -342,6 +340,7 @@ public class DashboardFragment extends Fragment {
     private void startStats() {
         if (!isStatsRunning && showClashStats) {
             isStatsRunning = true;
+            statsCounter = 0;
             statsHandler.post(statsRunnable);
         }
     }
