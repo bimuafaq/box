@@ -54,25 +54,25 @@ public class ConnectionsActivity extends AppCompatActivity {
     }
 
     private void closeAllConnections() {
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
-            ShellHelper.runCommand("curl -s -X DELETE --connect-timeout 2 " + apiUrl + "/connections");
+            ClashApiHelper.delete(apiUrl + "/connections");
             runOnUiThread(this::refresh);
         });
     }
 
     private void closeConnection(String id) {
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
-            ShellHelper.runCommand("curl -s -X DELETE --connect-timeout 2 " + apiUrl + "/connections/" + id);
+            ClashApiHelper.delete(apiUrl + "/connections/" + id);
             runOnUiThread(this::refresh);
         });
     }
 
     private void refresh() {
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
-            String res = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/connections");
+            String res = ClashApiHelper.get(apiUrl + "/connections");
             runOnUiThread(() -> {
                 parseAndSet(res);
             });

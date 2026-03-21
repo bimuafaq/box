@@ -164,7 +164,7 @@ public class DashboardFragment extends Fragment {
         btn.animate().rotationBy(360).setDuration(1000).start();
         ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
-            String res = fetchHttp(apiUrl + "/providers/proxies");
+            String res = ClashApiHelper.get(apiUrl + "/providers/proxies");
             if (res == null || res.startsWith("Error")) return;
             try {
                 JSONObject root = new JSONObject(res);
@@ -175,18 +175,7 @@ public class DashboardFragment extends Fragment {
                     JSONObject provider = providers.getJSONObject(name);
                     String vehicleType = provider.optString("vehicleType", "");
                     if (!vehicleType.equals("Compatible") && !vehicleType.equals("Inline")) {
-                        // PUT request using native Java
-                        java.net.HttpURLConnection conn = null;
-                        try {
-                            java.net.URL url = new java.net.URL(apiUrl + "/providers/proxies/" + Uri.encode(name));
-                            conn = (java.net.HttpURLConnection) url.openConnection();
-                            conn.setRequestMethod("PUT");
-                            conn.setConnectTimeout(2000);
-                            conn.getResponseCode();
-                        } catch (Exception ignored) {
-                        } finally {
-                            if (conn != null) conn.disconnect();
-                        }
+                        ClashApiHelper.put(apiUrl + "/providers/proxies/" + Uri.encode(name), null);
                     }
                 }
                 runOnUI(() -> {
@@ -345,7 +334,7 @@ public class DashboardFragment extends Fragment {
 
     private void refreshClashStats() {
         ThreadManager.runBackgroundTask(() -> {
-            String result = fetchHttp(getApiUrl() + "/connections");
+            String result = ClashApiHelper.get(getApiUrl() + "/connections");
             runOnUI(() -> {
                 try {
                     JSONObject root = new JSONObject(result);
@@ -361,37 +350,14 @@ public class DashboardFragment extends Fragment {
     private void refreshProxies() {
         ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
-            String res = fetchHttp(apiUrl + "/proxies");
-            String provRes = fetchHttp(apiUrl + "/providers/proxies");
+            String res = ClashApiHelper.get(apiUrl + "/proxies");
+            String provRes = ClashApiHelper.get(apiUrl + "/providers/proxies");
             
             runOnUI(() -> {
                 renderProxies(res);
                 checkProvidersVisibility(provRes);
             });
         });
-    }
-
-    private String fetchHttp(String urlStr) {
-        java.net.HttpURLConnection conn = null;
-        try {
-            java.net.URL url = new java.net.URL(urlStr);
-            conn = (java.net.HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setConnectTimeout(2000);
-            conn.setReadTimeout(3000);
-            
-            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-            return sb.toString();
-        } catch (Exception e) {
-            return "Error: " + e.getMessage();
-        } finally {
-            if (conn != null) conn.disconnect();
-        }
     }
 
     private void checkProvidersVisibility(String json) {
@@ -565,16 +531,15 @@ public class DashboardFragment extends Fragment {
             });
         });
     }
-
-    private void testAllProxiesLatency() {
-        fastPollRemaining = 15;
-        ThreadManager.runBackgroundTask(() -> {
-            String apiUrl = getApiUrl();
-            String res = fetchHttp(apiUrl + "/proxies");
-            if (res == null || res.startsWith("Error")) return;
-            try {
-                JSONObject proxies = new JSONObject(res).getJSONObject("proxies");
-                java.util.HashSet<String> uniqueProxies = new java.util.HashSet<>();
+private void testAllProxiesLatency() {
+    fastPollRemaining = 15;
+    ThreadManager.runBackgroundTask(() -> {
+        String apiUrl = getApiUrl();
+        String res = ClashApiHelper.get(apiUrl + "/proxies");
+        if (res == null || res.startsWith("Error")) return;
+        try {
+            JSONObject proxies = new JSONObject(res).getJSONObject("proxies");
+            java.util.HashSet<String> uniqueProxies = new java.util.HashSet<>();
                 
                 Iterator<String> keys = proxies.keys();
                 while (keys.hasNext()) {

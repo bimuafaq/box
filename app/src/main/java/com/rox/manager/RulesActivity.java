@@ -77,9 +77,9 @@ public class RulesActivity extends AppCompatActivity {
     };
 
     private void refresh() {
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
-            String res = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/rules");
+            String res = ClashApiHelper.get(apiUrl + "/rules");
             runOnUiThread(() -> {
                 parseAndSet(res);
             });
