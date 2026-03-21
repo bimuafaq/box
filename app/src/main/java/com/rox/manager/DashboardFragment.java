@@ -40,7 +40,6 @@ public class DashboardFragment extends Fragment {
     private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, cardRules, clashStatsCard;
     private WebView webView;
     private TextView title, labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
-    private SwipeRefreshLayout swipeRefresh;
     private OnBackPressedCallback backPressedCallback;
     private SharedPreferences prefs;
     private LinearLayout proxyGroupsContainer;
@@ -86,7 +85,6 @@ public class DashboardFragment extends Fragment {
         dashHeader = view.findViewById(R.id.dashHeader);
         webView = view.findViewById(R.id.dashWebView);
         title = view.findViewById(R.id.dashTitle);
-        swipeRefresh = view.findViewById(R.id.swipeRefreshDash);
         emptyStatsView = view.findViewById(R.id.emptyStatsView);
         cardRules = view.findViewById(R.id.cardRules);
         
@@ -116,6 +114,12 @@ public class DashboardFragment extends Fragment {
             startActivity(intent);
         });
 
+        View btnRefreshWeb = view.findViewById(R.id.btnRefreshWeb);
+        btnRefreshWeb.setOnClickListener(v -> {
+            v.animate().rotationBy(360).setDuration(500).start();
+            webView.reload();
+        });
+
         btnRefresh.setOnClickListener(v -> {
             // Visual feedback: Rotate icon
             v.animate().rotationBy(360).setDuration(500).start();
@@ -138,11 +142,6 @@ public class DashboardFragment extends Fragment {
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), backPressedCallback);
-
-        swipeRefresh.setOnRefreshListener(() -> {
-            webView.reload();
-            swipeRefresh.setRefreshing(false);
-        });
 
         btnOpen.setOnClickListener(v -> {
             stopStats();
