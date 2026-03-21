@@ -14,17 +14,13 @@ import com.google.android.material.button.MaterialButton;
 
 import java.util.Locale;
 
-import com.google.android.material.card.MaterialCardView;
 import android.content.Context;
 import android.content.SharedPreferences;
 
 public class HomeFragment extends Fragment {
     private TextView statusText, coreText, runtimeText, cpuText, ramText, idCoreText;
-    private TextView pingGoogle, pingCloudflare, pingGithub;
-    private MaterialButton startBtn, stopBtn, restartBtn, btnTestPing;
-    private View cardConnectivity;
+    private MaterialButton startBtn, stopBtn, restartBtn;
     private boolean isActionRunning = false;
-    private boolean isPingRunning = false;
     private SharedPreferences prefs;
     
     private final Handler timerHandler = new Handler(android.os.Looper.getMainLooper());
@@ -48,15 +44,9 @@ public class HomeFragment extends Fragment {
         ramText = view.findViewById(R.id.ramText);
         idCoreText = view.findViewById(R.id.idCoreText);
 
-        pingGoogle = view.findViewById(R.id.pingGoogle);
-        pingCloudflare = view.findViewById(R.id.pingCloudflare);
-        pingGithub = view.findViewById(R.id.pingGithub);
-        
         startBtn = view.findViewById(R.id.startBtn);
         restartBtn = view.findViewById(R.id.restartBtn);
         stopBtn = view.findViewById(R.id.stopBtn);
-        btnTestPing = view.findViewById(R.id.btnTestPing);
-        cardConnectivity = view.findViewById(R.id.cardConnectivity);
 
         refreshAllInfo();
 
@@ -74,50 +64,7 @@ public class HomeFragment extends Fragment {
                 "/data/adb/box/scripts/net.inotify w manual)", "Restarting Box..."));
         stopBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.iptables disable && /data/adb/box/scripts/box.service stop && pkill -f inotifyd", "Stopping Box..."));
 
-        btnTestPing.setOnClickListener(v -> runPingTest());
-
         return view;
-    }
-
-    private void runPingTest() {
-        if (isPingRunning) return;
-        isPingRunning = true;
-        btnTestPing.setEnabled(false);
-        pingGoogle.setText("...");
-        pingCloudflare.setText("...");
-        pingGithub.setText("...");
-
-        ThreadManager.runOnShell(() -> {
-            // Precise timing using curl -w %{time_total}
-            String curlCmd = "curl -o /dev/null -s -w '%%{time_total}' --connect-timeout 2 --max-time 3 %s";
-            
-            String googlePing = ShellHelper.runRootCommandOneShot(String.format(curlCmd, "http://www.gstatic.com/generate_204"));
-            String cloudflarePing = ShellHelper.runRootCommandOneShot(String.format(curlCmd, "http://1.1.1.1/generate_204"));
-            String githubPing = ShellHelper.runRootCommandOneShot(String.format(curlCmd, "https://github.com/favicon.ico"));
-
-            if (isAdded() && getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    if (!isAdded()) return;
-                    pingGoogle.setText(formatCurlTime(googlePing));
-                    pingCloudflare.setText(formatCurlTime(cloudflarePing));
-                    pingGithub.setText(formatCurlTime(githubPing));
-                    btnTestPing.setEnabled(true);
-                    isPingRunning = false;
-                });
-            }
-        });
-    }
-
-    private String formatCurlTime(String result) {
-        if (result == null || result.isEmpty() || result.startsWith("Error")) return "err";
-        try {
-            // curl returns time in seconds (e.g., 0.123)
-            double seconds = Double.parseDouble(result.trim().replace(",", "."));
-            if (seconds <= 0) return "err";
-            return (int)(seconds * 1000) + " ms";
-        } catch (Exception e) {
-            return "err";
-        }
     }
 
     private final Runnable timerRunnable = new Runnable() {
@@ -152,10 +99,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        boolean enableClashApi = prefs.getBoolean("enable_clash_api", false);
-        if (cardConnectivity != null) {
-            cardConnectivity.setVisibility(enableClashApi ? View.VISIBLE : View.GONE);
-        }
         refreshAllInfo();
         startStats();
     }
@@ -292,13 +235,6 @@ public class HomeFragment extends Fragment {
                 });
             }
         });
-    }
-
-    private String formatSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        int exp = (int) (Math.log(bytes) / Math.log(1024));
-        char pre = "KMGTPE".charAt(exp - 1);
-        return String.format(Locale.getDefault(), "%.1f %cB", bytes / Math.pow(1024, exp), pre);
     }
 
     private long parseETimeToSeconds(String etime) {

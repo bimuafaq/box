@@ -26,6 +26,8 @@ import android.widget.LinearLayout;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
+import android.net.Uri;
+
 public class DashboardFragment extends Fragment {
     private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader;
     private WebView webView;
@@ -37,7 +39,7 @@ public class DashboardFragment extends Fragment {
 
     private TextView clashConnectionsText, clashDownloadText, clashUploadText;
     private View clashStatsCard;
-    private MaterialButton btnOpen, btnRefresh;
+    private MaterialButton btnOpen, btnRefresh, btnLatency;
     private boolean showClashStats = false;
     
     private final Handler statsHandler = new Handler(Looper.getMainLooper());
@@ -69,6 +71,7 @@ public class DashboardFragment extends Fragment {
         
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
         btnRefresh = view.findViewById(R.id.btnRefreshDash);
+        btnLatency = view.findViewById(R.id.btnLatencyDash);
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         
         setupWebView();
@@ -76,6 +79,10 @@ public class DashboardFragment extends Fragment {
         btnRefresh.setOnClickListener(v -> {
             refreshClashStats();
             refreshProxies();
+        });
+
+        btnLatency.setOnClickListener(v -> {
+            testAllProxiesLatency();
         });
 
         backPressedCallback = new OnBackPressedCallback(false) {
@@ -160,44 +167,112 @@ public class DashboardFragment extends Fragment {
         }
         proxyGroupsContainer.removeAllViews();
         try {
-            // Simplified manual parsing for proxy groups
-            // In a real app, use a JSON library like Org.Json or Gson
-            String proxiesContent = json.split("\"proxies\":\\{")[1];
-            String[] groups = proxiesContent.split("\\},\"");
+            // Split into proxies object and the rest
+            String proxiesPart = json.split("\"proxies\":\\{")[1];
             
-            for (String groupStr : groups) {
-                if (!groupStr.contains("\"all\":[")) continue;
+            // First, find all Selector/URLTest/Fallback groups
+            String[] parts = proxiesPart.split("\\},\"");
+            for (String part : parts) {
+                if (!part.contains("\"all\":[")) continue;
                 
-                String name = groupStr.split("\":\\{")[0].replace("\"", "");
-                String type = groupStr.split("\"type\":\"")[1].split("\"")[0];
+                String groupName = part.split("\":\\{")[0].replace("\"", "").replace("{", "");
+                String type = part.split("\"type\":\"")[1].split("\"")[0];
                 
                 if (!type.equals("Selector") && !type.equals("URLTest") && !type.equals("Fallback")) continue;
 
-                String now = groupStr.split("\"now\":\"")[1].split("\"")[0];
-                String allStr = groupStr.split("\"all\":\\[")[1].split("\\]")[0];
-                String[] allProxies = allStr.replace("\"", "").split(",");
+                String selected = part.split("\"now\":\"")[1].split("\"")[0];
+                String allStr = part.split("\"all\":\\[")[1].split("\\]")[0];
+                String[] allProxyNames = allStr.replace("\"", "").split(",");
 
-                addProxyGroupView(name, now, allProxies);
+                addProxyGroupView(groupName, selected, allProxyNames, proxiesPart);
             }
         } catch (Exception ignored) {}
     }
 
-    private void addProxyGroupView(String groupName, String selected, String[] options) {
-        View card = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy_group, proxyGroupsContainer, false);
-        TextView title = card.findViewById(R.id.proxyGroupName);
-        ChipGroup chipGroup = card.findViewById(R.id.proxyChipGroup);
+    private void addProxyGroupView(String groupName, String selected, String[] options, String fullProxiesJson) {
+        View groupView = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy_group, proxyGroupsContainer, false);
+        TextView title = groupView.findViewById(R.id.proxyGroupName);
+        LinearLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
         
         title.setText(groupName);
         for (String opt : options) {
-            Chip chip = new Chip(getContext());
-            chip.setText(opt);
-            chip.setCheckable(true);
-            chip.setChecked(opt.equals(selected));
-            chip.setClickable(true);
-            chip.setOnClickListener(v -> switchProxy(groupName, opt));
-            chipGroup.addView(chip);
+            String proxyName = opt.trim();
+            View proxyCard = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy, itemsContainer, false);
+            
+            TextView nameTxt = proxyCard.findViewById(R.id.proxyName);
+            TextView typeTxt = proxyCard.findViewById(R.id.proxyType);
+            TextView latencyTxt = proxyCard.findViewById(R.id.proxyLatency);
+            MaterialCardView card = (MaterialCardView) proxyCard;
+
+            nameTxt.setText(proxyName);
+            
+            // Extract type and latency from full JSON
+            String proxyInfo = "";
+            try {
+                if (fullProxiesJson.contains("\"" + proxyName + "\":{")) {
+                    proxyInfo = fullProxiesJson.split("\"" + proxyName + "\":\\{")[1].split("\\},\"")[0];
+                    String type = proxyInfo.split("\"type\":\"")[1].split("\"")[0];
+                    typeTxt.setText(type);
+
+                    if (proxyInfo.contains("\"delay\":")) {
+                        String delay = proxyInfo.split("\"delay\":")[1].split("[,}]")[0];
+                        latencyTxt.setText(delay + " ms");
+                    } else if (proxyInfo.contains("\"history\":[")) {
+                        String history = proxyInfo.split("\"history\":\\[")[1].split("\\]")[0];
+                        if (history.contains("\"delay\":")) {
+                            String delay = history.split("\"delay\":")[1].split("[,}]")[0];
+                            latencyTxt.setText(delay + " ms");
+                        } else {
+                            latencyTxt.setText("---");
+                        }
+                    } else {
+                        latencyTxt.setText("---");
+                    }
+                }
+            } catch (Exception e) {
+                typeTxt.setText("Proxy");
+                latencyTxt.setText("---");
+            }
+
+            // Highlight selected
+            if (proxyName.equals(selected)) {
+                card.setStrokeColor(com.google.android.material.color.MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary));
+                card.setStrokeWidth(4);
+                latencyTxt.setTextColor(com.google.android.material.color.MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary));
+            }
+
+            card.setOnClickListener(v -> switchProxy(groupName, proxyName));
+            itemsContainer.addView(proxyCard);
         }
-        proxyGroupsContainer.addView(card);
+        proxyGroupsContainer.addView(groupView);
+    }
+
+    private void testAllProxiesLatency() {
+        if (!showClashStats) return;
+        btnLatency.setEnabled(false);
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = getApiUrl();
+            // Get all groups first
+            String res = ShellHelper.runRootCommandOneShot("curl -s --connect-timeout 1 " + apiUrl + "/proxies");
+            if (res != null && res.contains("\"proxies\"")) {
+                try {
+                    String proxiesPart = res.split("\"proxies\":\\{")[1];
+                    String[] parts = proxiesPart.split("\\},\"");
+                    for (String part : parts) {
+                        if (part.contains("\"type\":\"Selector\"") || part.contains("\"type\":\"URLTest\"") || part.contains("\"type\":\"Fallback\"")) {
+                            String groupName = part.split("\":\\{")[0].replace("\"", "").replace("{", "");
+                            ShellHelper.runRootCommandOneShot("curl -s -X GET --connect-timeout 1 \"" + apiUrl + "/proxies/" + Uri.encode(groupName) + "/delay?timeout=5000&url=http://www.gstatic.com/generate_204\"");
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    btnLatency.setEnabled(true);
+                    refreshProxies();
+                });
+            }
+        });
     }
 
     private void switchProxy(String group, String name) {
