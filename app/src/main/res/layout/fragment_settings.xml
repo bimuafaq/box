@@ -78,7 +78,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="DASHBOARD"
+                android:text="@string/cat_dashboard"
                 android:textSize="11sp"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
@@ -112,14 +112,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Dashboard URL"
+                            android:text="@string/label_dashboard_url"
                             android:textSize="16sp"
                             android:textColor="?attr/colorOnSurface" />
                         <TextView
                             android:id="@+id/currentDashUrlText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="http://127.0.0.1:9090/ui"
+                            android:text="@string/default_dashboard_url"
                             android:textSize="13sp"
                             android:textColor="?android:attr/textColorSecondary"
                             android:singleLine="true"
@@ -148,13 +148,13 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Internal Dashboard &amp; API"
+                                android:text="@string/label_internal_dashboard"
                                 android:textSize="16sp"
                                 android:textColor="?attr/colorOnSurface" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Enable dashboard button and live stats"
+                                android:text="@string/desc_internal_dashboard"
                                 android:textSize="13sp"
                                 android:textColor="?android:attr/textColorSecondary" />
                         </LinearLayout>
@@ -190,13 +190,13 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Clear Fake-IP Cache"
+                                android:text="@string/label_clear_fake_ip"
                                 android:textSize="16sp"
                                 android:textColor="?attr/colorError" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Flush DNS and Fake-IP records via API"
+                                android:text="@string/desc_clear_fake_ip"
                                 android:textSize="13sp"
                                 android:textColor="?android:attr/textColorSecondary" />
                         </LinearLayout>
@@ -213,7 +213,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MODULE CONFIGURATION"
+                android:text="@string/cat_module_config"
                 android:textSize="11sp"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
@@ -249,13 +249,13 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Disable QUIC"
+                                android:text="@string/label_disable_quic"
                                 android:textSize="16sp"
                                 android:textColor="?attr/colorOnSurface" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Block UDP 443/80 (Iptables)"
+                                android:text="@string/desc_disable_quic"
                                 android:textSize="13sp"
                                 android:textColor="?android:attr/textColorSecondary" />
                         </LinearLayout>
@@ -287,13 +287,13 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="IPv6 Support"
+                                android:text="@string/label_ipv6_support"
                                 android:textSize="16sp"
                                 android:textColor="?attr/colorOnSurface" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Enable or disable IPv6"
+                                android:text="@string/desc_ipv6_support"
                                 android:textSize="13sp"
                                 android:textColor="?android:attr/textColorSecondary" />
                         </LinearLayout>
@@ -324,14 +324,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Binary Name"
+                            android:text="@string/label_binary_name"
                             android:textSize="16sp"
                             android:textColor="?attr/colorOnSurface" />
                         <TextView
                             android:id="@+id/currentBinNameText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="clash"
+                            android:text="@string/default_binary_name"
                             android:textSize="13sp"
                             android:textColor="?android:attr/textColorSecondary" />
                     </LinearLayout>
@@ -357,14 +357,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Network Mode"
+                            android:text="@string/label_network_mode"
                             android:textSize="16sp"
                             android:textColor="?attr/colorOnSurface" />
                         <TextView
                             android:id="@+id/currentNetworkModeText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="tproxy"
+                            android:text="@string/default_network_mode"
                             android:textSize="13sp"
                             android:textColor="?android:attr/textColorSecondary" />
                     </LinearLayout>
@@ -390,14 +390,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Clash Option"
+                            android:text="@string/label_clash_option"
                             android:textSize="16sp"
                             android:textColor="?attr/colorOnSurface" />
                         <TextView
                             android:id="@+id/currentClashOptionText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="mihomo"
+                            android:text="@string/default_clash_option"
                             android:textSize="13sp"
                             android:textColor="?android:attr/textColorSecondary" />
                     </LinearLayout>

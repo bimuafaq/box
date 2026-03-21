@@ -92,7 +92,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Back to Parent"
+                    android:text="@string/btn_back_to_parent"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurfaceVariant" />
@@ -100,7 +100,7 @@
                     android:id="@+id/textCurrentPath"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="/data/adb/box"
+                    android:text="@string/default_path_box"
                     android:textSize="11sp"
                     android:textColor="?attr/colorOutline" />
             </LinearLayout>
@@ -216,7 +216,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:hint="Search text..."
+                    android:hint="@string/hint_search_text"
                     android:textSize="14sp"
                     android:maxLines="1"
                     android:singleLine="true"

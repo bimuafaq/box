@@ -19,7 +19,7 @@
             android:id="@+id/proxyGroupName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Proxy Group"
+            android:text="@string/label_proxy_group"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"

@@ -190,13 +190,13 @@
                             android:orientation="horizontal">
                             
                             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
-                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CPU" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
-                                <TextView android:id="@+id/cpuText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_cpu" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                                <TextView android:id="@+id/cpuText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/value_empty_percent" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                             </LinearLayout>
 
                             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="32dp" android:orientation="vertical">
-                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RAM" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
-                                <TextView android:id="@+id/ramText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 MB" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_ram" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                                <TextView android:id="@+id/ramText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/value_empty_mb" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                             </LinearLayout>
 
                             <Space
@@ -205,8 +205,8 @@
                                 android:layout_weight="1" />
 
                             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:orientation="vertical">
-                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UPTIME" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
-                                <TextView android:id="@+id/runtimeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="00:00:00" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_uptime" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                                <TextView android:id="@+id/runtimeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/value_empty_time" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -261,7 +261,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="ACTIVE"
+                                    android:text="@string/label_active"
                                     android:textSize="11sp"
                                     android:textStyle="bold"
                                     android:textColor="?attr/colorOnSurfaceVariant"
@@ -272,7 +272,7 @@
                                     android:id="@+id/clashConnectionsText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="0"
+                                    android:text="@string/value_zero"
                                     android:textSize="36sp"
                                     android:textStyle="bold"
                                     android:textColor="?attr/colorPrimary"
@@ -307,7 +307,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="UPLOAD"
+                                    android:text="@string/label_upload"
                                     android:textSize="9sp"
                                     android:textStyle="bold"
                                     android:textColor="?attr/colorOnSurfaceVariant"
@@ -316,7 +316,7 @@
                                     android:id="@+id/clashUploadText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="0 B"
+                                    android:text="@string/value_zero_bytes"
                                     android:textSize="14sp"
                                     android:textStyle="bold"
                                     android:textColor="?attr/colorPrimary" />
@@ -340,7 +340,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="DOWNLOAD"
+                                    android:text="@string/label_download"
                                     android:textSize="9sp"
                                     android:textStyle="bold"
                                     android:textColor="?attr/colorOnSurfaceVariant"
@@ -349,7 +349,7 @@
                                     android:id="@+id/clashDownloadText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="0 B"
+                                    android:text="@string/value_zero_bytes"
                                     android:textSize="14sp"
                                     android:textStyle="bold"
                                     android:textColor="?attr/colorPrimary" />
@@ -383,7 +383,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Clash Rules"
+                            android:text="@string/btn_clash_rules"
                             android:textSize="14sp"
                             android:textStyle="bold"
                             android:textColor="?attr/colorOnSurface" />
@@ -402,7 +402,7 @@
                     android:id="@+id/labelProxyGroups"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PROXY GROUPS"
+                    android:text="@string/label_proxy_groups"
                     android:textSize="11sp"
                     android:textColor="?attr/colorPrimary"
                     android:textStyle="bold"

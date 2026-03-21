@@ -6,6 +6,18 @@
     <string name="title_files">File Manager</string>
     <string name="title_settings">Settings</string>
     <string name="title_dashboard">Dashboard</string>
+    <string name="title_connections">Connections</string>
+    <string name="title_rules">Rules</string>
+    <string name="title_file_editor">Editor</string>
+
+    <!-- Common -->
+    <string name="value_empty_dash">---</string>
+    <string name="value_empty_percent">0%</string>
+    <string name="value_empty_mb">0 MB</string>
+    <string name="value_empty_time">00:00:00</string>
+    <string name="value_empty_dash_single">-</string>
+    <string name="value_zero_bytes">0 B</string>
+    <string name="value_zero">0</string>
 
     <!-- Home Fragment -->
     <string name="label_service_status">SERVICE STATUS</string>
@@ -17,20 +29,16 @@
     <string name="label_ram">RAM</string>
     <string name="label_core">CORE</string>
     <string name="label_uptime">UPTIME</string>
-    <string name="value_empty_dash">---</string>
-    <string name="value_empty_percent">0%</string>
-    <string name="value_empty_mb">0 MB</string>
-    <string name="value_empty_time">00:00:00</string>
-    <string name="value_empty_dash_single">-</string>
-    
-    <string name="btn_start">START</string>
-    <string name="btn_restart">RESTART</string>
-    <string name="btn_stop">STOP</string>
     
     <!-- Dashboard Fragment -->
     <string name="label_web_interface">Web Interface</string>
-    <string name="label_rox_web_interface">Web Interface</string>
     <string name="btn_open_dashboard">OPEN DASHBOARD</string>
+    <string name="label_active">ACTIVE</string>
+    <string name="label_upload">UPLOAD</string>
+    <string name="label_download">DOWNLOAD</string>
+    <string name="btn_clash_rules">Clash Rules</string>
+    <string name="label_proxy_groups">PROXY GROUPS</string>
+    <string name="label_proxy_group">Proxy Group</string>
 
     <!-- Logs Fragment -->
     <string name="label_log_source">Log Source</string>
@@ -38,11 +46,40 @@
 
     <!-- Files Fragment -->
     <string name="hint_search_files">Search files...</string>
+    <string name="hint_search_text">Search text...</string>
     <string name="default_filename">filename.ini</string>
+    <string name="default_path_box">/data/adb/box</string>
     <string name="btn_save">SAVE</string>
+    <string name="btn_back_to_parent">Back to Parent</string>
 
     <!-- Settings Fragment -->
     <string name="cat_appearance">APPEARANCE</string>
     <string name="label_app_theme">App Theme</string>
     <string name="label_system_default">System Default</string>
+    <string name="cat_dashboard">DASHBOARD</string>
+    <string name="label_dashboard_url">Dashboard URL</string>
+    <string name="default_dashboard_url">http://127.0.0.1:9090/ui</string>
+    <string name="label_internal_dashboard">Internal Dashboard &amp; API</string>
+    <string name="desc_internal_dashboard">Enable dashboard button and live stats</string>
+    <string name="label_clear_fake_ip">Clear Fake-IP Cache</string>
+    <string name="desc_clear_fake_ip">Flush DNS and Fake-IP records via API</string>
+    <string name="cat_module_config">MODULE CONFIGURATION</string>
+    <string name="label_disable_quic">Disable QUIC</string>
+    <string name="desc_disable_quic">Block UDP 443/80 (Iptables)</string>
+    <string name="label_ipv6_support">IPv6 Support</string>
+    <string name="desc_ipv6_support">Enable or disable IPv6</string>
+    <string name="label_binary_name">Binary Name</string>
+    <string name="default_binary_name">clash</string>
+    <string name="label_network_mode">Network Mode</string>
+    <string name="default_network_mode">tproxy</string>
+    <string name="label_clash_option">Clash Option</string>
+    <string name="default_clash_option">mihomo</string>
+
+    <!-- Placeholders / List Items -->
+    <string name="placeholder_rule_type">DOMAIN-SUFFIX</string>
+    <string name="placeholder_proxy_name">ProxyName</string>
+    <string name="placeholder_domain">google.com</string>
+    <string name="placeholder_connection_host">example.com</string>
+    <string name="placeholder_connection_details">HTTPS • 192.168.1.1</string>
+    <string name="placeholder_proxy_type">Shadowsocks</string>
 </resources>
