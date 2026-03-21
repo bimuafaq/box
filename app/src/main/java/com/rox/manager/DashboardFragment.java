@@ -95,6 +95,12 @@ public class DashboardFragment extends Fragment {
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
 
         clashStatsCard = view.findViewById(R.id.clashStatsCard);
+        View cardConnections = view.findViewById(R.id.cardConnections);
+        cardConnections.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToTab(R.id.nav_connections);
+            }
+        });
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
         clashDownloadText = view.findViewById(R.id.clashDownloadText);
         clashUploadText = view.findViewById(R.id.clashUploadText);
@@ -107,8 +113,14 @@ public class DashboardFragment extends Fragment {
         setupWebView();
 
         btnRefresh.setOnClickListener(v -> {
+            // Visual feedback: Rotate icon
+            v.animate().rotationBy(360).setDuration(500).start();
+            
             refreshClashStats();
             refreshProxies();
+            
+            // Also trigger fast poll to catch any immediate changes
+            fastPollRemaining = 5; 
         });
 
         btnLatency.setOnClickListener(v -> {

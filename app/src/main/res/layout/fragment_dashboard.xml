@@ -105,6 +105,7 @@
                     
                     <!-- LEFT: CONNECTIONS (Big Card with Overlay) -->
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardConnections"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"

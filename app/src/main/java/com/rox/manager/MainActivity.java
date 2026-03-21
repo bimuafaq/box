@@ -54,6 +54,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void navigateToTab(int itemId) {
+        int index = -1;
+        if (itemId == R.id.nav_home) index = 0;
+        else if (itemId == R.id.nav_dashboard) index = 1;
+        else if (itemId == R.id.nav_connections) index = 2;
+        else if (itemId == R.id.nav_files) index = 3;
+        else if (itemId == R.id.nav_settings) index = 4;
+
+        if (index != -1) {
+            viewPager.setCurrentItem(index, false);
+            syncNavSelection(itemId);
+        }
+    }
+
     private void checkRootAccess() {
         ThreadManager.runOnShell(() -> {
             boolean hasRoot = ShellHelper.isRootAvailable();
@@ -91,19 +105,8 @@ public class MainActivity extends AppCompatActivity {
         NavigationBarView.OnItemSelectedListener listener = item -> {
             if (isSyncing) return true;
             int itemId = item.getItemId();
-            int index = -1;
-            if (itemId == R.id.nav_home) index = 0;
-            else if (itemId == R.id.nav_dashboard) index = 1;
-            else if (itemId == R.id.nav_logs) index = 2;
-            else if (itemId == R.id.nav_files) index = 3;
-            else if (itemId == R.id.nav_settings) index = 4;
-
-            if (index != -1) {
-                viewPager.setCurrentItem(index, false);
-                syncNavSelection(itemId);
-                return true;
-            }
-            return false;
+            navigateToTab(itemId);
+            return true;
         };
 
         bottomNavigation.setOnItemSelectedListener(listener);
@@ -148,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             switch (pos) {
                 case 0: return new HomeFragment();
                 case 1: return new DashboardFragment();
-                case 2: return new LogsFragment();
+                case 2: return new ConnectionsFragment();
                 case 3: return new FilesFragment();
                 case 4: return new SettingsFragment();
                 default: return new HomeFragment();
