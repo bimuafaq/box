@@ -47,7 +47,8 @@ public class DashboardFragment extends Fragment {
 
     private TextView clashConnectionsText, clashDownloadText, clashUploadText;
     private View clashStatsCard;
-    private MaterialButton btnOpen, btnRefresh, btnLatency;
+    private MaterialButton btnOpen, btnRefresh;
+    private View btnLatency;
     private boolean showClashStats = false;
     
     private final Handler statsHandler = new Handler(Looper.getMainLooper());
