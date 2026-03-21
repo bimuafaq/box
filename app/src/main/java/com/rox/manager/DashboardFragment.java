@@ -30,6 +30,7 @@ import com.google.android.material.chip.ChipGroup;
 import android.net.Uri;
 import android.util.Log;
 import com.google.android.material.snackbar.Snackbar;
+import android.content.Intent;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -97,9 +98,8 @@ public class DashboardFragment extends Fragment {
         clashStatsCard = view.findViewById(R.id.clashStatsCard);
         View cardConnections = view.findViewById(R.id.cardConnections);
         cardConnections.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToTab(R.id.nav_connections);
-            }
+            Intent intent = new Intent(getActivity(), ConnectionsActivity.class);
+            startActivity(intent);
         });
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
         clashDownloadText = view.findViewById(R.id.clashDownloadText);

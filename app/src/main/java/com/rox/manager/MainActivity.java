@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         int index = -1;
         if (itemId == R.id.nav_home) index = 0;
         else if (itemId == R.id.nav_dashboard) index = 1;
-        else if (itemId == R.id.nav_connections) index = 2;
+        else if (itemId == R.id.nav_logs) index = 2;
         else if (itemId == R.id.nav_files) index = 3;
         else if (itemId == R.id.nav_settings) index = 4;
 
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             switch (pos) {
                 case 0: return new HomeFragment();
                 case 1: return new DashboardFragment();
-                case 2: return new ConnectionsFragment();
+                case 2: return new LogsFragment();
                 case 3: return new FilesFragment();
                 case 4: return new SettingsFragment();
                 default: return new HomeFragment();

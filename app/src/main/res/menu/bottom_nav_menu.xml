@@ -9,9 +9,9 @@
         android:icon="@drawable/ic_dashboard"
         android:title="Dash" />
     <item
-        android:id="@+id/nav_connections"
-        android:icon="@drawable/ic_connections"
-        android:title="Conns" />
+        android:id="@+id/nav_logs"
+        android:icon="@drawable/ic_logs"
+        android:title="Logs" />
     <item
         android:id="@+id/nav_files"
         android:icon="@drawable/ic_folder"
