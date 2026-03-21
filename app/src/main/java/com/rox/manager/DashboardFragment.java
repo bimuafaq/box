@@ -44,7 +44,7 @@ public class DashboardFragment extends Fragment {
     
     // View References
     private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, cardRules, clashStatsCard, btnService;
-    private TextView statusText, coreText, runtimeText, cpuText, ramText, idCoreText;
+    private TextView statusText, runtimeText, cpuText, ramText;
     private WebView webView;
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private LinearLayout proxyGroupsContainer;
@@ -118,11 +118,9 @@ public class DashboardFragment extends Fragment {
         clashUploadText = view.findViewById(R.id.clashUploadText);
         
         statusText = view.findViewById(R.id.statusText);
-        coreText = view.findViewById(R.id.coreText);
         runtimeText = view.findViewById(R.id.runtimeText);
         cpuText = view.findViewById(R.id.cpuText);
         ramText = view.findViewById(R.id.ramText);
-        idCoreText = view.findViewById(R.id.idCoreText);
 
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
         btnRefresh = view.findViewById(R.id.btnRefreshDash);
@@ -190,9 +188,9 @@ public class DashboardFragment extends Fragment {
     private void handleServiceToggle() {
         if (isActionRunning) return;
         if (isServiceRunning) {
-            runServiceAction("/data/adb/box/scripts/box.iptables disable && /data/adb/box/scripts/box.service stop && pkill -f inotifyd", "Stopping Box...");
+            runServiceAction("/data/adb/box/scripts/box.iptables disable && /data/adb/box/scripts/box.service stop && pkill -f inotifyd", "Stopping...");
         } else {
-            runServiceAction("/data/adb/box/scripts/box.service start && /data/adb/box/scripts/box.iptables enable && (pkill -f inotifyd; inotifyd /data/adb/box/scripts/box.inotify /data/adb/modules/box_for_root >/dev/null 2>&1 & inotifyd /data/adb/box/scripts/net.inotify /data/misc/net >/dev/null 2>&1 & inotifyd /data/adb/box/scripts/ctr.inotify /data/misc/net/rt_tables >/dev/null 2>&1 & /data/adb/box/scripts/net.inotify w manual)", "Starting Box...");
+            runServiceAction("/data/adb/box/scripts/box.service start && /data/adb/box/scripts/box.iptables enable && (pkill -f inotifyd; inotifyd /data/adb/box/scripts/box.inotify /data/adb/modules/box_for_root >/dev/null 2>&1 & inotifyd /data/adb/box/scripts/net.inotify /data/misc/net >/dev/null 2>&1 & inotifyd /data/adb/box/scripts/ctr.inotify /data/misc/net/rt_tables >/dev/null 2>&1 & /data/adb/box/scripts/net.inotify w manual)", "Starting...");
         }
     }
 
@@ -267,41 +265,38 @@ public class DashboardFragment extends Fragment {
     }
 
     private void refreshServiceStatus() {
+        if (isActionRunning) return; // Don't overwrite starting/stopping text
         ThreadManager.runOnShell(() -> {
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
-                         "CORE=$(grep '^bin_name=' /data/adb/box/settings.ini | cut -d '\"' -f 2); " +
                          "ETIME=$(ps -p $PID -o etime= 2>/dev/null || echo \"00:00\"); " +
-                         "echo \"$PID|$CORE|$ETIME\"";
+                         "echo \"$PID|$ETIME\"";
             String result = ShellHelper.runRootCommand(cmd);
             
             runOnUI(() -> {
                 if (result != null && result.contains("|")) {
                     String[] parts = result.split("\\|");
                     String pid = parts[0].trim();
-                    String core = (parts.length > 1) ? parts[1].trim() : "---";
-                    String etime = (parts.length > 2) ? parts[2].trim() : "00:00";
+                    String etime = (parts.length > 1) ? parts[1].trim() : "00:00";
 
                     isServiceRunning = pid.matches("\\d+") && !pid.equals("0");
-                    updateServiceUI(isServiceRunning, core, pid, etime);
+                    updateServiceUI(isServiceRunning, etime);
                 }
             });
         });
     }
 
-    private void updateServiceUI(boolean running, String core, String pid, String etime) {
+    private void updateServiceUI(boolean running, String etime) {
         FloatingActionButton fab = (FloatingActionButton) btnService;
         if (running) {
             statusText.setText(R.string.status_running);
             statusText.setTextColor(MaterialColors.getColor(statusText, android.R.attr.colorPrimary));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
-            coreText.setText(String.format("%s (%s)", core.toUpperCase(), pid));
             fab.setImageResource(R.drawable.ic_stop);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
         } else {
             statusText.setText(R.string.status_stopped);
             statusText.setTextColor(MaterialColors.getColor(statusText, android.R.attr.colorError));
             runtimeText.setText("00:00:00");
-            coreText.setText("---");
             fab.setImageResource(R.drawable.ic_play_arrow);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
         }
@@ -326,7 +321,6 @@ public class DashboardFragment extends Fragment {
                         String coreId = parts[2].trim();
                         ramText.setText(rssKb > 0 ? (rssKb >= 1024 ? (rssKb / 1024) + " MB" : rssKb + " KB") : "0 MB");
                         cpuText.setText(cpu.isEmpty() ? "0%" : cpu + "%");
-                        idCoreText.setText(coreId.isEmpty() ? "-" : coreId);
                     } catch (Exception ignored) {}
                 }
             });
@@ -463,14 +457,16 @@ public class DashboardFragment extends Fragment {
     private void runServiceAction(String command, String msg) {
         isActionRunning = true;
         btnService.setEnabled(false);
-        if (getView() != null) Snackbar.make(getView(), msg, Snackbar.LENGTH_SHORT).show();
+        
+        statusText.setText(msg);
+        statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOutline));
 
         ThreadManager.runOnShell(() -> {
             ShellHelper.runRootCommandOneShot(command);
             try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
             runOnUI(() -> {
-                refreshServiceStatus();
                 isActionRunning = false;
+                refreshServiceStatus();
                 btnService.setEnabled(true);
             });
         });
@@ -577,8 +573,9 @@ public class DashboardFragment extends Fragment {
 
     private void nullifyViews() {
         initialLayout = webViewContainer = webHeader = emptyStatsView = dashHeader = btnLatency = btnOpen = cardRules = clashStatsCard = btnService = null;
-        statusText = coreText = runtimeText = cpuText = ramText = idCoreText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
+        statusText = runtimeText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
         proxyGroupsContainer = null;
         btnRefresh = null;
+        btnUpdateProviders = null;
     }
 }
