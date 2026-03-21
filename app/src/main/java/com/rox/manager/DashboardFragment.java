@@ -225,6 +225,7 @@ public class DashboardFragment extends Fragment {
         labelProxyGroups.setVisibility(visibility);
         cardRules.setVisibility(visibility);
         btnLatency.setVisibility(visibility);
+        btnOpen.setVisibility(View.VISIBLE); // Always visible in header
         emptyStatsView.setVisibility(showClashStats ? View.GONE : View.VISIBLE);
     }
 
@@ -373,6 +374,14 @@ public class DashboardFragment extends Fragment {
             }
 
             card.setOnClickListener(v -> switchProxy(groupName, proxyName));
+            
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = 0;
+            params.height = GridLayout.LayoutParams.WRAP_CONTENT;
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+            params.setMargins(8, 8, 8, 8);
+            proxyCard.setLayoutParams(params);
+            
             itemsContainer.addView(proxyCard);
         }
         proxyGroupsContainer.addView(groupView);
