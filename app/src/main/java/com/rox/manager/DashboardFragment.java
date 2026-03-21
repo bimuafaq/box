@@ -225,9 +225,15 @@ public class DashboardFragment extends Fragment {
             while (keys.hasNext()) {
                 String groupName = keys.next();
                 JSONObject group = proxies.getJSONObject(groupName);
-                String type = group.getString("type");
+                String type = group.optString("type", "");
                 
-                if (!type.equals("Selector") && !type.equals("URLTest") && !type.equals("Fallback")) continue;
+                // Porting YACD filter: Only show proxy groups (ones that have 'all' members)
+                // This includes Selector, URLTest, Fallback, LoadBalance, Relay
+                if (!group.has("all")) continue;
+                
+                // Hide specific internal groups that aren't useful for selection if needed
+                // But generally, if it has "all", it's a group.
+                if (type.equals("Pass") || type.equals("Reject") || type.equals("Direct")) continue;
 
                 String selected = group.optString("now", "");
                 JSONArray all = group.getJSONArray("all");
