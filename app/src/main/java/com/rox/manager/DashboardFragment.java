@@ -23,6 +23,7 @@ import java.util.Locale;
 import com.google.android.material.card.MaterialCardView;
 
 import android.widget.LinearLayout;
+import android.widget.GridLayout;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -192,7 +193,7 @@ public class DashboardFragment extends Fragment {
     private void addProxyGroupView(String groupName, String selected, String[] options, String fullProxiesJson) {
         View groupView = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy_group, proxyGroupsContainer, false);
         TextView title = groupView.findViewById(R.id.proxyGroupName);
-        LinearLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
+        GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
         
         title.setText(groupName);
         for (String opt : options) {
@@ -236,12 +237,23 @@ public class DashboardFragment extends Fragment {
 
             // Highlight selected
             if (proxyName.equals(selected)) {
-                card.setStrokeColor(com.google.android.material.color.MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary));
+                card.setStrokeColor(com.google.android.material.color.MaterialColors.getColor(card, android.R.attr.colorPrimary));
                 card.setStrokeWidth(4);
-                latencyTxt.setTextColor(com.google.android.material.color.MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary));
+                latencyTxt.setTextColor(com.google.android.material.color.MaterialColors.getColor(card, android.R.attr.colorPrimary));
             }
 
             card.setOnClickListener(v -> switchProxy(groupName, proxyName));
+            
+            // GridLayout params for 2 columns
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = 0;
+            params.height = GridLayout.LayoutParams.WRAP_CONTENT;
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+            params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED);
+            int margin = (int) (4 * getResources().getDisplayMetrics().density);
+            params.setMargins(margin, margin, margin, margin);
+            proxyCard.setLayoutParams(params);
+
             itemsContainer.addView(proxyCard);
         }
         proxyGroupsContainer.addView(groupView);
@@ -258,11 +270,19 @@ public class DashboardFragment extends Fragment {
                 try {
                     String proxiesPart = res.split("\"proxies\":\\{")[1];
                     String[] parts = proxiesPart.split("\\},\"");
+                    StringBuilder combinedCmd = new StringBuilder();
                     for (String part : parts) {
                         if (part.contains("\"type\":\"Selector\"") || part.contains("\"type\":\"URLTest\"") || part.contains("\"type\":\"Fallback\"")) {
                             String groupName = part.split("\":\\{")[0].replace("\"", "").replace("{", "");
-                            ShellHelper.runRootCommandOneShot("curl -s -X GET --connect-timeout 1 \"" + apiUrl + "/proxies/" + Uri.encode(groupName) + "/delay?timeout=5000&url=http://www.gstatic.com/generate_204\"");
+                            combinedCmd.append("curl -s -X GET --connect-timeout 1 \"")
+                                       .append(apiUrl).append("/proxies/")
+                                       .append(Uri.encode(groupName))
+                                       .append("/delay?timeout=5000&url=http://www.gstatic.com/generate_204\" & ");
                         }
+                    }
+                    if (combinedCmd.length() > 0) {
+                        combinedCmd.append("wait");
+                        ShellHelper.runRootCommandOneShot(combinedCmd.toString());
                     }
                 } catch (Exception ignored) {}
             }

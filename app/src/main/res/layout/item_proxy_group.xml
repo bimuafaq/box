@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="16dp"
     app:cardCornerRadius="16dp"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:strokeWidth="0dp"
@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <TextView
             android:id="@+id/proxyGroupName"
@@ -24,12 +24,13 @@
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface" />
 
-        <LinearLayout
+        <GridLayout
             android:id="@+id/proxyItemsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:orientation="vertical" />
+            android:columnCount="2"
+            android:alignmentMode="alignMargins" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
