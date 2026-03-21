@@ -37,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
         setupNavigation();
         updateNavigationVisibility();
         
+        // Set Dashboard as default selection
+        syncNavSelection(R.id.nav_dashboard);
+
         ShellHelper.setCacheDir(getCacheDir().getAbsolutePath());
         checkRootAccess();
 
@@ -45,27 +48,13 @@ public class MainActivity extends AppCompatActivity {
             public void handleOnBackPressed() {
                 if (viewPager.getCurrentItem() != 0) {
                     viewPager.setCurrentItem(0, false);
-                    syncNavSelection(R.id.nav_home);
+                    syncNavSelection(R.id.nav_dashboard);
                 } else {
                     setEnabled(false);
                     getOnBackPressedDispatcher().onBackPressed();
                 }
             }
         });
-    }
-
-    public void navigateToTab(int itemId) {
-        int index = -1;
-        if (itemId == R.id.nav_home) index = 0;
-        else if (itemId == R.id.nav_dashboard) index = 1;
-        else if (itemId == R.id.nav_logs) index = 2;
-        else if (itemId == R.id.nav_files) index = 3;
-        else if (itemId == R.id.nav_settings) index = 4;
-
-        if (index != -1) {
-            viewPager.setCurrentItem(index, false);
-            syncNavSelection(itemId);
-        }
     }
 
     private void checkRootAccess() {
@@ -90,15 +79,6 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager() {
         viewPager.setAdapter(new ViewPager2Adapter(this));
         viewPager.setUserInputEnabled(false);
-        
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                if (isSyncing) return;
-                int itemId = bottomNavigation.getMenu().getItem(position).getItemId();
-                syncNavSelection(itemId);
-            }
-        });
     }
 
     private void setupNavigation() {
@@ -111,6 +91,19 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigation.setOnItemSelectedListener(listener);
         navigationRail.setOnItemSelectedListener(listener);
+    }
+
+    public void navigateToTab(int itemId) {
+        int index = -1;
+        if (itemId == R.id.nav_dashboard) index = 0;
+        else if (itemId == R.id.nav_logs) index = 1;
+        else if (itemId == R.id.nav_files) index = 2;
+        else if (itemId == R.id.nav_settings) index = 3;
+
+        if (index != -1) {
+            viewPager.setCurrentItem(index, false);
+            syncNavSelection(itemId);
+        }
     }
 
     private void syncNavSelection(int itemId) {
@@ -149,14 +142,13 @@ public class MainActivity extends AppCompatActivity {
         public ViewPager2Adapter(@NonNull FragmentActivity fa) { super(fa); }
         @NonNull @Override public Fragment createFragment(int pos) {
             switch (pos) {
-                case 0: return new HomeFragment();
-                case 1: return new DashboardFragment();
-                case 2: return new LogsFragment();
-                case 3: return new FilesFragment();
-                case 4: return new SettingsFragment();
-                default: return new HomeFragment();
+                case 0: return new DashboardFragment();
+                case 1: return new LogsFragment();
+                case 2: return new FilesFragment();
+                case 3: return new SettingsFragment();
+                default: return new DashboardFragment();
             }
         }
-        @Override public int getItemCount() { return 5; }
+        @Override public int getItemCount() { return 4; }
     }
 }
