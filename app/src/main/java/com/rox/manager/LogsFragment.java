@@ -101,15 +101,17 @@ public class LogsFragment extends Fragment {
     }
 
     private void showLogSelectionDialog() {
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
+            // Using a shell command once to list files since we need root permission for the directory
+            // but we process the results natively in Java.
             String res = ShellHelper.runRootCommand("ls /data/adb/box/run/*.log");
             List<String> logFiles = new ArrayList<>();
-            if (res != null && !res.isEmpty()) {
+            if (res != null && !res.isEmpty() && !res.startsWith("Error")) {
                 for (String line : res.split("\n")) {
                     if (line.contains("/")) {
                         logFiles.add(line.substring(line.lastIndexOf("/") + 1));
-                    } else {
-                        logFiles.add(line);
+                    } else if (!line.trim().isEmpty()) {
+                        logFiles.add(line.trim());
                     }
                 }
             }
@@ -117,20 +119,17 @@ public class LogsFragment extends Fragment {
             if (logFiles.isEmpty()) logFiles.add("runs.log");
 
             String[] items = logFiles.toArray(new String[0]);
-            if (isAdded() && getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    if (!isAdded()) return;
-                    new MaterialAlertDialogBuilder(getContext())
-                        .setTitle("Select Log Source")
-                        .setItems(items, (dialog, which) -> {
-                            selectedLogFile = items[which];
-                            prefs.edit().putString("selected_log", selectedLogFile).apply();
-                            textSelectedLog.setText(selectedLogFile);
-                            loadLogs();
-                        })
-                        .show();
-                });
-            }
+            runOnUI(() -> {
+                new MaterialAlertDialogBuilder(getContext())
+                    .setTitle("Select Log Source")
+                    .setItems(items, (dialog, which) -> {
+                        selectedLogFile = items[which];
+                        prefs.edit().putString("selected_log", selectedLogFile).apply();
+                        textSelectedLog.setText(selectedLogFile);
+                        loadLogs();
+                    })
+                    .show();
+            });
         });
     }
 
@@ -155,22 +154,38 @@ public class LogsFragment extends Fragment {
 
     private void loadLogs() {
         if (!isResumed()) return;
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             String path = "/data/adb/box/run/" + selectedLogFile;
-            String cmd = "tail -n 100 " + path + " 2>/dev/null || echo 'Log file not found or empty.'";
-            String result = ShellHelper.runRootCommand(cmd);
+            // Use Bridge File pattern to read root-protected log file natively
+            String fullContent = ShellHelper.readRootFileDirect(path);
             
-            if (isAdded() && getActivity() != null && isResumed()) {
-                getActivity().runOnUiThread(() -> {
-                    if (!isAdded()) return;
-                    if (result != null) {
-                        prefs.edit().putString("last_logs_cache", result).apply();
-                        logTextView.setText(formatLogText(result));
-                        logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
+            runOnUI(() -> {
+                if (fullContent != null) {
+                    // Native "tail -n 100" logic in Java
+                    String[] lines = fullContent.split("\n");
+                    StringBuilder tailContent = new StringBuilder();
+                    int start = Math.max(0, lines.length - 100);
+                    for (int i = start; i < lines.length; i++) {
+                        tailContent.append(lines[i]).append("\n");
                     }
-                });
-            }
+                    
+                    String result = tailContent.toString().trim();
+                    if (result.isEmpty()) result = "Log file is empty.";
+                    
+                    prefs.edit().putString("last_logs_cache", result).apply();
+                    logTextView.setText(formatLogText(result));
+                    logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
+                } else {
+                    logTextView.setText("Log file not found or could not be read.");
+                }
+            });
         });
+    }
+
+    private void runOnUI(Runnable r) {
+        if (isAdded() && getActivity() != null) {
+            getActivity().runOnUiThread(r);
+        }
     }
 
     private CharSequence formatLogText(String text) {
