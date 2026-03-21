@@ -151,7 +151,8 @@ public class DashboardFragment extends Fragment {
             btnLatency.setVisibility(View.GONE);
             webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
-            webView.loadUrl(prefs.getString("dash_url", "http://127.0.0.1:9090/ui"));
+            // ALWAYS use local URL for the built-in dashboard button to ensure it works
+            webView.loadUrl("http://127.0.0.1:9090/ui");
             if (backPressedCallback != null) backPressedCallback.setEnabled(true);
         });
 
@@ -176,23 +177,27 @@ public class DashboardFragment extends Fragment {
     public void onResume() {
         super.onResume();
         showClashStats = prefs.getBoolean("enable_clash_api", false);
-        if (showClashStats && initialLayout.getVisibility() == View.VISIBLE) {
-            clashStatsCard.setVisibility(View.VISIBLE);
-            labelProxyGroups.setVisibility(View.VISIBLE);
-            emptyStatsView.setVisibility(View.GONE);
-            btnLatency.setVisibility(View.VISIBLE);
-            btnOpen.setVisibility(View.VISIBLE);
-            cardRules.setVisibility(View.VISIBLE);
-            refreshProxies();
-            startStats();
-        } else {
-            clashStatsCard.setVisibility(View.GONE);
-            labelProxyGroups.setVisibility(View.GONE);
-            emptyStatsView.setVisibility(initialLayout.getVisibility() == View.VISIBLE ? View.VISIBLE : View.GONE);
-            btnLatency.setVisibility(View.GONE);
-            btnOpen.setVisibility(View.GONE);
-            cardRules.setVisibility(View.GONE);
-            stopStats();
+        
+        if (initialLayout.getVisibility() == View.VISIBLE) {
+            // Button Open Dashboard should always be visible if the feature is enabled in settings
+            btnOpen.setVisibility(showClashStats ? View.VISIBLE : View.GONE);
+            
+            if (showClashStats) {
+                clashStatsCard.setVisibility(View.VISIBLE);
+                labelProxyGroups.setVisibility(View.VISIBLE);
+                emptyStatsView.setVisibility(View.GONE);
+                btnLatency.setVisibility(View.VISIBLE);
+                cardRules.setVisibility(View.VISIBLE);
+                refreshProxies();
+                startStats();
+            } else {
+                clashStatsCard.setVisibility(View.GONE);
+                labelProxyGroups.setVisibility(View.GONE);
+                emptyStatsView.setVisibility(View.VISIBLE);
+                btnLatency.setVisibility(View.GONE);
+                cardRules.setVisibility(View.GONE);
+                stopStats();
+            }
         }
     }
 
