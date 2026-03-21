@@ -400,16 +400,17 @@ public class DashboardFragment extends Fragment {
                 String type = group.optString("type", "");
                 if (type.equals("Pass") || type.equals("Reject") || type.equals("Direct")) continue;
 
-                addProxyGroupView(groupName, group.optString("now", ""), group.optJSONArray("all"), proxies);
+                addProxyGroupView(groupName, type, group.optString("now", ""), group.optJSONArray("all"), proxies);
             }
         } catch (Exception e) {
             Log.e(TAG, "Proxy render error", e);
         }
     }
 
-    private void addProxyGroupView(String groupName, String selected, JSONArray all, JSONObject allProxies) throws Exception {
+    private void addProxyGroupView(String groupName, String type, String selected, JSONArray all, JSONObject allProxies) throws Exception {
         View groupView = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy_group, proxyGroupsContainer, false);
         ((TextView) groupView.findViewById(R.id.proxyGroupName)).setText(groupName);
+        ((TextView) groupView.findViewById(R.id.proxyGroupType)).setText(type);
         GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
         
         for (int i = 0; i < all.length(); i++) {
