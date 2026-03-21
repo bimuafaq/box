@@ -431,13 +431,6 @@
                         android:src="@drawable/ic_dashboard"
                         app:tint="?attr/colorPrimary"
                         android:alpha="0.3" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Dashboard Statistics"
-                        android:textSize="16sp"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:layout_marginTop="16dp" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
