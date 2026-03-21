@@ -28,6 +28,12 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
 import android.net.Uri;
+import android.util.Log;
+import com.google.android.material.snackbar.Snackbar;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
+import java.util.Iterator;
 
 public class DashboardFragment extends Fragment {
     private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader;
@@ -45,6 +51,29 @@ public class DashboardFragment extends Fragment {
     
     private final Handler statsHandler = new Handler(Looper.getMainLooper());
     private boolean isStatsRunning = false;
+    private long statsCounter = 0;
+    private int fastPollRemaining = 0; // Cycles of 500ms polling
+
+    private final Runnable statsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isStatsRunning) {
+                refreshClashStats();
+                
+                // Normal: every 2s (if fastPollRemaining == 0)
+                // Fast: every 500ms (if fastPollRemaining > 0)
+                if (fastPollRemaining > 0) {
+                    refreshProxies();
+                    fastPollRemaining--;
+                    statsHandler.postDelayed(this, 500);
+                } else {
+                    if (statsCounter % 2 == 0) refreshProxies();
+                    statsCounter++;
+                    statsHandler.postDelayed(this, 2000);
+                }
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -100,28 +129,25 @@ public class DashboardFragment extends Fragment {
         });
 
         btnOpen.setOnClickListener(v -> {
-            stopStats(); // Stop background updates when webview is open
+            stopStats();
             initialLayout.setVisibility(View.GONE);
             dashHeader.setVisibility(View.GONE);
             btnOpen.setVisibility(View.GONE);
-            
             webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
-            String url = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
-            webView.loadUrl(url);
+            webView.loadUrl(prefs.getString("dash_url", "http://127.0.0.1:9090/ui"));
             if (backPressedCallback != null) backPressedCallback.setEnabled(true);
         });
 
         btnClose.setOnClickListener(v -> {
             webHeader.setVisibility(View.GONE);
             webViewContainer.setVisibility(View.GONE);
-            
             initialLayout.setVisibility(View.VISIBLE);
             dashHeader.setVisibility(View.VISIBLE);
             btnOpen.setVisibility(View.VISIBLE);
             webView.loadUrl("about:blank");
             if (backPressedCallback != null) backPressedCallback.setEnabled(false);
-            startStats(); // Resume background updates
+            startStats();
         });
 
         return view;
@@ -131,7 +157,6 @@ public class DashboardFragment extends Fragment {
     public void onResume() {
         super.onResume();
         showClashStats = prefs.getBoolean("enable_clash_api", false);
-        // Only show card if feature enabled AND webview is not open
         if (showClashStats && initialLayout.getVisibility() == View.VISIBLE) {
             clashStatsCard.setVisibility(View.VISIBLE);
             labelProxyGroups.setVisibility(View.VISIBLE);
@@ -150,8 +175,7 @@ public class DashboardFragment extends Fragment {
         if (!showClashStats) return;
         ThreadManager.runOnShell(() -> {
             String apiUrl = getApiUrl();
-            // Use standard curl with 1s timeout, no root needed for localhost API
-            String res = ShellHelper.runRootCommandOneShot("curl -s --connect-timeout 1 " + apiUrl + "/proxies");
+            String res = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/proxies");
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
@@ -162,44 +186,40 @@ public class DashboardFragment extends Fragment {
     }
 
     private void renderProxies(String json) {
-        if (json == null || !json.contains("\"proxies\"")) {
-            proxyGroupsContainer.removeAllViews();
-            return;
-        }
-        proxyGroupsContainer.removeAllViews();
+        if (json == null || json.startsWith("Error")) return;
         try {
-            // Split into proxies object and the rest
-            String proxiesPart = json.split("\"proxies\":\\{")[1];
+            JSONObject root = new JSONObject(json);
+            JSONObject proxies = root.getJSONObject("proxies");
+            proxyGroupsContainer.removeAllViews();
             
-            // First, find all Selector/URLTest/Fallback groups
-            String[] parts = proxiesPart.split("\\},\"");
-            for (String part : parts) {
-                if (!part.contains("\"all\":[")) continue;
-                
-                String groupName = part.split("\":\\{")[0].replace("\"", "").replace("{", "");
-                String type = part.split("\"type\":\"")[1].split("\"")[0];
+            Iterator<String> keys = proxies.keys();
+            while (keys.hasNext()) {
+                String groupName = keys.next();
+                JSONObject group = proxies.getJSONObject(groupName);
+                String type = group.getString("type");
                 
                 if (!type.equals("Selector") && !type.equals("URLTest") && !type.equals("Fallback")) continue;
 
-                String selected = part.split("\"now\":\"")[1].split("\"")[0];
-                String allStr = part.split("\"all\":\\[")[1].split("\\]")[0];
-                String[] allProxyNames = allStr.replace("\"", "").split(",");
+                String selected = group.optString("now", "");
+                JSONArray all = group.getJSONArray("all");
+                String[] allNames = new String[all.length()];
+                for (int i = 0; i < all.length(); i++) allNames[i] = all.getString(i);
 
-                addProxyGroupView(groupName, selected, allProxyNames, proxiesPart);
+                addProxyGroupView(groupName, selected, allNames, proxies);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Log.e("Dashboard", "Parse error", e);
+        }
     }
 
-    private void addProxyGroupView(String groupName, String selected, String[] options, String fullProxiesJson) {
+    private void addProxyGroupView(String groupName, String selected, String[] options, JSONObject allProxies) {
         View groupView = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy_group, proxyGroupsContainer, false);
         TextView title = groupView.findViewById(R.id.proxyGroupName);
         GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
         
         title.setText(groupName);
-        for (String opt : options) {
-            String proxyName = opt.trim();
+        for (String proxyName : options) {
             View proxyCard = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy, itemsContainer, false);
-            
             TextView nameTxt = proxyCard.findViewById(R.id.proxyName);
             TextView typeTxt = proxyCard.findViewById(R.id.proxyType);
             TextView latencyTxt = proxyCard.findViewById(R.id.proxyLatency);
@@ -207,35 +227,22 @@ public class DashboardFragment extends Fragment {
 
             nameTxt.setText(proxyName);
             
-            // Extract type and latency from full JSON
-            String proxyInfo = "";
             try {
-                if (fullProxiesJson.contains("\"" + proxyName + "\":{")) {
-                    proxyInfo = fullProxiesJson.split("\"" + proxyName + "\":\\{")[1].split("\\},\"")[0];
-                    String type = proxyInfo.split("\"type\":\"")[1].split("\"")[0];
-                    typeTxt.setText(type);
-
-                    if (proxyInfo.contains("\"delay\":")) {
-                        String delay = proxyInfo.split("\"delay\":")[1].split("[,}]")[0];
-                        latencyTxt.setText(delay + " ms");
-                    } else if (proxyInfo.contains("\"history\":[")) {
-                        String history = proxyInfo.split("\"history\":\\[")[1].split("\\]")[0];
-                        if (history.contains("\"delay\":")) {
-                            String delay = history.split("\"delay\":")[1].split("[,}]")[0];
-                            latencyTxt.setText(delay + " ms");
-                        } else {
-                            latencyTxt.setText("---");
-                        }
-                    } else {
-                        latencyTxt.setText("---");
-                    }
+                JSONObject p = allProxies.getJSONObject(proxyName);
+                typeTxt.setText(p.getString("type"));
+                
+                JSONArray history = p.optJSONArray("history");
+                if (history != null && history.length() > 0) {
+                    int lastDelay = history.getJSONObject(history.length() - 1).getInt("delay");
+                    latencyTxt.setText(lastDelay > 0 ? lastDelay + " ms" : "err");
+                } else {
+                    latencyTxt.setText("---");
                 }
             } catch (Exception e) {
                 typeTxt.setText("Proxy");
                 latencyTxt.setText("---");
             }
 
-            // Highlight selected
             if (proxyName.equals(selected)) {
                 card.setStrokeColor(com.google.android.material.color.MaterialColors.getColor(card, android.R.attr.colorPrimary));
                 card.setStrokeWidth(4);
@@ -244,16 +251,12 @@ public class DashboardFragment extends Fragment {
 
             card.setOnClickListener(v -> switchProxy(groupName, proxyName));
             
-            // GridLayout params for 2 columns
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED);
-            int margin = (int) (4 * getResources().getDisplayMetrics().density);
-            params.setMargins(margin, margin, margin, margin);
+            params.setMargins(8, 8, 8, 8);
             proxyCard.setLayoutParams(params);
-
             itemsContainer.addView(proxyCard);
         }
         proxyGroupsContainer.addView(groupView);
@@ -261,27 +264,30 @@ public class DashboardFragment extends Fragment {
 
     private void testAllProxiesLatency() {
         if (!showClashStats) return;
-        
-        // Instant visual feedback
-        if (getView() != null) {
-            com.google.android.material.snackbar.Snackbar.make(getView(), "Latency test started...", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show();
-        }
+        fastPollRemaining = 10;
+        if (getView() != null) Snackbar.make(getView(), "Direct testing all groups...", Snackbar.LENGTH_SHORT).show();
 
         ThreadManager.runOnShell(() -> {
             String apiUrl = getApiUrl();
-            // Get all groups first
-            String res = ShellHelper.runRootCommandOneShot("curl -s --connect-timeout 1 " + apiUrl + "/proxies");
-            if (res != null && res.contains("\"proxies\"")) {
+            String res = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/proxies");
+            if (res != null && !res.startsWith("Error")) {
                 try {
-                    String proxiesPart = res.split("\"proxies\":\\{")[1];
-                    String[] parts = proxiesPart.split("\\},\"");
-                    for (String part : parts) {
-                        if (part.contains("\"type\":\"Selector\"") || part.contains("\"type\":\"URLTest\"") || part.contains("\"type\":\"Fallback\"")) {
-                            String groupName = part.split("\":\\{")[0].replace("\"", "").replace("{", "");
-                            // Fire background curl without wait
-                            ShellHelper.runRootCommandOneShot("curl -s -X GET --connect-timeout 1 \"" + apiUrl + "/proxies/" + Uri.encode(groupName) + "/delay?timeout=5000&url=http://www.gstatic.com/generate_204\" &");
+                    JSONObject root = new JSONObject(res);
+                    JSONObject proxies = root.getJSONObject("proxies");
+                    StringBuilder batch = new StringBuilder();
+                    
+                    Iterator<String> keys = proxies.keys();
+                    while (keys.hasNext()) {
+                        String name = keys.next();
+                        JSONObject p = proxies.getJSONObject(name);
+                        String type = p.getString("type");
+                        if (type.equals("Selector") || type.equals("URLTest") || type.equals("Fallback")) {
+                            batch.append("curl -s -X GET --connect-timeout 1 \"")
+                                 .append(apiUrl).append("/proxies/").append(Uri.encode(name))
+                                 .append("/delay?timeout=3000&url=http://www.gstatic.com/generate_204\" & ");
                         }
                     }
+                    if (batch.length() > 0) ShellHelper.runCommand(batch.toString() + " wait");
                 } catch (Exception ignored) {}
             }
         });
@@ -290,52 +296,45 @@ public class DashboardFragment extends Fragment {
     private void switchProxy(String group, String name) {
         ThreadManager.runOnShell(() -> {
             String apiUrl = getApiUrl();
-            String payload = "{\"name\":\"" + name + "\"}";
-            ShellHelper.runRootCommandOneShot("curl -s -X PUT --connect-timeout 1 -d '" + payload + "' " + apiUrl + "/proxies/" + group);
+            ShellHelper.runCommand("curl -s -X PUT --connect-timeout 1 -d '{\"name\":\"" + name + "\"}' " + apiUrl + "/proxies/" + Uri.encode(group));
             getActivity().runOnUiThread(this::refreshProxies);
         });
     }
 
     private String getApiUrl() {
         String dashUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
-        String apiUrl = dashUrl.replaceAll("/(ui|dashboard)/?$", "");
-        if (apiUrl.endsWith("/ui")) apiUrl = apiUrl.substring(0, apiUrl.length() - 3);
-        return apiUrl;
+        return dashUrl.replaceAll("/(ui|dashboard)/?$", "").replaceAll("/ui$", "");
+    }
+
+    private void refreshClashStats() {
+        if (!isResumed() || !showClashStats) return;
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = getApiUrl();
+            String result = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/connections");
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (!isAdded() || !showClashStats || result.startsWith("Error")) return;
+                    try {
+                        JSONObject root = new JSONObject(result);
+                        clashDownloadText.setText(formatSize(root.optLong("downloadTotal", 0)));
+                        clashUploadText.setText(formatSize(root.optLong("uploadTotal", 0)));
+                        JSONArray conns = root.optJSONArray("connections");
+                        clashConnectionsText.setText(conns != null ? String.valueOf(conns.length()) : "0");
+                    } catch (Exception ignored) {}
+                });
+            }
+        });
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        stopStats();
-    }
-
+    public void onPause() { super.onPause(); stopStats(); }
+    
     @Override
     public void onDestroyView() {
         stopStats();
-        if (webView != null) {
-            webView.stopLoading();
-            webView.clearHistory();
-            webView.removeAllViews();
-            webView.destroy();
-        }
+        if (webView != null) webView.destroy();
         super.onDestroyView();
     }
-
-    private long statsCounter = 0;
-    private final Runnable statsRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (isStatsRunning) {
-                refreshClashStats();
-                // Refresh proxies every 4 seconds (every 2 cycles)
-                if (statsCounter % 2 == 0) {
-                    refreshProxies();
-                }
-                statsCounter++;
-                statsHandler.postDelayed(this, 2000);
-            }
-        }
-    };
 
     private void startStats() {
         if (!isStatsRunning && showClashStats) {
@@ -350,59 +349,16 @@ public class DashboardFragment extends Fragment {
         statsHandler.removeCallbacks(statsRunnable);
     }
 
-    private void refreshClashStats() {
-        if (!isResumed() || !showClashStats) return;
-        ThreadManager.runOnShell(() -> {
-            String apiUrl = getApiUrl();
-            String clashCmd = "curl -s --connect-timeout 1 " + apiUrl + "/connections";
-            String result = ShellHelper.runRootCommandOneShot(clashCmd);
-
-            if (isAdded() && getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    if (!isAdded() || !showClashStats) return;
-                    if (result != null && result.contains("\"connections\"")) {
-                        try {
-                            String dlTotal = "0";
-                            String ulTotal = "0";
-                            
-                            if (result.contains("\"downloadTotal\":")) {
-                                dlTotal = result.split("\"downloadTotal\":")[1].split("[,}]")[0];
-                            }
-                            if (result.contains("\"uploadTotal\":")) {
-                                ulTotal = result.split("\"uploadTotal\":")[1].split("[,}]")[0];
-                            }
-                            
-                            int count = 0;
-                            int lastIndex = 0;
-                            while ((lastIndex = result.indexOf("\"id\":", lastIndex)) != -1) {
-                                count++;
-                                lastIndex += 5;
-                            }
-                            
-                            clashConnectionsText.setText(String.valueOf(count));
-                            clashUploadText.setText(formatSize(Long.parseLong(ulTotal)));
-                            clashDownloadText.setText(formatSize(Long.parseLong(dlTotal)));
-                        } catch (Exception ignored) {}
-                    }
-                });
-            }
-        });
-    }
-
     private String formatSize(long bytes) {
         if (bytes < 1024) return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(1024));
-        char pre = "KMGTPE".charAt(exp - 1);
-        return String.format(Locale.getDefault(), "%.1f %cB", bytes / Math.pow(1024, exp), pre);
+        return String.format(Locale.getDefault(), "%.1f %cB", bytes / Math.pow(1024, exp), "KMGTPE".charAt(exp - 1));
     }
 
     private void setupWebView() {
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        
+        WebSettings s = webView.getSettings();
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
         webView.setWebViewClient(new WebViewClient());
     }
 }

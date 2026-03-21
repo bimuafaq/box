@@ -177,4 +177,24 @@ public class ShellHelper {
         String res = runRootCommandOneShot("id");
         return res != null && res.contains("uid=0");
     }
+
+    /**
+     * Run a command WITHOUT root. Much faster for things like local curl.
+     */
+    public static String runCommand(String command) {
+        StringBuilder output = new StringBuilder();
+        try {
+            Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            process.waitFor();
+            reader.close();
+            return output.toString().trim();
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
 }
