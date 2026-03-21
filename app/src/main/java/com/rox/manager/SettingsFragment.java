@@ -71,8 +71,24 @@ public class SettingsFragment extends Fragment {
         binNameSelection.setOnClickListener(v -> showBinNameDialog());
         networkModeSelection.setOnClickListener(v -> showNetworkModeDialog());
         clashOptionSelection.setOnClickListener(v -> showClashOptionDialog());
+        
+        View btnClearFakeIp = view.findViewById(R.id.btnClearFakeIp);
+        btnClearFakeIp.setOnClickListener(v -> clearFakeIpCache(v));
 
         return view;
+    }
+
+    private void clearFakeIpCache(View btn) {
+        btn.animate().rotationBy(360).setDuration(500).start();
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui").replaceAll("/(ui|dashboard)/?$", "");
+            ShellHelper.runCommand("curl -s -X POST " + apiUrl + "/cache/fakeip/flush");
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (getView() != null) com.google.android.material.snackbar.Snackbar.make(getView(), "Fake-IP Cache Flushed", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show();
+                });
+            }
+        });
     }
 
     private void loadModuleSettings() {

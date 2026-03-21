@@ -49,6 +49,9 @@ public class DashboardFragment extends Fragment {
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private LinearLayout proxyGroupsContainer;
     private MaterialButton btnRefresh;
+    private View modeSelectorContainer;
+    private com.google.android.material.button.MaterialButtonToggleGroup modeToggleGroup;
+    private MaterialButton btnUpdateProviders;
     
     // Logic State
     private boolean isServiceRunning = false;
@@ -57,6 +60,7 @@ public class DashboardFragment extends Fragment {
     private long currentRuntimeSeconds = 0;
     private long statsCounter = 0;
     private int fastPollRemaining = 0;
+    private String currentMode = "";
     
     private SharedPreferences prefs;
     private OnBackPressedCallback backPressedCallback;
@@ -84,6 +88,7 @@ public class DashboardFragment extends Fragment {
                 if (showClashStats) {
                     refreshClashStats();
                     refreshProxies();
+                    if (statsCounter % 10 == 0) refreshConfigMode(); // Check mode every 10s
                 }
                 if (isFastPoll) fastPollRemaining--;
             }
@@ -110,6 +115,9 @@ public class DashboardFragment extends Fragment {
         proxyGroupsContainer = view.findViewById(R.id.proxyGroupsContainer);
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
         clashStatsCard = view.findViewById(R.id.clashStatsCard);
+        modeSelectorContainer = view.findViewById(R.id.modeSelectorContainer);
+        modeToggleGroup = view.findViewById(R.id.modeToggleGroup);
+        btnUpdateProviders = view.findViewById(R.id.btnUpdateProviders);
         
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
         clashDownloadText = view.findViewById(R.id.clashDownloadText);
@@ -146,6 +154,21 @@ public class DashboardFragment extends Fragment {
         btnService.setOnClickListener(v -> handleServiceToggle());
         btnLatency.setOnClickListener(v -> testAllProxiesLatency());
         btnRefresh.setOnClickListener(v -> triggerManualRefresh(v));
+        
+        btnUpdateProviders.setOnClickListener(v -> updateAllProviders(v));
+        
+        modeToggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                String newMode = "";
+                if (checkedId == R.id.modeRule) newMode = "rule";
+                else if (checkedId == R.id.modeGlobal) newMode = "global";
+                else if (checkedId == R.id.modeDirect) newMode = "direct";
+                
+                if (!newMode.isEmpty() && !newMode.equalsIgnoreCase(currentMode)) {
+                    switchMode(newMode);
+                }
+            }
+        });
 
         btnOpen.setOnClickListener(v -> toggleWebView(true));
         btnClose.setOnClickListener(v -> toggleWebView(false));
@@ -156,6 +179,65 @@ public class DashboardFragment extends Fragment {
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), backPressedCallback);
 
         return view;
+    }
+
+    private void updateAllProviders(View btn) {
+        btn.animate().rotationBy(360).setDuration(1000).start();
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = getApiUrl();
+            String res = ShellHelper.runCommand("curl -s " + apiUrl + "/providers/proxies");
+            if (res == null || res.startsWith("Error")) return;
+            try {
+                JSONObject root = new JSONObject(res);
+                JSONObject providers = root.getJSONObject("providers");
+                Iterator<String> keys = providers.keys();
+                while (keys.hasNext()) {
+                    String name = keys.next();
+                    JSONObject provider = providers.getJSONObject(name);
+                    String vehicleType = provider.optString("vehicleType", "");
+                    if (!vehicleType.equals("Compatible") && !vehicleType.equals("Inline")) {
+                        ShellHelper.runCommand("curl -s -X PUT " + apiUrl + "/providers/proxies/" + Uri.encode(name));
+                    }
+                }
+                runOnUI(() -> {
+                    if (getView() != null) Snackbar.make(getView(), "Providers updated", Snackbar.LENGTH_SHORT).show();
+                    fastPollRemaining = 5;
+                });
+            } catch (Exception ignored) {}
+        });
+    }
+
+    private void switchMode(String newMode) {
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = getApiUrl();
+            ShellHelper.runCommand("curl -s -X PATCH -d '{\"mode\":\"" + newMode + "\"}' " + apiUrl + "/configs");
+            runOnUI(() -> {
+                currentMode = newMode;
+                fastPollRemaining = 2;
+            });
+        });
+    }
+
+    private void refreshConfigMode() {
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = getApiUrl();
+            String res = ShellHelper.runCommand("curl -s " + apiUrl + "/configs");
+            runOnUI(() -> {
+                if (res != null && !res.startsWith("Error")) {
+                    try {
+                        JSONObject root = new JSONObject(res);
+                        String mode = root.optString("mode", "").toLowerCase();
+                        if (!mode.equals(currentMode)) {
+                            currentMode = mode;
+                            modeToggleGroup.clearChecked();
+                            if (mode.equals("rule")) modeToggleGroup.check(R.id.modeRule);
+                            else if (mode.equals("global")) modeToggleGroup.check(R.id.modeGlobal);
+                            else if (mode.equals("direct")) modeToggleGroup.check(R.id.modeDirect);
+                        }
+                    } catch (Exception ignored) {}
+                }
+            });
+        });
     }
 
     private void handleServiceToggle() {
@@ -231,6 +313,7 @@ public class DashboardFragment extends Fragment {
         labelProxyGroups.setVisibility(visibility);
         cardRules.setVisibility(visibility);
         btnLatency.setVisibility(visibility);
+        modeSelectorContainer.setVisibility(visibility);
         btnOpen.setVisibility(View.VISIBLE); // Always visible in header
         emptyStatsView.setVisibility(showClashStats ? View.GONE : View.VISIBLE);
     }

@@ -35,6 +35,15 @@
             android:layout_marginStart="8dp" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCloseAllConns"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:icon="@drawable/ic_close_material"
+            app:iconSize="24dp"
+            app:iconTint="?attr/colorError" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRefreshConns"
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="48dp"

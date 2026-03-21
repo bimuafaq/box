@@ -37,6 +37,7 @@ public class ConnectionsActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerConns);
         MaterialButton btnRefresh = findViewById(R.id.btnRefreshConns);
         MaterialButton btnBack = findViewById(R.id.btnBackConns);
+        MaterialButton btnCloseAll = findViewById(R.id.btnCloseAllConns);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ConnAdapter();
@@ -47,7 +48,25 @@ public class ConnectionsActivity extends AppCompatActivity {
             refresh();
         });
         
+        btnCloseAll.setOnClickListener(v -> closeAllConnections());
+        
         btnBack.setOnClickListener(v -> finish());
+    }
+
+    private void closeAllConnections() {
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = getApiUrl();
+            ShellHelper.runCommand("curl -s -X DELETE --connect-timeout 2 " + apiUrl + "/connections");
+            runOnUiThread(this::refresh);
+        });
+    }
+
+    private void closeConnection(String id) {
+        ThreadManager.runOnShell(() -> {
+            String apiUrl = getApiUrl();
+            ShellHelper.runCommand("curl -s -X DELETE --connect-timeout 2 " + apiUrl + "/connections/" + id);
+            runOnUiThread(this::refresh);
+        });
     }
 
     private void refresh() {
@@ -122,6 +141,7 @@ public class ConnectionsActivity extends AppCompatActivity {
             try {
                 JSONObject item = data.get(position);
                 JSONObject metadata = item.getJSONObject("metadata");
+                String id = item.optString("id", "");
                 
                 String host = metadata.optString("host", "");
                 if (host.isEmpty()) host = metadata.optString("destinationIP", "Unknown");
@@ -135,6 +155,10 @@ public class ConnectionsActivity extends AppCompatActivity {
                 
                 holder.up.setText(formatSize(item.optLong("upload", 0)));
                 holder.down.setText(formatSize(item.optLong("download", 0)));
+
+                holder.closeBtn.setOnClickListener(v -> {
+                    if (!id.isEmpty()) closeConnection(id);
+                });
             } catch (Exception ignored) {}
         }
 
@@ -143,6 +167,7 @@ public class ConnectionsActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView host, meta, proxy, up, down;
+            View closeBtn;
             ViewHolder(View v) {
                 super(v);
                 host = v.findViewById(R.id.connHost);
@@ -150,6 +175,7 @@ public class ConnectionsActivity extends AppCompatActivity {
                 proxy = v.findViewById(R.id.connProxy);
                 up = v.findViewById(R.id.connUp);
                 down = v.findViewById(R.id.connDown);
+                closeBtn = v.findViewById(R.id.btnCloseConn);
             }
         }
     }
