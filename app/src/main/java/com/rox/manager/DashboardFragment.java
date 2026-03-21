@@ -37,18 +37,14 @@ import org.json.JSONArray;
 import java.util.Iterator;
 
 public class DashboardFragment extends Fragment {
-    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, fabStack;
+    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, cardRules, clashStatsCard;
     private WebView webView;
-    private TextView title, labelProxyGroups;
+    private TextView title, labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private SwipeRefreshLayout swipeRefresh;
     private OnBackPressedCallback backPressedCallback;
     private SharedPreferences prefs;
     private LinearLayout proxyGroupsContainer;
-
-    private TextView clashConnectionsText, clashDownloadText, clashUploadText;
-    private View clashStatsCard;
-    private MaterialButton btnOpen, btnRefresh;
-    private View btnLatency;
+    private MaterialButton btnRefresh;
     private boolean showClashStats = false;
     
     private final Handler statsHandler = new Handler(Looper.getMainLooper());
@@ -92,7 +88,7 @@ public class DashboardFragment extends Fragment {
         title = view.findViewById(R.id.dashTitle);
         swipeRefresh = view.findViewById(R.id.swipeRefreshDash);
         emptyStatsView = view.findViewById(R.id.emptyStatsView);
-        fabStack = view.findViewById(R.id.fabStack);
+        cardRules = view.findViewById(R.id.cardRules);
         
         proxyGroupsContainer = view.findViewById(R.id.proxyGroupsContainer);
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
@@ -152,7 +148,7 @@ public class DashboardFragment extends Fragment {
             stopStats();
             initialLayout.setVisibility(View.GONE);
             dashHeader.setVisibility(View.GONE);
-            fabStack.setVisibility(View.GONE);
+            btnLatency.setVisibility(View.GONE);
             webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
             webView.loadUrl(prefs.getString("dash_url", "http://127.0.0.1:9090/ui"));
@@ -164,7 +160,10 @@ public class DashboardFragment extends Fragment {
             webViewContainer.setVisibility(View.GONE);
             initialLayout.setVisibility(View.VISIBLE);
             dashHeader.setVisibility(View.VISIBLE);
-            if (showClashStats) fabStack.setVisibility(View.VISIBLE);
+            if (showClashStats) {
+                btnLatency.setVisibility(View.VISIBLE);
+                btnOpen.setVisibility(View.VISIBLE);
+            }
             webView.loadUrl("about:blank");
             if (backPressedCallback != null) backPressedCallback.setEnabled(false);
             startStats();
@@ -181,14 +180,18 @@ public class DashboardFragment extends Fragment {
             clashStatsCard.setVisibility(View.VISIBLE);
             labelProxyGroups.setVisibility(View.VISIBLE);
             emptyStatsView.setVisibility(View.GONE);
-            fabStack.setVisibility(View.VISIBLE);
+            btnLatency.setVisibility(View.VISIBLE);
+            btnOpen.setVisibility(View.VISIBLE);
+            cardRules.setVisibility(View.VISIBLE);
             refreshProxies();
             startStats();
         } else {
             clashStatsCard.setVisibility(View.GONE);
             labelProxyGroups.setVisibility(View.GONE);
             emptyStatsView.setVisibility(initialLayout.getVisibility() == View.VISIBLE ? View.VISIBLE : View.GONE);
-            fabStack.setVisibility(View.GONE);
+            btnLatency.setVisibility(View.GONE);
+            btnOpen.setVisibility(View.GONE);
+            cardRules.setVisibility(View.GONE);
             stopStats();
         }
     }

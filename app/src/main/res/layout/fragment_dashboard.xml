@@ -57,6 +57,17 @@
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface" />
 
+        <!-- OPEN PANEL BUTTON (NOW IN HEADER) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOpenFullWeb"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:icon="@drawable/ic_dashboard"
+            app:iconSize="22dp"
+            app:iconTint="?attr/colorOnSurface"
+            android:visibility="gone" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRefreshDash"
             style="@style/Widget.Material3.Button.IconButton"
@@ -254,6 +265,51 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- RULES SECTION (ABOVE PROXIES) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardRules"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                    app:strokeWidth="0dp"
+                    android:visibility="gone"
+                    style="?attr/materialCardViewFilledStyle">
+                    <LinearLayout
+                        android:id="@+id/btnRulesDash"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_rules"
+                            app:tint="?attr/colorPrimary" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:text="Clash Rules"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_back_arrow"
+                            android:rotation="180"
+                            app:tint="?attr/colorOnSurfaceVariant"
+                            android:alpha="0.5" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <!-- PROXY GROUPS SECTION -->
                 <TextView
                     android:id="@+id/labelProxyGroups"
@@ -298,49 +354,18 @@
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
-        <!-- FAB STACK -->
-        <LinearLayout
-            android:id="@+id/fabStack"
+        <!-- LATENCY FAB ONLY -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnLatencyDash"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end"
             android:layout_gravity="bottom|end"
-            android:layout_margin="16dp">
-
-            <!-- RULES FAB -->
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/btnRulesDash"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:contentDescription="Rules"
-                app:srcCompat="@drawable/ic_rules"
-                app:fabSize="mini"
-                app:tint="?attr/colorOnSecondaryContainer"
-                app:backgroundTint="?attr/colorSecondaryContainer" />
-
-            <!-- LATENCY FAB -->
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/btnLatencyDash"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:contentDescription="Test Latency"
-                app:srcCompat="@drawable/ic_bolt"
-                app:fabSize="mini"
-                app:tint="?attr/colorOnSecondaryContainer"
-                app:backgroundTint="?attr/colorSecondaryContainer" />
-
-            <!-- OPEN PANEL FAB -->
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/btnOpenFullWeb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="OPEN PANEL"
-                app:icon="@drawable/ic_dashboard"
-                style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary" />
-        </LinearLayout>
+            android:layout_margin="16dp"
+            android:contentDescription="Test Latency"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_bolt"
+            app:tint="?attr/colorOnPrimaryContainer"
+            app:backgroundTint="?attr/colorPrimaryContainer" />
 
         <!-- WEBVIEW CONTAINER (OVERLAY) -->
         <com.google.android.material.card.MaterialCardView
