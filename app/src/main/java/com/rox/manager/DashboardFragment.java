@@ -162,9 +162,9 @@ public class DashboardFragment extends Fragment {
 
     private void updateAllProviders(View btn) {
         btn.animate().rotationBy(360).setDuration(1000).start();
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
-            String res = ShellHelper.runCommand("curl -s " + apiUrl + "/providers/proxies");
+            String res = fetchHttp(apiUrl + "/providers/proxies");
             if (res == null || res.startsWith("Error")) return;
             try {
                 JSONObject root = new JSONObject(res);
@@ -175,7 +175,18 @@ public class DashboardFragment extends Fragment {
                     JSONObject provider = providers.getJSONObject(name);
                     String vehicleType = provider.optString("vehicleType", "");
                     if (!vehicleType.equals("Compatible") && !vehicleType.equals("Inline")) {
-                        ShellHelper.runCommand("curl -s -X PUT " + apiUrl + "/providers/proxies/" + Uri.encode(name));
+                        // PUT request using native Java
+                        java.net.HttpURLConnection conn = null;
+                        try {
+                            java.net.URL url = new java.net.URL(apiUrl + "/providers/proxies/" + Uri.encode(name));
+                            conn = (java.net.HttpURLConnection) url.openConnection();
+                            conn.setRequestMethod("PUT");
+                            conn.setConnectTimeout(2000);
+                            conn.getResponseCode();
+                        } catch (Exception ignored) {
+                        } finally {
+                            if (conn != null) conn.disconnect();
+                        }
                     }
                 }
                 runOnUI(() -> {
@@ -333,8 +344,8 @@ public class DashboardFragment extends Fragment {
     }
 
     private void refreshClashStats() {
-        ThreadManager.runOnShell(() -> {
-            String result = ShellHelper.runCommand("curl -s --connect-timeout 1 " + getApiUrl() + "/connections");
+        ThreadManager.runBackgroundTask(() -> {
+            String result = fetchHttp(getApiUrl() + "/connections");
             runOnUI(() -> {
                 try {
                     JSONObject root = new JSONObject(result);
@@ -348,16 +359,39 @@ public class DashboardFragment extends Fragment {
     }
 
     private void refreshProxies() {
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
-            String res = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/proxies");
-            String provRes = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/providers/proxies");
+            String res = fetchHttp(apiUrl + "/proxies");
+            String provRes = fetchHttp(apiUrl + "/providers/proxies");
             
             runOnUI(() -> {
                 renderProxies(res);
                 checkProvidersVisibility(provRes);
             });
         });
+    }
+
+    private String fetchHttp(String urlStr) {
+        java.net.HttpURLConnection conn = null;
+        try {
+            java.net.URL url = new java.net.URL(urlStr);
+            conn = (java.net.HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(2000);
+            conn.setReadTimeout(3000);
+            
+            java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
     }
 
     private void checkProvidersVisibility(String json) {
@@ -454,9 +488,63 @@ public class DashboardFragment extends Fragment {
     }
 
     private void switchProxy(String group, String name) {
-        ThreadManager.runOnShell(() -> {
-            ShellHelper.runCommand("curl -s -X PUT -d '{\"name\":\"" + name + "\"}' " + getApiUrl() + "/proxies/" + Uri.encode(group));
-            runOnUI(this::refreshProxies);
+        // 1. Optimistic UI Update: Update the UI immediately for instant feedback
+        // We find the cards within the specific group and update their strokes
+        for (int i = 0; i < proxyGroupsContainer.getChildCount(); i++) {
+            View groupView = proxyGroupsContainer.getChildAt(i);
+            TextView groupNameTxt = groupView.findViewById(R.id.proxyGroupName);
+            if (groupNameTxt != null && groupNameTxt.getText().toString().equals(group)) {
+                GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
+                if (itemsContainer != null) {
+                    int primaryColor = MaterialColors.getColor(getContext(), android.R.attr.colorPrimary, android.graphics.Color.BLUE);
+                    for (int j = 0; j < itemsContainer.getChildCount(); j++) {
+                        View cardView = itemsContainer.getChildAt(j);
+                        if (cardView instanceof MaterialCardView) {
+                            MaterialCardView card = (MaterialCardView) cardView;
+                            TextView proxyNameTxt = card.findViewById(R.id.proxyName);
+                            if (proxyNameTxt != null) {
+                                if (proxyNameTxt.getText().toString().equals(name)) {
+                                    card.setStrokeColor(primaryColor);
+                                    card.setStrokeWidth(4);
+                                } else if (card.getStrokeWidth() > 0) {
+                                    card.setStrokeWidth(0);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        // 2. Background API call using Native Java HTTP (No shell overhead)
+        ThreadManager.runBackgroundTask(() -> {
+            java.net.HttpURLConnection conn = null;
+            try {
+                java.net.URL url = new java.net.URL(getApiUrl() + "/proxies/" + Uri.encode(group));
+                conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("PUT");
+                conn.setConnectTimeout(2000);
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/json");
+                
+                String body = "{\"name\":\"" + name + "\"}";
+                try (java.io.OutputStream os = conn.getOutputStream()) {
+                    os.write(body.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                }
+                
+                int code = conn.getResponseCode();
+                if (code >= 200 && code < 300) {
+                    // Success - refresh full data silently to catch any other changes
+                    refreshProxies();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to switch proxy", e);
+                // On failure, refresh to restore correct UI state
+                runOnUI(this::refreshProxies);
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
         });
     }
 
@@ -480,9 +568,9 @@ public class DashboardFragment extends Fragment {
 
     private void testAllProxiesLatency() {
         fastPollRemaining = 15;
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
-            String res = ShellHelper.runCommand("curl -s " + apiUrl + "/proxies");
+            String res = fetchHttp(apiUrl + "/proxies");
             if (res == null || res.startsWith("Error")) return;
             try {
                 JSONObject proxies = new JSONObject(res).getJSONObject("proxies");
