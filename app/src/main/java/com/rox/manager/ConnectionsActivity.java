@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,7 +23,6 @@ import java.util.Locale;
 public class ConnectionsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ConnAdapter adapter;
-    private SwipeRefreshLayout swipeRefresh;
     private SharedPreferences prefs;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isRunning = false;
@@ -37,7 +35,6 @@ public class ConnectionsActivity extends AppCompatActivity {
         prefs = getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
 
         recyclerView = findViewById(R.id.recyclerConns);
-        swipeRefresh = findViewById(R.id.swipeRefreshConns);
         MaterialButton btnRefresh = findViewById(R.id.btnRefreshConns);
         MaterialButton btnBack = findViewById(R.id.btnBackConns);
 
@@ -45,7 +42,6 @@ public class ConnectionsActivity extends AppCompatActivity {
         adapter = new ConnAdapter();
         recyclerView.setAdapter(adapter);
 
-        swipeRefresh.setOnRefreshListener(this::refresh);
         btnRefresh.setOnClickListener(v -> {
             v.animate().rotationBy(360).setDuration(500).start();
             refresh();
@@ -59,7 +55,6 @@ public class ConnectionsActivity extends AppCompatActivity {
             String apiUrl = getApiUrl();
             String res = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/connections");
             runOnUiThread(() -> {
-                swipeRefresh.setRefreshing(false);
                 parseAndSet(res);
             });
         });

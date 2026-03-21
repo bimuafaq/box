@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.button.MaterialButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,7 +23,6 @@ import android.os.Looper;
 public class RulesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RuleAdapter adapter;
-    private SwipeRefreshLayout swipeRefresh;
     private SharedPreferences prefs;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isRunning = false;
@@ -37,7 +35,6 @@ public class RulesActivity extends AppCompatActivity {
         prefs = getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
 
         recyclerView = findViewById(R.id.recyclerRules);
-        swipeRefresh = findViewById(R.id.swipeRefreshRules);
         MaterialButton btnRefresh = findViewById(R.id.btnRefreshRules);
         MaterialButton btnBack = findViewById(R.id.btnBackRules);
 
@@ -45,7 +42,6 @@ public class RulesActivity extends AppCompatActivity {
         adapter = new RuleAdapter();
         recyclerView.setAdapter(adapter);
 
-        swipeRefresh.setOnRefreshListener(this::refresh);
         btnRefresh.setOnClickListener(v -> {
             v.animate().rotationBy(360).setDuration(500).start();
             refresh();
@@ -81,12 +77,10 @@ public class RulesActivity extends AppCompatActivity {
     };
 
     private void refresh() {
-        swipeRefresh.setRefreshing(true);
         ThreadManager.runOnShell(() -> {
             String apiUrl = getApiUrl();
             String res = ShellHelper.runCommand("curl -s --connect-timeout 1 " + apiUrl + "/rules");
             runOnUiThread(() -> {
-                swipeRefresh.setRefreshing(false);
                 parseAndSet(res);
             });
         });
