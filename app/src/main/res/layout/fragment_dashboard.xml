@@ -186,35 +186,23 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:padding="12dp"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical">
-                                <ImageView
-                                    android:layout_width="18dp"
-                                    android:layout_height="18dp"
-                                    android:src="@drawable/ic_arrow_up_material"
-                                    app:tint="?attr/colorPrimary" />
-                                <LinearLayout
-                                    android:layout_width="match_parent"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:layout_marginStart="12dp">
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="UPLOAD"
-                                        android:textSize="9sp"
-                                        android:textStyle="bold"
-                                        android:textColor="?attr/colorOnSurfaceVariant"
-                                        android:alpha="0.6" />
-                                    <TextView
-                                        android:id="@+id/clashUploadText"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="0 B"
-                                        android:textSize="14sp"
-                                        android:textStyle="bold"
-                                        android:textColor="?attr/colorPrimary" />
-                                </LinearLayout>
+                                    android:text="UPLOAD"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold"
+                                    android:textColor="?attr/colorOnSurfaceVariant"
+                                    android:alpha="0.6" />
+                                <TextView
+                                    android:id="@+id/clashUploadText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0 B"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="?attr/colorPrimary" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
@@ -231,35 +219,23 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:padding="12dp"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical">
-                                <ImageView
-                                    android:layout_width="18dp"
-                                    android:layout_height="18dp"
-                                    android:src="@drawable/ic_arrow_down_material"
-                                    app:tint="?attr/colorPrimary" />
-                                <LinearLayout
-                                    android:layout_width="match_parent"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:layout_marginStart="12dp">
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="DOWNLOAD"
-                                        android:textSize="9sp"
-                                        android:textStyle="bold"
-                                        android:textColor="?attr/colorOnSurfaceVariant"
-                                        android:alpha="0.6" />
-                                    <TextView
-                                        android:id="@+id/clashDownloadText"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="0 B"
-                                        android:textSize="14sp"
-                                        android:textStyle="bold"
-                                        android:textColor="?attr/colorPrimary" />
-                                </LinearLayout>
+                                    android:text="DOWNLOAD"
+                                    android:textSize="9sp"
+                                    android:textStyle="bold"
+                                    android:textColor="?attr/colorOnSurfaceVariant"
+                                    android:alpha="0.6" />
+                                <TextView
+                                    android:id="@+id/clashDownloadText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0 B"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="?attr/colorPrimary" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
@@ -286,16 +262,10 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackground">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_rules"
-                            app:tint="?attr/colorPrimary" />
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="12dp"
                             android:text="Clash Rules"
                             android:textSize="14sp"
                             android:textStyle="bold"
