@@ -58,24 +58,6 @@
             android:textColor="?attr/colorOnSurface" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRulesDash"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:icon="@drawable/ic_rules"
-            app:iconSize="22dp"
-            app:iconTint="?attr/colorOnSurface" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLatencyDash"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:icon="@drawable/ic_bolt"
-            app:iconSize="22dp"
-            app:iconTint="?attr/colorOnSurface" />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRefreshDash"
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="48dp"
@@ -316,16 +298,49 @@
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
-        <!-- FLOATING ACTION BUTTON -->
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/btnOpenFullWeb"
+        <!-- FAB STACK -->
+        <LinearLayout
+            android:id="@+id/fabStack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end"
             android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:text="OPEN PANEL"
-            app:icon="@drawable/ic_dashboard"
-            style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary" />
+            android:layout_margin="16dp">
+
+            <!-- RULES FAB -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnRulesDash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:contentDescription="Rules"
+                app:srcCompat="@drawable/ic_rules"
+                app:fabSize="mini"
+                app:tint="?attr/colorOnSecondaryContainer"
+                app:backgroundTint="?attr/colorSecondaryContainer" />
+
+            <!-- LATENCY FAB -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnLatencyDash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:contentDescription="Test Latency"
+                app:srcCompat="@drawable/ic_bolt"
+                app:fabSize="mini"
+                app:tint="?attr/colorOnSecondaryContainer"
+                app:backgroundTint="?attr/colorSecondaryContainer" />
+
+            <!-- OPEN PANEL FAB -->
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/btnOpenFullWeb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OPEN PANEL"
+                app:icon="@drawable/ic_dashboard"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary" />
+        </LinearLayout>
 
         <!-- WEBVIEW CONTAINER (OVERLAY) -->
         <com.google.android.material.card.MaterialCardView
