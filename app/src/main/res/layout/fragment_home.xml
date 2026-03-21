@@ -126,48 +126,5 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- MD3 BUTTON GROUP (STABLE) -->
-    <LinearLayout
-        android:id="@+id/controlsGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/startBtn"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="2dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.StartButton"
-            android:text="START"
-            android:textSize="12sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/restartBtn"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.MiddleButton"
-            android:text="RESTART"
-            android:textSize="12sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/stopBtn"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:layout_marginStart="2dp"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.EndButton"
-            android:text="STOP"
-            android:textSize="12sp" />
-
-    </LinearLayout>
 
 </LinearLayout>

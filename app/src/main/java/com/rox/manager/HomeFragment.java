@@ -19,7 +19,6 @@ import android.content.SharedPreferences;
 
 public class HomeFragment extends Fragment {
     private TextView statusText, coreText, runtimeText, cpuText, ramText, idCoreText;
-    private MaterialButton startBtn, stopBtn, restartBtn;
     private boolean isActionRunning = false;
     private SharedPreferences prefs;
     
@@ -44,25 +43,7 @@ public class HomeFragment extends Fragment {
         ramText = view.findViewById(R.id.ramText);
         idCoreText = view.findViewById(R.id.idCoreText);
 
-        startBtn = view.findViewById(R.id.startBtn);
-        restartBtn = view.findViewById(R.id.restartBtn);
-        stopBtn = view.findViewById(R.id.stopBtn);
-
         refreshAllInfo();
-
-        startBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service start && /data/adb/box/scripts/box.iptables enable && " +
-                "(pkill -f inotifyd; " +
-                "inotifyd /data/adb/box/scripts/box.inotify /data/adb/modules/box_for_root >/dev/null 2>&1 & " +
-                "inotifyd /data/adb/box/scripts/net.inotify /data/misc/net >/dev/null 2>&1 & " +
-                "inotifyd /data/adb/box/scripts/ctr.inotify /data/misc/net/rt_tables >/dev/null 2>&1 & " +
-                "/data/adb/box/scripts/net.inotify w manual)", "Starting Box..."));
-        restartBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.service restart && " +
-                "(pkill -f inotifyd; " +
-                "inotifyd /data/adb/box/scripts/box.inotify /data/adb/modules/box_for_root >/dev/null 2>&1 & " +
-                "inotifyd /data/adb/box/scripts/net.inotify /data/misc/net >/dev/null 2>&1 & " +
-                "inotifyd /data/adb/box/scripts/ctr.inotify /data/misc/net/rt_tables >/dev/null 2>&1 & " +
-                "/data/adb/box/scripts/net.inotify w manual)", "Restarting Box..."));
-        stopBtn.setOnClickListener(v -> runRootAction("/data/adb/box/scripts/box.iptables disable && /data/adb/box/scripts/box.service stop && pkill -f inotifyd", "Stopping Box..."));
 
         return view;
     }
@@ -169,20 +150,12 @@ public class HomeFragment extends Fragment {
                             long seconds = parseETimeToSeconds(etime);
                             startTimer(seconds);
                             coreText.setText(core.toUpperCase() + " (" + pid + ")");
-                            
-                            startBtn.setEnabled(false);
-                            restartBtn.setEnabled(true);
-                            stopBtn.setEnabled(true);
                         } else {
                             statusText.setText(getString(R.string.status_stopped));
                             statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText.getContext(), android.R.attr.colorError, android.graphics.Color.RED));
                             runtimeText.setText("00:00:00");
                             stopTimer();
                             coreText.setText("---");
-                            
-                            startBtn.setEnabled(true);
-                            restartBtn.setEnabled(false);
-                            stopBtn.setEnabled(false);
                         }
                     }
                 });
@@ -261,7 +234,6 @@ public class HomeFragment extends Fragment {
     private void runRootAction(String command, String msg) {
         if (isActionRunning) return;
         isActionRunning = true;
-        toggleButtons(false);
         
         statusText.setText(msg);
         statusText.setTextColor(com.google.android.material.color.MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOutline));
@@ -283,15 +255,8 @@ public class HomeFragment extends Fragment {
                     if (!isAdded()) return;
                     refreshAllInfo();
                     isActionRunning = false;
-                    toggleButtons(true);
                 });
             }
         });
-    }
-
-    private void toggleButtons(boolean enabled) {
-        startBtn.setEnabled(enabled);
-        restartBtn.setEnabled(enabled);
-        stopBtn.setEnabled(enabled);
     }
 }

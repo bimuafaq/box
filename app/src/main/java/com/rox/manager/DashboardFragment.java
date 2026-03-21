@@ -37,7 +37,9 @@ import org.json.JSONArray;
 import java.util.Iterator;
 
 public class DashboardFragment extends Fragment {
-    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, cardRules, clashStatsCard;
+    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, cardRules, clashStatsCard, btnService;
+    private boolean isServiceRunning = false;
+    private boolean isActionRunning = false;
     private WebView webView;
     private TextView title, labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private OnBackPressedCallback backPressedCallback;
@@ -104,10 +106,25 @@ public class DashboardFragment extends Fragment {
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
         btnRefresh = view.findViewById(R.id.btnRefreshDash);
         btnLatency = view.findViewById(R.id.btnLatencyDash);
+        btnService = view.findViewById(R.id.btnService);
         View btnRules = view.findViewById(R.id.btnRulesDash);
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         
         setupWebView();
+
+        btnService.setOnClickListener(v -> {
+            if (isActionRunning) return;
+            if (isServiceRunning) {
+                runServiceAction("/data/adb/box/scripts/box.iptables disable && /data/adb/box/scripts/box.service stop && pkill -f inotifyd", "Stopping Box...");
+            } else {
+                runServiceAction("/data/adb/box/scripts/box.service start && /data/adb/box/scripts/box.iptables enable && " +
+                        "(pkill -f inotifyd; " +
+                        "inotifyd /data/adb/box/scripts/box.inotify /data/adb/modules/box_for_root >/dev/null 2>&1 & " +
+                        "inotifyd /data/adb/box/scripts/net.inotify /data/misc/net >/dev/null 2>&1 & " +
+                        "inotifyd /data/adb/box/scripts/ctr.inotify /data/misc/net/rt_tables >/dev/null 2>&1 & " +
+                        "/data/adb/box/scripts/net.inotify w manual)", "Starting Box...");
+            }
+        });
 
         btnRules.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), RulesActivity.class);
@@ -176,6 +193,7 @@ public class DashboardFragment extends Fragment {
     public void onResume() {
         super.onResume();
         showClashStats = prefs.getBoolean("enable_clash_api", false);
+        refreshServiceStatus();
         
         if (initialLayout.getVisibility() == View.VISIBLE) {
             // Button Open Dashboard should always be visible in the header
@@ -198,6 +216,55 @@ public class DashboardFragment extends Fragment {
                 stopStats();
             }
         }
+    }
+
+    private void refreshServiceStatus() {
+        ThreadManager.runOnShell(() -> {
+            String pid = ShellHelper.runRootCommand("cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"");
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
+                    isServiceRunning = pid != null && pid.trim().matches("\\d+") && !pid.trim().equals("0");
+                    com.google.android.material.floatingactionbutton.FloatingActionButton fab = (com.google.android.material.floatingactionbutton.FloatingActionButton) btnService;
+                    if (isServiceRunning) {
+                        fab.setImageResource(R.drawable.ic_stop);
+                        fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(com.google.android.material.color.MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
+                        fab.setImageTintList(android.content.res.ColorStateList.valueOf(com.google.android.material.color.MaterialColors.getColor(fab, com.google.android.material.R.attr.colorOnErrorContainer)));
+                    } else {
+                        fab.setImageResource(R.drawable.ic_play_arrow);
+                        fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(com.google.android.material.color.MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
+                        fab.setImageTintList(android.content.res.ColorStateList.valueOf(com.google.android.material.color.MaterialColors.getColor(fab, com.google.android.material.R.attr.colorOnPrimaryContainer)));
+                    }
+                });
+            }
+        });
+    }
+
+    private void runServiceAction(String command, String msg) {
+        if (isActionRunning) return;
+        isActionRunning = true;
+        btnService.setEnabled(false);
+
+        if (getView() != null && getActivity() != null) {
+            Snackbar.make(getView(), msg, Snackbar.LENGTH_SHORT).show();
+        }
+
+        ThreadManager.runOnShell(() -> {
+            ShellHelper.runRootCommandOneShot(command);
+            try { Thread.sleep(2200); } catch (InterruptedException ignored) {}
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
+                    refreshServiceStatus();
+                    if (showClashStats) {
+                        refreshProxies();
+                        refreshClashStats();
+                    }
+                    isActionRunning = false;
+                    btnService.setEnabled(true);
+                });
+            }
+        });
     }
 
     private void refreshProxies() {
