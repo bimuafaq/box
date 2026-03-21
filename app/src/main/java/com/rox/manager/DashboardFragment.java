@@ -108,9 +108,15 @@ public class DashboardFragment extends Fragment {
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
         btnRefresh = view.findViewById(R.id.btnRefreshDash);
         btnLatency = view.findViewById(R.id.btnLatencyDash);
+        MaterialButton btnRules = view.findViewById(R.id.btnRulesDash);
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         
         setupWebView();
+
+        btnRules.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), RulesActivity.class);
+            startActivity(intent);
+        });
 
         btnRefresh.setOnClickListener(v -> {
             // Visual feedback: Rotate icon

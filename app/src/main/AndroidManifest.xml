@@ -26,6 +26,7 @@
         <activity android:name=".WebViewActivity" android:label="Dashboard" />
         <activity android:name=".FileEditorActivity" android:label="Editor" />
         <activity android:name=".ConnectionsActivity" android:label="Connections" />
+        <activity android:name=".RulesActivity" android:label="Rules" />
 
     </application>
 

@@ -58,6 +58,15 @@
             android:textColor="?attr/colorOnSurface" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRulesDash"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:icon="@drawable/ic_rules"
+            app:iconSize="22dp"
+            app:iconTint="?attr/colorOnSurface" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLatencyDash"
             style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="48dp"
