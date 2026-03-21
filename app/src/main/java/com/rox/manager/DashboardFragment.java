@@ -395,7 +395,31 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onDestroyView() {
         stopStats();
-        if (webView != null) webView.destroy();
+        if (webView != null) {
+            webView.stopLoading();
+            webView.clearHistory();
+            webView.removeAllViews();
+            webView.destroy();
+            webView = null;
+        }
+        // Nullify all view references to prevent leaks
+        initialLayout = null;
+        webViewContainer = null;
+        webHeader = null;
+        emptyStatsView = null;
+        dashHeader = null;
+        btnLatency = null;
+        btnOpen = null;
+        cardRules = null;
+        clashStatsCard = null;
+        title = null;
+        labelProxyGroups = null;
+        clashConnectionsText = null;
+        clashDownloadText = null;
+        clashUploadText = null;
+        proxyGroupsContainer = null;
+        btnRefresh = null;
+        
         super.onDestroyView();
     }
 

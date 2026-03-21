@@ -18,11 +18,16 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.os.Handler;
+import android.os.Looper;
+
 public class RulesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RuleAdapter adapter;
     private SwipeRefreshLayout swipeRefresh;
     private SharedPreferences prefs;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private boolean isRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +55,30 @@ public class RulesActivity extends AppCompatActivity {
         
         refresh();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isRunning = true;
+        handler.post(refreshRunnable);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isRunning = false;
+        handler.removeCallbacks(refreshRunnable);
+    }
+
+    private final Runnable refreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isRunning) {
+                refresh();
+                handler.postDelayed(this, 10000);
+            }
+        }
+    };
 
     private void refresh() {
         swipeRefresh.setRefreshing(true);

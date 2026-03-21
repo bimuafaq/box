@@ -183,8 +183,9 @@ public class ShellHelper {
      */
     public static String runCommand(String command) {
         StringBuilder output = new StringBuilder();
+        Process process = null;
         try {
-            Process process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
+            process = Runtime.getRuntime().exec(new String[]{"sh", "-c", command});
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
@@ -195,6 +196,8 @@ public class ShellHelper {
             return output.toString().trim();
         } catch (Exception e) {
             return "Error: " + e.getMessage();
+        } finally {
+            if (process != null) process.destroy();
         }
     }
 }
