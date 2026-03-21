@@ -78,15 +78,6 @@
             app:iconSize="22dp"
             app:iconTint="?attr/colorOnSurface"
             android:visibility="gone" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRefreshDash"
-            style="@style/Widget.Material3.Button.IconButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            app:icon="@drawable/ic_refresh"
-            app:iconSize="22dp"
-            app:iconTint="?attr/colorOnSurface" />
     </LinearLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

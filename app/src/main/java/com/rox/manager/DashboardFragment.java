@@ -48,7 +48,6 @@ public class DashboardFragment extends Fragment {
     private WebView webView;
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private LinearLayout proxyGroupsContainer;
-    private MaterialButton btnRefresh;
     private FloatingActionButton btnUpdateProviders;
     
     // Logic State
@@ -122,7 +121,6 @@ public class DashboardFragment extends Fragment {
         ramText = view.findViewById(R.id.ramText);
 
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
-        btnRefresh = view.findViewById(R.id.btnRefreshDash);
         btnLatency = view.findViewById(R.id.btnLatencyDash);
         btnService = view.findViewById(R.id.btnService);
         
@@ -143,7 +141,6 @@ public class DashboardFragment extends Fragment {
 
         btnService.setOnClickListener(v -> handleServiceToggle());
         btnLatency.setOnClickListener(v -> testAllProxiesLatency());
-        btnRefresh.setOnClickListener(v -> triggerManualRefresh(v));
         
         btnUpdateProviders.setOnClickListener(v -> updateAllProviders(v));
         
@@ -191,11 +188,6 @@ public class DashboardFragment extends Fragment {
         } else {
             runServiceAction("/data/adb/box/scripts/box.service start && /data/adb/box/scripts/box.iptables enable && (pkill -f inotifyd; inotifyd /data/adb/box/scripts/box.inotify /data/adb/modules/box_for_root >/dev/null 2>&1 & inotifyd /data/adb/box/scripts/net.inotify /data/misc/net >/dev/null 2>&1 & inotifyd /data/adb/box/scripts/ctr.inotify /data/misc/net/rt_tables >/dev/null 2>&1 & /data/adb/box/scripts/net.inotify w manual)", "Starting...");
         }
-    }
-
-    private void triggerManualRefresh(View v) {
-        v.animate().rotationBy(360).setDuration(500).start();
-        fastPollRemaining = 5;
     }
 
     private void toggleWebView(boolean open) {
@@ -639,7 +631,6 @@ private void testAllProxiesLatency() {
         initialLayout = webViewContainer = webHeader = emptyStatsView = dashHeader = btnLatency = btnOpen = cardRules = clashStatsCard = btnService = null;
         statusText = coreText = runtimeText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
         proxyGroupsContainer = null;
-        btnRefresh = null;
         btnUpdateProviders = null;
     }
 }
