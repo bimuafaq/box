@@ -128,6 +128,7 @@ public class DashboardFragment extends Fragment {
         btnService = view.findViewById(R.id.btnService);
         
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
+        View btnRefreshWeb = view.findViewById(R.id.btnRefreshWeb);
         View btnRules = view.findViewById(R.id.btnRulesDash);
         View cardConnections = view.findViewById(R.id.cardConnections);
 
@@ -136,6 +137,11 @@ public class DashboardFragment extends Fragment {
         // Listeners
         cardConnections.setOnClickListener(v -> startActivity(new Intent(getActivity(), ConnectionsActivity.class)));
         btnRules.setOnClickListener(v -> startActivity(new Intent(getActivity(), RulesActivity.class)));
+        btnRefreshWeb.setOnClickListener(v -> {
+            v.animate().rotationBy(360).setDuration(500).start();
+            if (webView != null) webView.reload();
+        });
+
         
         btnService.setOnClickListener(v -> handleServiceToggle());
         btnLatency.setOnClickListener(v -> testAllProxiesLatency());
@@ -417,15 +423,36 @@ public class DashboardFragment extends Fragment {
             if (res == null || res.startsWith("Error")) return;
             try {
                 JSONObject proxies = new JSONObject(res).getJSONObject("proxies");
-                StringBuilder batch = new StringBuilder();
+                java.util.HashSet<String> uniqueProxies = new java.util.HashSet<>();
+                
                 Iterator<String> keys = proxies.keys();
                 while (keys.hasNext()) {
                     String name = keys.next();
-                    if (name.equalsIgnoreCase("DIRECT") || name.equalsIgnoreCase("REJECT")) continue;
-                    batch.append("curl -s -X GET \"").append(getApiUrl()).append("/proxies/").append(Uri.encode(name))
-                         .append("/delay?timeout=5000&url=http://www.gstatic.com/generate_204\" & ");
+                    JSONObject p = proxies.getJSONObject(name);
+                    String type = p.optString("type", "");
+                    
+                    if (type.equals("Selector") || type.equals("URLTest") || type.equals("Fallback")) {
+                        JSONArray all = p.optJSONArray("all");
+                        if (all != null) {
+                            for (int i = 0; i < all.length(); i++) uniqueProxies.add(all.getString(i));
+                        }
+                    } else {
+                        uniqueProxies.add(name);
+                    }
                 }
-                ShellHelper.runCommand(batch.append("wait").toString());
+
+                StringBuilder batch = new StringBuilder();
+                int count = 0;
+                for (String proxyName : uniqueProxies) {
+                    if (proxyName.equalsIgnoreCase("DIRECT") || proxyName.equalsIgnoreCase("REJECT")) continue;
+                    
+                    batch.append("curl -s -X GET \"").append(getApiUrl()).append("/proxies/").append(Uri.encode(proxyName))
+                         .append("/delay?timeout=5000&url=http://www.gstatic.com/generate_204\" & ");
+                    
+                    count++;
+                    if (count % 15 == 0) batch.append("wait; ");
+                }
+                if (batch.length() > 0) ShellHelper.runCommand(batch.append("wait").toString());
             } catch (Exception ignored) {}
         });
     }
