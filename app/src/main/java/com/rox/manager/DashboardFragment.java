@@ -430,8 +430,8 @@ public class DashboardFragment extends Fragment {
                 JSONArray history = p.optJSONArray("history");
                 if (history != null && history.length() > 0) {
                     int delay = history.getJSONObject(history.length() - 1).optInt("delay", 0);
-                    latencyTxt.setText(delay > 0 ? delay + " ms" : "err");
-                } else latencyTxt.setText("---");
+                    latencyTxt.setText(delay > 0 ? delay + " ms" : "- ms");
+                } else latencyTxt.setText("- ms");
             }
 
             if (proxyName.equals(selected)) {
