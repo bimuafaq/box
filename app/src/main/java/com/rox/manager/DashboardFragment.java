@@ -264,8 +264,10 @@ public class DashboardFragment extends Fragment {
 
     private void testAllProxiesLatency() {
         if (!showClashStats) return;
-        fastPollRemaining = 10;
-        if (getView() != null) Snackbar.make(getView(), "Direct testing all groups...", Snackbar.LENGTH_SHORT).show();
+        
+        // Porting YACD behavior: test ALL unique proxies found in all groups
+        fastPollRemaining = 20; // 10 seconds of fast polling (20 * 500ms)
+        if (getView() != null) Snackbar.make(getView(), "Testing all proxies (YACD style)...", Snackbar.LENGTH_SHORT).show();
 
         ThreadManager.runOnShell(() -> {
             String apiUrl = getApiUrl();
@@ -274,21 +276,49 @@ public class DashboardFragment extends Fragment {
                 try {
                     JSONObject root = new JSONObject(res);
                     JSONObject proxies = root.getJSONObject("proxies");
-                    StringBuilder batch = new StringBuilder();
+                    java.util.HashSet<String> uniqueProxies = new java.util.HashSet<>();
                     
+                    // Collect all proxy names from all groups
                     Iterator<String> keys = proxies.keys();
                     while (keys.hasNext()) {
                         String name = keys.next();
                         JSONObject p = proxies.getJSONObject(name);
-                        String type = p.getString("type");
+                        String type = p.optString("type", "");
+                        
+                        // If it's a group, collect its members
                         if (type.equals("Selector") || type.equals("URLTest") || type.equals("Fallback")) {
-                            batch.append("curl -s -X GET --connect-timeout 1 \"")
-                                 .append(apiUrl).append("/proxies/").append(Uri.encode(name))
-                                 .append("/delay?timeout=3000&url=http://www.gstatic.com/generate_204\" & ");
+                            JSONArray all = p.optJSONArray("all");
+                            if (all != null) {
+                                for (int i = 0; i < all.length(); i++) {
+                                    uniqueProxies.add(all.getString(i));
+                                }
+                            }
+                        } else {
+                            // It's a single proxy
+                            uniqueProxies.add(name);
+                        }
+                    }
+
+                    StringBuilder batch = new StringBuilder();
+                    int count = 0;
+                    for (String proxyName : uniqueProxies) {
+                        // Skip DIRECT and REJECT as they don't have delay endpoints
+                        if (proxyName.equalsIgnoreCase("DIRECT") || proxyName.equalsIgnoreCase("REJECT")) continue;
+                        
+                        batch.append("curl -s -X GET --connect-timeout 2 \"")
+                             .append(apiUrl).append("/proxies/").append(Uri.encode(proxyName))
+                             .append("/delay?timeout=5000&url=http://www.gstatic.com/generate_204\" & ");
+                        
+                        count++;
+                        // Limit batch size to avoid overwhelming the shell
+                        if (count % 15 == 0) {
+                            batch.append("wait; ");
                         }
                     }
                     if (batch.length() > 0) ShellHelper.runCommand(batch.toString() + " wait");
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    Log.e("Dashboard", "Latency test error", e);
+                }
             }
         });
     }
