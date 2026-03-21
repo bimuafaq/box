@@ -191,13 +191,15 @@ public class FilesFragment extends Fragment {
     }
 
     private void loadFiles() {
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
+            // Using a single lightweight shell command to get raw data, but processing completely in Java
+            // This prevents the UI/Shell thread from locking up when dealing with many files.
             String cmd = "stat -c '%F|%s|%Y|%n' \"" + currentPath + "\"/* \"" + currentPath + "\"/.* 2>/dev/null";
             String result = ShellHelper.runRootCommand(cmd);
             
             List<FileData> list = new ArrayList<>();
 
-            if (result != null && !result.isEmpty()) {
+            if (result != null && !result.isEmpty() && !result.startsWith("Error")) {
                 String[] lines = result.split("\n");
                 for (String line : lines) {
                     if (line.trim().isEmpty() || !line.contains("|")) continue;
@@ -303,7 +305,7 @@ public class FilesFragment extends Fragment {
 
     private void saveFile() {
         String content = codeEditor.getText().toString();
-        ThreadManager.runOnShell(() -> {
+        ThreadManager.runBackgroundTask(() -> {
             boolean success = ShellHelper.writeRootFileDirect(editingFilePath, content);
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
@@ -315,8 +317,8 @@ public class FilesFragment extends Fragment {
     }
 
     private void executeCommand(String cmd, String successMsg) {
-        ThreadManager.runOnShell(() -> {
-            ShellHelper.runRootCommand(cmd);
+        ThreadManager.runBackgroundTask(() -> {
+            ShellHelper.runRootCommandOneShot(cmd);
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
