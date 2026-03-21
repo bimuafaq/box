@@ -119,12 +119,13 @@ public class ShellHelper {
 
     /**
      * Bridge File Pattern: Safely reads protected files by copying to cache.
+     * Optimized to use persistent shell.
      */
     public static String readRootFileDirect(String path) {
         if (appCacheDir == null) return null;
         File bridge = new File(appCacheDir, "bridge_read.txt");
         
-        runRootCommandOneShot("cp \"" + path + "\" \"" + bridge.getAbsolutePath() + "\" && chmod 666 \"" + bridge.getAbsolutePath() + "\"");
+        runRootCommand("cp \"" + path + "\" \"" + bridge.getAbsolutePath() + "\" && chmod 666 \"" + bridge.getAbsolutePath() + "\"");
         
         if (!bridge.exists()) return null;
         
@@ -147,7 +148,7 @@ public class ShellHelper {
             try (FileOutputStream fos = new FileOutputStream(bridge)) {
                 fos.write(content.getBytes(StandardCharsets.UTF_8));
             }
-            String res = runRootCommandOneShot("cp \"" + bridge.getAbsolutePath() + "\" \"" + path + "\" && rm \"" + bridge.getAbsolutePath() + "\"");
+            String res = runRootCommand("cp \"" + bridge.getAbsolutePath() + "\" \"" + path + "\" && rm \"" + bridge.getAbsolutePath() + "\"");
             return res != null && !res.startsWith("Error:");
         } catch (Exception e) {
             Log.e(TAG, "Bridge write failed", e);

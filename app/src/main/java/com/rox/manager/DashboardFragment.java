@@ -58,6 +58,7 @@ public class DashboardFragment extends Fragment {
     private long currentRuntimeSeconds = 0;
     private long statsCounter = 0;
     private int fastPollRemaining = 0;
+    private String cachedCoreName = "";
     
     private SharedPreferences prefs;
     private OnBackPressedCallback backPressedCallback;
@@ -71,26 +72,23 @@ public class DashboardFragment extends Fragment {
         public void run() {
             if (!isPollingActive) return;
 
-            // 1. Service Status & Runtime (Every 1s)
-            refreshServiceStatus();
+            // Consolidated Service Status & Heavy Stats
+            refreshAllServiceStats();
+
             if (isServiceRunning) {
                 currentRuntimeSeconds++;
                 updateRuntimeUI(currentRuntimeSeconds);
             }
 
-            // 2. Heavy Stats (Every 2s, or 500ms if fast polling)
-            boolean isFastPoll = fastPollRemaining > 0;
-            if (isFastPoll || statsCounter % 2 == 0) {
-                refreshServiceCoreStats();
-                if (showClashStats) {
-                    refreshClashStats();
-                    refreshProxies();
-                }
-                if (isFastPoll) fastPollRemaining--;
+            if (showClashStats && (fastPollRemaining > 0 || statsCounter % 2 == 0)) {
+                refreshClashStats();
+                refreshProxies();
             }
 
+            if (fastPollRemaining > 0) fastPollRemaining--;
+            
             statsCounter++;
-            pollingHandler.postDelayed(this, isFastPoll ? 500 : 1000);
+            pollingHandler.postDelayed(this, fastPollRemaining > 0 ? 500 : 1000);
         }
     };
 
@@ -265,24 +263,56 @@ public class DashboardFragment extends Fragment {
         if (!showClashStats) btnUpdateProviders.setVisibility(View.GONE);
     }
 
-    private void refreshServiceStatus() {
-        if (isActionRunning) return; // Don't overwrite starting/stopping text
+    private void refreshAllServiceStats() {
+        if (isActionRunning) return; 
+        
         ThreadManager.runOnShell(() -> {
+            // 1. Efficiency: Cache core name to avoid repeated grep
+            if (cachedCoreName.isEmpty() || statsCounter % 30 == 0) {
+                String settings = ShellHelper.readRootFileDirect("/data/adb/box/settings.ini");
+                if (settings != null) {
+                    for (String line : settings.split("\n")) {
+                        if (line.trim().startsWith("bin_name=")) {
+                            cachedCoreName = line.split("=", 2)[1].replace("\"", "").trim();
+                            break;
+                        }
+                    }
+                }
+                if (cachedCoreName.isEmpty()) cachedCoreName = "clash";
+            }
+
+            // 2. Efficiency: Single shell command string to get ALL data (PID, ETIME, RSS, CPU)
             String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
-                         "CORE=$(grep '^bin_name=' /data/adb/box/settings.ini | cut -d '\"' -f 2); " +
-                         "ETIME=$(ps -p $PID -o etime= 2>/dev/null || echo \"00:00\"); " +
-                         "echo \"$PID|$CORE|$ETIME\"";
+                         "if [ \"$PID\" != \"0\" ]; then " +
+                         "  ETIME=$(ps -p $PID -o etime= 2>/dev/null || echo \"00:00\"); " +
+                         "  RSS=$(grep VmRSS /proc/$PID/status 2>/dev/null | awk '{print $2}' || echo \"0\"); " +
+                         "  CPU=$(ps -p $PID -o %cpu= 2>/dev/null || echo \"0\"); " +
+                         "  echo \"$PID|$ETIME|$RSS|$CPU\"; " +
+                         "else echo \"0|00:00|0|0\"; fi";
+            
             String result = ShellHelper.runRootCommand(cmd);
             
             runOnUI(() -> {
                 if (result != null && result.contains("|")) {
                     String[] parts = result.split("\\|");
                     String pid = parts[0].trim();
-                    String core = (parts.length > 1) ? parts[1].trim() : "---";
-                    String etime = (parts.length > 2) ? parts[2].trim() : "00:00";
+                    String etime = (parts.length > 1) ? parts[1].trim() : "00:00";
+                    String rssKbStr = (parts.length > 2) ? parts[2].trim() : "0";
+                    String cpu = (parts.length > 3) ? parts[3].trim() : "0";
 
-                    isServiceRunning = pid.matches("\\d+") && !pid.equals("0");
-                    updateServiceUI(isServiceRunning, core, pid, etime);
+                    isServiceRunning = !pid.equals("0");
+                    updateServiceUI(isServiceRunning, cachedCoreName, pid, etime);
+                    
+                    if (isServiceRunning) {
+                        try {
+                            long rssKb = Long.parseLong(rssKbStr);
+                            ramText.setText(rssKb >= 1024 ? (rssKb / 1024) + " MB" : rssKb + " KB");
+                            cpuText.setText(cpu.isEmpty() ? "0%" : cpu + "%");
+                        } catch (Exception ignored) {}
+                    } else {
+                        ramText.setText("0 MB");
+                        cpuText.setText("0%");
+                    }
                 }
             });
         });
@@ -305,31 +335,6 @@ public class DashboardFragment extends Fragment {
             fab.setImageResource(R.drawable.ic_play_arrow);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
         }
-    }
-
-    private void refreshServiceCoreStats() {
-        ThreadManager.runOnShell(() -> {
-            String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
-                         "if [ \"$PID\" != \"0\" ]; then " +
-                         "  RSS=$(grep VmRSS /proc/$PID/status | awk '{print $2}'); " +
-                         "  CPU=$(ps -p $PID -o %cpu=); " +
-                         "  CORE_ID=$(awk '{print $39}' /proc/$PID/stat); " +
-                         "  echo \"$RSS|$CPU|$CORE_ID\"; " +
-                         "else echo \"0|0|0\"; fi";
-            String res = ShellHelper.runRootCommand(cmd);
-            runOnUI(() -> {
-                if (res != null && res.contains("|")) {
-                    String[] parts = res.split("\\|");
-                    try {
-                        long rssKb = Long.parseLong(parts[0].trim());
-                        String cpu = parts[1].trim();
-                        String coreId = parts[2].trim();
-                        ramText.setText(rssKb > 0 ? (rssKb >= 1024 ? (rssKb / 1024) + " MB" : rssKb + " KB") : "0 MB");
-                        cpuText.setText(cpu.isEmpty() ? "0%" : cpu + "%");
-                    } catch (Exception ignored) {}
-                }
-            });
-        });
     }
 
     private void refreshClashStats() {
@@ -526,7 +531,7 @@ public class DashboardFragment extends Fragment {
             try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
             runOnUI(() -> {
                 isActionRunning = false;
-                refreshServiceStatus();
+                refreshAllServiceStats();
                 btnService.setEnabled(true);
             });
         });
