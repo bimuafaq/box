@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     android:background="?attr/android:windowBackground">
 
     <!-- DASHBOARD TOOLBAR (Outside Card) -->
@@ -14,6 +13,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
         android:paddingBottom="12dp"
         android:visibility="gone">
         
@@ -53,9 +54,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
         android:paddingTop="16dp"
-        android:paddingBottom="12dp"
-        android:paddingStart="4dp">
+        android:paddingBottom="12dp">
         
         <TextView
             android:id="@+id/dashTitle"
@@ -96,6 +97,7 @@
             android:id="@+id/initialLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingHorizontal="12dp"
             android:scrollbars="none">
 
             <LinearLayout
