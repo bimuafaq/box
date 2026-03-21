@@ -161,9 +161,9 @@ public class DashboardFragment extends Fragment {
             webViewContainer.setVisibility(View.GONE);
             initialLayout.setVisibility(View.VISIBLE);
             dashHeader.setVisibility(View.VISIBLE);
+            btnOpen.setVisibility(View.VISIBLE);
             if (showClashStats) {
                 btnLatency.setVisibility(View.VISIBLE);
-                btnOpen.setVisibility(View.VISIBLE);
             }
             webView.loadUrl("about:blank");
             if (backPressedCallback != null) backPressedCallback.setEnabled(false);
@@ -179,8 +179,8 @@ public class DashboardFragment extends Fragment {
         showClashStats = prefs.getBoolean("enable_clash_api", false);
         
         if (initialLayout.getVisibility() == View.VISIBLE) {
-            // Button Open Dashboard should always be visible if the feature is enabled in settings
-            btnOpen.setVisibility(showClashStats ? View.VISIBLE : View.GONE);
+            // Button Open Dashboard should always be visible in the header
+            btnOpen.setVisibility(View.VISIBLE);
             
             if (showClashStats) {
                 clashStatsCard.setVisibility(View.VISIBLE);
