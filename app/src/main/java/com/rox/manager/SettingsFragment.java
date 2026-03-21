@@ -96,44 +96,90 @@ public class SettingsFragment extends Fragment {
     }
 
     private void loadModuleSettings() {
-        ThreadManager.runOnShell(() -> {
-            String ipv6 = ShellHelper.runRootCommand("grep '^ipv6=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
-            String binName = ShellHelper.runRootCommand("grep '^bin_name=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
-            String netMode = ShellHelper.runRootCommand("grep '^network_mode=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
-            String clashOpt = ShellHelper.runRootCommand("grep '^xclash_option=' /data/adb/box/settings.ini | cut -d '\"' -f 2");
-            
-            // Read QUIC from box.iptables
-            String quicValue = ShellHelper.runRootCommand("grep '^quic=' /data/adb/box/scripts/box.iptables | cut -d '\"' -f 2");
+        ThreadManager.runBackgroundTask(() -> {
+            String settingsContent = ShellHelper.readRootFileDirect("/data/adb/box/settings.ini");
+            String iptablesContent = ShellHelper.readRootFileDirect("/data/adb/box/scripts/box.iptables");
 
-            if (isAdded() && getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    if (!isAdded()) return;
-                    isUpdatingUI = true;
-                    switchIpv6.setChecked("true".equalsIgnoreCase(ipv6));
-                    switchQuic.setChecked("disable".equalsIgnoreCase(quicValue));
-                    
-                    currentBinNameText.setText(binName.isEmpty() ? "clash" : binName);
-                    currentNetworkModeText.setText(netMode.isEmpty() ? "tproxy" : netMode);
-                    currentClashOptionText.setText(clashOpt.isEmpty() ? "mihomo" : clashOpt);
-                    isUpdatingUI = false;
-                });
-            }
+            runOnUI(() -> {
+                if (settingsContent == null) return;
+                isUpdatingUI = true;
+                
+                String ipv6 = getValue(settingsContent, "ipv6");
+                String binName = getValue(settingsContent, "bin_name");
+                String netMode = getValue(settingsContent, "network_mode");
+                String clashOpt = getValue(settingsContent, "xclash_option");
+                String quicValue = getValue(iptablesContent != null ? iptablesContent : "", "quic");
+
+                switchIpv6.setChecked("true".equalsIgnoreCase(ipv6));
+                switchQuic.setChecked("disable".equalsIgnoreCase(quicValue));
+                
+                currentBinNameText.setText(binName.isEmpty() ? "clash" : binName);
+                currentNetworkModeText.setText(netMode.isEmpty() ? "tproxy" : netMode);
+                currentClashOptionText.setText(clashOpt.isEmpty() ? "mihomo" : clashOpt);
+                isUpdatingUI = false;
+            });
         });
     }
 
+    private String getValue(String content, String key) {
+        for (String line : content.split("\n")) {
+            if (line.trim().startsWith(key + "=")) {
+                return line.split("=", 2)[1].replace("\"", "").trim();
+            }
+        }
+        return "";
+    }
+
     private void updateSettingsIni(String key, String value) {
-        ThreadManager.runOnShell(() -> {
-            ShellHelper.runRootCommand("sed -i 's/^" + key + "=.*/" + key + "=\"" + value + "\"/' /data/adb/box/settings.ini");
-            loadModuleSettings();
+        ThreadManager.runBackgroundTask(() -> {
+            String path = "/data/adb/box/settings.ini";
+            String content = ShellHelper.readRootFileDirect(path);
+            if (content == null) return;
+
+            StringBuilder newContent = new StringBuilder();
+            boolean found = false;
+            for (String line : content.split("\n")) {
+                if (line.trim().startsWith(key + "=")) {
+                    newContent.append(key).append("=\"").append(value).append("\"\n");
+                    found = true;
+                } else {
+                    newContent.append(line).append("\n");
+                }
+            }
+            if (!found) newContent.append(key).append("=\"").append(value).append("\"\n");
+
+            if (ShellHelper.writeRootFileDirect(path, newContent.toString())) {
+                runOnUI(this::loadModuleSettings);
+            }
         });
     }
 
     private void updateQuicSetting(boolean disable) {
         String val = disable ? "disable" : "enable";
-        ThreadManager.runOnShell(() -> {
-            ShellHelper.runRootCommand("sed -i 's/^quic=.*/quic=\"" + val + "\"/' /data/adb/box/scripts/box.iptables");
-            loadModuleSettings();
+        ThreadManager.runBackgroundTask(() -> {
+            String path = "/data/adb/box/scripts/box.iptables";
+            String content = ShellHelper.readRootFileDirect(path);
+            if (content == null) return;
+
+            StringBuilder newContent = new StringBuilder();
+            for (String line : content.split("\n")) {
+                if (line.trim().startsWith("quic=")) {
+                    newContent.append("quic=\"").append(val).append("\"\n");
+                } else {
+                    newContent.append(line).append("\n");
+                }
+            }
+
+            if (ShellHelper.writeRootFileDirect(path, newContent.toString())) {
+                runOnUI(this::loadModuleSettings);
+            }
         });
+    }
+
+    private void runOnUI(Runnable r) {
+        if (isAdded() && getActivity() != null) {
+            getActivity().runOnUiThread(r);
+        }
     }
 
     private void showBinNameDialog() {
