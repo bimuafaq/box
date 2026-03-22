@@ -437,6 +437,17 @@
             android:gravity="center_vertical">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnLatencyDash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="Test Latency"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_bolt"
+                app:tint="?attr/colorOnPrimaryContainer"
+                app:backgroundTint="?attr/colorPrimaryContainer" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnUpdateProviders"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -452,19 +463,8 @@
                 android:id="@+id/btnService"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
                 android:contentDescription="Start/Stop Service"
                 app:srcCompat="@drawable/ic_play_arrow"
-                app:tint="?attr/colorOnPrimaryContainer"
-                app:backgroundTint="?attr/colorPrimaryContainer" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/btnLatencyDash"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="Test Latency"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_bolt"
                 app:tint="?attr/colorOnPrimaryContainer"
                 app:backgroundTint="?attr/colorPrimaryContainer" />
         </LinearLayout>
