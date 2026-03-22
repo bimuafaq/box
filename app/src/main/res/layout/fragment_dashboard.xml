@@ -54,9 +54,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="32dp"
-        android:paddingBottom="12dp">
+        android:paddingEnd="16dp">
         
         <TextView
             android:id="@+id/dashTitle"
@@ -66,7 +64,10 @@
             android:text="@string/title_dashboard"
             android:textSize="26sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface" />
+            android:textColor="?attr/colorOnSurface"
+            android:paddingTop="32dp"
+            android:paddingBottom="12dp"
+            android:paddingStart="20dp" />
 
         <!-- OPEN PANEL BUTTON (NOW IN HEADER) -->
         <com.google.android.material.button.MaterialButton
