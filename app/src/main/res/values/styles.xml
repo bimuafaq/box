@@ -34,6 +34,13 @@
         <item name="shapeAppearance">@style/ShapeAppearance.SearchBar</item>
     </style>
 
+    <!-- Navigation Label Styles -->
+    <style name="TextAppearance.App.NavigationLabel" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
     <!-- Light Theme Material 3 -->
     <style name="Theme.OXController" parent="Theme.Material3.Light.NoActionBar">
         <!-- Transparent Status Bar -->

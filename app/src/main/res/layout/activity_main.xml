@@ -14,6 +14,8 @@
         android:visibility="gone"
         app:headerLayout="@layout/rail_header"
         app:labelVisibilityMode="labeled"
+        app:itemTextAppearanceActive="@style/TextAppearance.App.NavigationLabel"
+        app:itemTextAppearanceInactive="@style/TextAppearance.App.NavigationLabel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -38,6 +40,8 @@
         app:layout_constraintStart_toEndOf="@id/navigationRail"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
+        app:itemTextAppearanceActive="@style/TextAppearance.App.NavigationLabel"
+        app:itemTextAppearanceInactive="@style/TextAppearance.App.NavigationLabel"
         style="@style/Widget.Material3.BottomNavigationView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
