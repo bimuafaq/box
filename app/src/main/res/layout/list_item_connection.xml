@@ -68,17 +68,6 @@
                     android:layout_marginTop="4dp"
                     android:alpha="0.8" />
             </LinearLayout>
-            
-            <ImageView
-                android:id="@+id/btnCloseConn"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_close_material"
-                app:tint="?attr/colorError"
-                android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true"/>
         </LinearLayout>
 
         <LinearLayout

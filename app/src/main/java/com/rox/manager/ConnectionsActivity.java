@@ -26,6 +26,7 @@ public class ConnectionsActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isRunning = false;
+    private boolean isPausedByUser = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +39,7 @@ public class ConnectionsActivity extends AppCompatActivity {
         MaterialButton btnRefresh = findViewById(R.id.btnRefreshConns);
         MaterialButton btnBack = findViewById(R.id.btnBackConns);
         MaterialButton btnCloseAll = findViewById(R.id.btnCloseAllConns);
+        MaterialButton btnPause = findViewById(R.id.btnPauseConns);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ConnAdapter();
@@ -46,6 +48,22 @@ public class ConnectionsActivity extends AppCompatActivity {
         btnRefresh.setOnClickListener(v -> {
             v.animate().rotationBy(360).setDuration(500).start();
             refresh();
+        });
+        
+        btnPause.setOnClickListener(v -> {
+            isPausedByUser = !isPausedByUser;
+            if (isPausedByUser) {
+                isRunning = false;
+                handler.removeCallbacks(refreshRunnable);
+                btnPause.setIconResource(R.drawable.ic_play_arrow);
+                btnPause.setIconTint(android.content.res.ColorStateList.valueOf(com.google.android.material.color.MaterialColors.getColor(btnPause, android.R.attr.colorPrimary)));
+            } else {
+                isRunning = true;
+                refresh();
+                handler.postDelayed(refreshRunnable, 3000);
+                btnPause.setIconResource(R.drawable.ic_stop);
+                btnPause.setIconTint(android.content.res.ColorStateList.valueOf(com.google.android.material.color.MaterialColors.getColor(btnPause, com.google.android.material.R.attr.colorOnSurface)));
+            }
         });
         
         btnCloseAll.setOnClickListener(v -> closeAllConnections());
@@ -61,15 +79,8 @@ public class ConnectionsActivity extends AppCompatActivity {
         });
     }
 
-    private void closeConnection(String id) {
-        ThreadManager.runBackgroundTask(() -> {
-            String apiUrl = getApiUrl();
-            ClashApiHelper.delete(apiUrl + "/connections/" + id);
-            runOnUiThread(this::refresh);
-        });
-    }
-
     private void refresh() {
+        if (!isRunning && !isPausedByUser) return; // Prevent running if activity is paused, allow manual refresh if paused by user
         ThreadManager.runBackgroundTask(() -> {
             String apiUrl = getApiUrl();
             String res = ClashApiHelper.get(apiUrl + "/connections");
@@ -100,8 +111,10 @@ public class ConnectionsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        isRunning = true;
-        handler.post(refreshRunnable);
+        if (!isPausedByUser) {
+            isRunning = true;
+            handler.post(refreshRunnable);
+        }
     }
 
     @Override
@@ -141,7 +154,6 @@ public class ConnectionsActivity extends AppCompatActivity {
             try {
                 JSONObject item = data.get(position);
                 JSONObject metadata = item.getJSONObject("metadata");
-                String id = item.optString("id", "");
                 
                 String network = metadata.optString("network", "TCP").toUpperCase();
                 holder.network.setText(network);
@@ -176,10 +188,6 @@ public class ConnectionsActivity extends AppCompatActivity {
                 
                 holder.up.setText(formatSize(item.optLong("upload", 0)));
                 holder.down.setText(formatSize(item.optLong("download", 0)));
-
-                holder.closeBtn.setOnClickListener(v -> {
-                    if (!id.isEmpty()) closeConnection(id);
-                });
             } catch (Exception ignored) {}
         }
 
@@ -188,7 +196,6 @@ public class ConnectionsActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView network, host, meta, proxy, up, down;
-            View closeBtn;
             ViewHolder(View v) {
                 super(v);
                 network = v.findViewById(R.id.connNetwork);
@@ -197,7 +204,6 @@ public class ConnectionsActivity extends AppCompatActivity {
                 proxy = v.findViewById(R.id.connProxy);
                 up = v.findViewById(R.id.connUp);
                 down = v.findViewById(R.id.connDown);
-                closeBtn = v.findViewById(R.id.btnCloseConn);
             }
         }
     }
