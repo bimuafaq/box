@@ -56,7 +56,6 @@ public class DashboardFragment extends Fragment {
     private boolean showClashStats = false;
     private long currentRuntimeSeconds = 0;
     private long statsCounter = 0;
-    private int fastPollRemaining = 0;
     private String cachedCoreName = "";
     
     private SharedPreferences prefs;
@@ -79,15 +78,13 @@ public class DashboardFragment extends Fragment {
                 updateRuntimeUI(currentRuntimeSeconds);
             }
 
-            if (showClashStats && (fastPollRemaining > 0 || statsCounter % 2 == 0)) {
+            if (showClashStats && statsCounter % 2 == 0) {
                 refreshClashStats();
                 refreshProxies();
             }
 
-            if (fastPollRemaining > 0) fastPollRemaining--;
-            
             statsCounter++;
-            pollingHandler.postDelayed(this, fastPollRemaining > 0 ? 500 : 1000);
+            pollingHandler.postDelayed(this, 1000);
         }
     };
 
@@ -175,7 +172,6 @@ public class DashboardFragment extends Fragment {
                 }
                 runOnUI(() -> {
                     if (getView() != null) Snackbar.make(getView(), "Providers updated", Snackbar.LENGTH_SHORT).show();
-                    fastPollRemaining = 5;
                 });
             } catch (Exception ignored) {}
         });
@@ -529,11 +525,9 @@ public class DashboardFragment extends Fragment {
         });
     }
 private void testAllProxiesLatency() {
-    fastPollRemaining = 15;
     ThreadManager.runBackgroundTask(() -> {
         String apiUrl = getApiUrl();
-        String res = ClashApiHelper.get(apiUrl + "/proxies");
-        if (res == null || res.startsWith("Error")) return;
+        String res = ClashApiHelper.get(apiUrl + "/proxies");        if (res == null || res.startsWith("Error")) return;
         try {
             JSONObject proxies = new JSONObject(res).getJSONObject("proxies");
             java.util.HashSet<String> uniqueProxies = new java.util.HashSet<>();
