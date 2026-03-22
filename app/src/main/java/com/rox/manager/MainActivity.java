@@ -101,18 +101,17 @@ public class MainActivity extends AppCompatActivity {
         else if (itemId == R.id.nav_settings) index = 3;
 
         if (index != -1 && viewPager.getCurrentItem() != index) {
-            final int finalIndex = index;
-            // Cross-fade animation to avoid intermediate tab ghosting
+            // Cancel any ongoing animations to prevent queuing lag
+            viewPager.animate().cancel();
+            
+            // Instantly switch the fragment so there's zero delay in logic/rendering
+            viewPager.setCurrentItem(index, false); 
+            
+            // Apply a fast, lightweight fade-in effect AFTER switching
+            viewPager.setAlpha(0.3f);
             viewPager.animate()
-                .alpha(0f)
-                .setDuration(100)
-                .withEndAction(() -> {
-                    viewPager.setCurrentItem(finalIndex, false); // false = instant jump, no scroll
-                    viewPager.animate()
-                        .alpha(1f)
-                        .setDuration(150)
-                        .start();
-                })
+                .alpha(1f)
+                .setDuration(120)
                 .start();
                 
             syncNavSelection(itemId);
