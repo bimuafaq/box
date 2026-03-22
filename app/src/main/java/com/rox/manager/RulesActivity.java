@@ -90,12 +90,14 @@ public class RulesActivity extends AppCompatActivity {
         if (json == null || json.startsWith("Error")) return;
         try {
             JSONObject root = new JSONObject(json);
-            JSONArray rules = root.getJSONArray("rules");
-            List<JSONObject> list = new ArrayList<>();
-            for (int i = 0; i < rules.length(); i++) {
-                list.add(rules.getJSONObject(i));
+            JSONArray rules = root.optJSONArray("rules");
+            if (rules != null) {
+                List<JSONObject> list = new ArrayList<>();
+                for (int i = 0; i < rules.length(); i++) {
+                    list.add(rules.getJSONObject(i));
+                }
+                adapter.setData(list);
             }
-            adapter.setData(list);
         } catch (Exception ignored) {}
     }
 

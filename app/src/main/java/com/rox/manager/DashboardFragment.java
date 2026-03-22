@@ -167,14 +167,18 @@ public class DashboardFragment extends Fragment {
             if (res == null || res.startsWith("Error")) return;
             try {
                 JSONObject root = new JSONObject(res);
-                JSONObject providers = root.getJSONObject("providers");
-                Iterator<String> keys = providers.keys();
-                while (keys.hasNext()) {
-                    String name = keys.next();
-                    JSONObject provider = providers.getJSONObject(name);
-                    String vehicleType = provider.optString("vehicleType", "");
-                    if (!vehicleType.equals("Compatible") && !vehicleType.equals("Inline")) {
-                        ClashApiHelper.put(apiUrl + "/providers/proxies/" + Uri.encode(name), null);
+                JSONObject providers = root.optJSONObject("providers");
+                if (providers != null) {
+                    Iterator<String> keys = providers.keys();
+                    while (keys.hasNext()) {
+                        String name = keys.next();
+                        JSONObject provider = providers.optJSONObject(name);
+                        if (provider != null) {
+                            String vehicleType = provider.optString("vehicleType", "");
+                            if (!vehicleType.equals("Compatible") && !vehicleType.equals("Inline")) {
+                                ClashApiHelper.put(apiUrl + "/providers/proxies/" + Uri.encode(name), null);
+                            }
+                        }
                     }
                 }
                 runOnUI(() -> {
@@ -412,8 +416,8 @@ public class DashboardFragment extends Fragment {
             Iterator<String> keys = proxies.keys();
             while (keys.hasNext()) {
                 String groupName = keys.next();
-                JSONObject group = proxies.getJSONObject(groupName);
-                if (!group.has("all")) continue;
+                JSONObject group = proxies.optJSONObject(groupName);
+                if (group == null || !group.has("all")) continue;
                 
                 String type = group.optString("type", "");
                 if (type.equals("Pass") || type.equals("Reject") || type.equals("Direct")) continue;

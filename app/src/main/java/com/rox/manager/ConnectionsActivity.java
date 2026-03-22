@@ -95,12 +95,14 @@ public class ConnectionsActivity extends AppCompatActivity {
         if (json == null || json.startsWith("Error")) return;
         try {
             JSONObject root = new JSONObject(json);
-            JSONArray conns = root.getJSONArray("connections");
-            List<JSONObject> list = new ArrayList<>();
-            for (int i = 0; i < conns.length(); i++) {
-                list.add(conns.getJSONObject(i));
+            JSONArray conns = root.optJSONArray("connections");
+            if (conns != null) {
+                List<JSONObject> list = new ArrayList<>();
+                for (int i = 0; i < conns.length(); i++) {
+                    list.add(conns.getJSONObject(i));
+                }
+                adapter.setData(list);
             }
-            adapter.setData(list);
         } catch (Exception ignored) {}
     }
 
@@ -154,7 +156,8 @@ public class ConnectionsActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             try {
                 JSONObject item = data.get(position);
-                JSONObject metadata = item.getJSONObject("metadata");
+                JSONObject metadata = item.optJSONObject("metadata");
+                if (metadata == null) metadata = new JSONObject();
                 
                 String network = metadata.optString("network", "TCP").toUpperCase();
                 holder.network.setText(network);
@@ -184,8 +187,8 @@ public class ConnectionsActivity extends AppCompatActivity {
                 String meta = type + " • " + src + " ➔ " + dest;
                 holder.meta.setText(meta);
                 
-                JSONArray chain = item.getJSONArray("chains");
-                holder.proxy.setText(chain.length() > 0 ? chain.getString(0) : "DIRECT");
+                JSONArray chain = item.optJSONArray("chains");
+                holder.proxy.setText((chain != null && chain.length() > 0) ? chain.optString(0, "DIRECT") : "DIRECT");
                 
                 holder.up.setText(formatSize(item.optLong("upload", 0)));
                 holder.down.setText(formatSize(item.optLong("download", 0)));
