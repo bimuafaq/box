@@ -79,6 +79,16 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager() {
         viewPager.setAdapter(new ViewPager2Adapter(this));
         viewPager.setUserInputEnabled(false);
+        
+        // Add Fade PageTransformer for smooth transitions
+        viewPager.setPageTransformer((page, position) -> {
+            page.setTranslationX(-position * page.getWidth());
+            if (position < -1 || position > 1) {
+                page.setAlpha(0f);
+            } else {
+                page.setAlpha(1f - Math.abs(position));
+            }
+        });
     }
 
     private void setupNavigation() {
