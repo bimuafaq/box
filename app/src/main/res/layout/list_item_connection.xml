@@ -55,7 +55,8 @@
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
                         android:ellipsize="middle"
-                        android:maxLines="1" />
+                        android:maxLines="1"
+                        android:textIsSelectable="true" />
                 </LinearLayout>
 
                 <TextView
@@ -66,7 +67,8 @@
                     android:textSize="11sp"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:layout_marginTop="4dp"
-                    android:alpha="0.8" />
+                    android:alpha="0.8"
+                    android:textIsSelectable="true" />
             </LinearLayout>
         </LinearLayout>
 
