@@ -79,16 +79,6 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager() {
         viewPager.setAdapter(new ViewPager2Adapter(this));
         viewPager.setUserInputEnabled(false);
-        
-        // Add Fade PageTransformer for smooth transitions
-        viewPager.setPageTransformer((page, position) -> {
-            page.setTranslationX(-position * page.getWidth());
-            if (position < -1 || position > 1) {
-                page.setAlpha(0f);
-            } else {
-                page.setAlpha(1f - Math.abs(position));
-            }
-        });
     }
 
     private void setupNavigation() {
@@ -110,8 +100,21 @@ public class MainActivity extends AppCompatActivity {
         else if (itemId == R.id.nav_files) index = 2;
         else if (itemId == R.id.nav_settings) index = 3;
 
-        if (index != -1) {
-            viewPager.setCurrentItem(index, true); // Enable smoothScroll for animation
+        if (index != -1 && viewPager.getCurrentItem() != index) {
+            final int finalIndex = index;
+            // Cross-fade animation to avoid intermediate tab ghosting
+            viewPager.animate()
+                .alpha(0f)
+                .setDuration(100)
+                .withEndAction(() -> {
+                    viewPager.setCurrentItem(finalIndex, false); // false = instant jump, no scroll
+                    viewPager.animate()
+                        .alpha(1f)
+                        .setDuration(150)
+                        .start();
+                })
+                .start();
+                
             syncNavSelection(itemId);
         }
     }
