@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
@@ -38,8 +39,8 @@ public class ConnectionsActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerConns);
         MaterialButton btnRefresh = findViewById(R.id.btnRefreshConns);
         MaterialButton btnBack = findViewById(R.id.btnBackConns);
-        MaterialButton btnCloseAll = findViewById(R.id.btnCloseAllConns);
-        MaterialButton btnPause = findViewById(R.id.btnPauseConns);
+        FloatingActionButton fabClearAll = findViewById(R.id.fabClearAll);
+        FloatingActionButton fabPause = findViewById(R.id.fabPause);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ConnAdapter();
@@ -50,23 +51,23 @@ public class ConnectionsActivity extends AppCompatActivity {
             refresh();
         });
         
-        btnPause.setOnClickListener(v -> {
+        fabPause.setOnClickListener(v -> {
             isPausedByUser = !isPausedByUser;
             if (isPausedByUser) {
                 isRunning = false;
                 handler.removeCallbacks(refreshRunnable);
-                btnPause.setIconResource(R.drawable.ic_play_arrow);
-                btnPause.setIconTint(android.content.res.ColorStateList.valueOf(com.google.android.material.color.MaterialColors.getColor(btnPause, android.R.attr.colorPrimary)));
+                fabPause.setImageResource(R.drawable.ic_play_arrow);
+                fabClearAll.setVisibility(View.VISIBLE);
             } else {
                 isRunning = true;
                 refresh();
                 handler.postDelayed(refreshRunnable, 3000);
-                btnPause.setIconResource(R.drawable.ic_stop);
-                btnPause.setIconTint(android.content.res.ColorStateList.valueOf(com.google.android.material.color.MaterialColors.getColor(btnPause, com.google.android.material.R.attr.colorOnSurface)));
+                fabPause.setImageResource(R.drawable.ic_stop);
+                fabClearAll.setVisibility(View.GONE);
             }
         });
         
-        btnCloseAll.setOnClickListener(v -> closeAllConnections());
+        fabClearAll.setOnClickListener(v -> closeAllConnections());
         
         btnBack.setOnClickListener(v -> finish());
     }
