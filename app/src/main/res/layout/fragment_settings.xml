@@ -14,9 +14,9 @@
         android:textSize="26sp"
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"
-        android:paddingTop="32dp"
+        android:paddingTop="16dp"
         android:paddingBottom="12dp"
-        android:paddingStart="20dp" />
+        android:paddingStart="4dp" />
 
     <ScrollView
         android:layout_width="match_parent"

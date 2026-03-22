@@ -316,7 +316,7 @@ public class DashboardFragment extends Fragment {
             
             String res = ShellHelper.runRootCommand(cmd);
             runOnUI(() -> {
-                if (res != null && res.contains("|")) {
+                if (res != null && res.contains("|") && ramText != null && cpuText != null) {
                     String[] parts = res.split("\\|");
                     try {
                         long rssKb = Long.parseLong(parts[0].trim());
@@ -330,6 +330,7 @@ public class DashboardFragment extends Fragment {
     }
 
     private void updateServiceUI(boolean running, String core, String pid, String etime) {
+        if (statusText == null || btnService == null || coreText == null || runtimeText == null) return;
         FloatingActionButton fab = (FloatingActionButton) btnService;
         if (running) {
             statusText.setText(R.string.status_running);
@@ -352,6 +353,7 @@ public class DashboardFragment extends Fragment {
         ThreadManager.runBackgroundTask(() -> {
             String result = ClashApiHelper.get(getApiUrl() + "/connections");
             runOnUI(() -> {
+                if (clashDownloadText == null || clashUploadText == null || clashConnectionsText == null) return;
                 try {
                     JSONObject root = new JSONObject(result);
                     clashDownloadText.setText(formatSize(root.optLong("downloadTotal", 0)));

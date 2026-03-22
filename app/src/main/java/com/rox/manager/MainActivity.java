@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         else if (itemId == R.id.nav_settings) index = 3;
 
         if (index != -1) {
-            viewPager.setCurrentItem(index, false);
+            viewPager.setCurrentItem(index, true); // Enable smoothScroll for animation
             syncNavSelection(itemId);
         }
     }
