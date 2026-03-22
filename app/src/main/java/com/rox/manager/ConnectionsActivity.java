@@ -143,11 +143,32 @@ public class ConnectionsActivity extends AppCompatActivity {
                 JSONObject metadata = item.getJSONObject("metadata");
                 String id = item.optString("id", "");
                 
-                String host = metadata.optString("host", "");
-                if (host.isEmpty()) host = metadata.optString("destinationIP", "Unknown");
+                String network = metadata.optString("network", "TCP").toUpperCase();
+                holder.network.setText(network);
                 
+                String host = metadata.optString("host", "");
+                String destIp = metadata.optString("destinationIP", "");
+                String destPort = metadata.optString("destinationPort", "");
+                
+                if (host.isEmpty()) {
+                    host = destIp;
+                    if (!destPort.isEmpty()) host += ":" + destPort;
+                } else if (!destPort.isEmpty()) {
+                    host += ":" + destPort;
+                }
                 holder.host.setText(host);
-                String meta = metadata.optString("type", "") + " • " + metadata.optString("sourceIP", "");
+                
+                String sourceIp = metadata.optString("sourceIP", "");
+                String sourcePort = metadata.optString("sourcePort", "");
+                String src = sourceIp;
+                if (!sourcePort.isEmpty()) src += ":" + sourcePort;
+                
+                String dest = destIp;
+                if (!destPort.isEmpty()) dest += ":" + destPort;
+                
+                String type = metadata.optString("type", "HTTP");
+                
+                String meta = type + " • " + src + " ➔ " + dest;
                 holder.meta.setText(meta);
                 
                 JSONArray chain = item.getJSONArray("chains");
@@ -166,10 +187,11 @@ public class ConnectionsActivity extends AppCompatActivity {
         public int getItemCount() { return data.size(); }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView host, meta, proxy, up, down;
+            TextView network, host, meta, proxy, up, down;
             View closeBtn;
             ViewHolder(View v) {
                 super(v);
+                network = v.findViewById(R.id.connNetwork);
                 host = v.findViewById(R.id.connHost);
                 meta = v.findViewById(R.id.connMeta);
                 proxy = v.findViewById(R.id.connProxy);
