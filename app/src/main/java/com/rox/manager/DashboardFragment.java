@@ -43,21 +43,22 @@ public class DashboardFragment extends Fragment {
     private static final String TAG = "DashboardFragment";
     
     // View References
-    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, cardRules, clashStatsCard, btnService;
+    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, cardRules, clashStatsCard, btnService, btnRefreshProxiesHeader;
     private TextView statusText, coreText, runtimeText, cpuText, ramText;
     private WebView webView;
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private LinearLayout proxyGroupsContainer;
     private FloatingActionButton btnUpdateProviders;
-    
+
     // Logic State
     private boolean isServiceRunning = false;
+    private boolean lastServiceRunningState = false;
     private boolean isActionRunning = false;
     private boolean showClashStats = false;
     private long currentRuntimeSeconds = 0;
     private long statsCounter = 0;
     private String cachedCoreName = "";
-    
+
     private SharedPreferences prefs;
     private OnBackPressedCallback backPressedCallback;
 
@@ -77,7 +78,13 @@ public class DashboardFragment extends Fragment {
             if (isServiceRunning) {
                 currentRuntimeSeconds++;
                 updateRuntimeUI(currentRuntimeSeconds);
+
+                // Auto 1sec refresh if service just started running
+                if (!lastServiceRunningState && showClashStats) {
+                    refreshProxies();
+                }
             }
+            lastServiceRunningState = isServiceRunning;
 
             // 2. HEAVY STATS (CPU/RAM/API) - Every 2s to reduce shell and UI load
             if (statsCounter % 2 == 0) {
@@ -86,7 +93,6 @@ public class DashboardFragment extends Fragment {
                 }
                 if (showClashStats) {
                     refreshClashStats();
-                    refreshProxies();
                 }
             }
 
@@ -113,11 +119,11 @@ public class DashboardFragment extends Fragment {
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
         clashStatsCard = view.findViewById(R.id.clashStatsCard);
         btnUpdateProviders = view.findViewById(R.id.btnUpdateProviders);
-        
+
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
         clashDownloadText = view.findViewById(R.id.clashDownloadText);
         clashUploadText = view.findViewById(R.id.clashUploadText);
-        
+
         statusText = view.findViewById(R.id.statusText);
         coreText = view.findViewById(R.id.coreText);
         runtimeText = view.findViewById(R.id.runtimeText);
@@ -125,9 +131,10 @@ public class DashboardFragment extends Fragment {
         ramText = view.findViewById(R.id.ramText);
 
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
+        btnRefreshProxiesHeader = view.findViewById(R.id.btnRefreshProxiesHeader);
         btnLatency = view.findViewById(R.id.btnLatencyDash);
         btnService = view.findViewById(R.id.btnService);
-        
+
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         View btnRefreshWeb = view.findViewById(R.id.btnRefreshWeb);
         View btnRules = view.findViewById(R.id.btnRulesDash);
@@ -143,8 +150,12 @@ public class DashboardFragment extends Fragment {
             if (webView != null) webView.reload();
         });
 
-        btnService.setOnClickListener(v -> handleServiceToggle());
-        btnLatency.setOnClickListener(v -> testAllProxiesLatency());
+        btnRefreshProxiesHeader.setOnClickListener(v -> {
+            v.animate().rotationBy(360).setDuration(500).start();
+            refreshProxies();
+        });
+
+        btnService.setOnClickListener(v -> handleServiceToggle());        btnLatency.setOnClickListener(v -> testAllProxiesLatency());
 
         btnUpdateProviders.setOnClickListener(v -> updateAllProviders(v));        
         btnOpen.setOnClickListener(v -> toggleWebView(true));
@@ -255,6 +266,7 @@ public class DashboardFragment extends Fragment {
         labelProxyGroups.setVisibility(visibility);
         cardRules.setVisibility(visibility);
         btnLatency.setVisibility(visibility);
+        btnRefreshProxiesHeader.setVisibility(visibility);
         btnOpen.setVisibility(View.VISIBLE); // Always visible in header
         emptyStatsView.setVisibility(showClashStats ? View.GONE : View.VISIBLE);
         // btnUpdateProviders visibility will be managed dynamically after checking API
