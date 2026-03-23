@@ -74,7 +74,10 @@
             app:fabSize="mini"
             app:srcCompat="@drawable/ic_close_material"
             app:tint="?attr/colorOnError"
-            app:backgroundTint="?attr/colorError" />
+            app:backgroundTint="?attr/colorError"
+            app:elevation="0dp"
+            app:pressedTranslationZ="0dp"
+            app:hoveredFocusedTranslationZ="0dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabPause"
@@ -83,7 +86,10 @@
             android:contentDescription="Pause/Play Connections"
             app:srcCompat="@drawable/ic_stop"
             app:tint="?attr/colorOnPrimaryContainer"
-            app:backgroundTint="?attr/colorPrimaryContainer" />
+            app:backgroundTint="?attr/colorPrimaryContainer"
+            app:elevation="0dp"
+            app:pressedTranslationZ="0dp"
+            app:hoveredFocusedTranslationZ="0dp" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

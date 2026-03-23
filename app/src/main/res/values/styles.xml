@@ -41,11 +41,19 @@
         <item name="android:letterSpacing">0</item>
     </style>
 
+    <!-- Floating Action Button Style - No Shadow -->
+    <style name="Widget.App.FloatingActionButton" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="elevation">0dp</item>
+        <item name="pressedTranslationZ">0dp</item>
+        <item name="hoveredFocusedTranslationZ">0dp</item>
+    </style>
+
     <!-- Light Theme Material 3 -->
     <style name="Theme.OXController" parent="Theme.Material3.Light.NoActionBar">
         <!-- Transparent Status Bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="snackbarStyle">@style/Widget.Custom.Snackbar</item>
+        <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
     </style>
 </resources>

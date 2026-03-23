@@ -13,6 +13,9 @@
         android:layout_gravity="center"
         app:srcCompat="@drawable/ic_launcher_foreground"
         app:fabSize="mini"
-        style="@style/Widget.Material3.FloatingActionButton.Primary" />
+        style="@style/Widget.Material3.FloatingActionButton.Primary"
+        app:elevation="0dp"
+        app:pressedTranslationZ="0dp"
+        app:hoveredFocusedTranslationZ="0dp" />
 
 </FrameLayout>

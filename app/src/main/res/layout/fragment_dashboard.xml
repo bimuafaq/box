@@ -446,7 +446,10 @@
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_bolt"
                 app:tint="?attr/colorOnPrimaryContainer"
-                app:backgroundTint="?attr/colorPrimaryContainer" />
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                app:elevation="0dp"
+                app:pressedTranslationZ="0dp"
+                app:hoveredFocusedTranslationZ="0dp" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnUpdateProviders"
@@ -458,7 +461,10 @@
                 app:srcCompat="@drawable/ic_cloud"
                 app:tint="?attr/colorOnSecondaryContainer"
                 app:backgroundTint="?attr/colorSecondaryContainer"
-                app:fabSize="mini" />
+                app:fabSize="mini"
+                app:elevation="0dp"
+                app:pressedTranslationZ="0dp"
+                app:hoveredFocusedTranslationZ="0dp" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnService"
@@ -467,7 +473,10 @@
                 android:contentDescription="Start/Stop Service"
                 app:srcCompat="@drawable/ic_play_arrow"
                 app:tint="?attr/colorOnPrimaryContainer"
-                app:backgroundTint="?attr/colorPrimaryContainer" />
+                app:backgroundTint="?attr/colorPrimaryContainer"
+                app:elevation="0dp"
+                app:pressedTranslationZ="0dp"
+                app:hoveredFocusedTranslationZ="0dp" />
         </LinearLayout>
 
         <!-- WEBVIEW CONTAINER (OVERLAY) -->
