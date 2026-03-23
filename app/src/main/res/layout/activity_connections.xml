@@ -66,18 +66,15 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabClearAll"
+            style="@style/Widget.App.FloatingActionButton.Mini"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:contentDescription="Close All Connections"
             android:visibility="gone"
-            app:fabSize="mini"
             app:srcCompat="@drawable/ic_close_material"
             app:tint="?attr/colorOnError"
-            app:backgroundTint="?attr/colorError"
-            app:elevation="0dp"
-            app:pressedTranslationZ="0dp"
-            app:hoveredFocusedTranslationZ="0dp" />
+            app:backgroundTint="?attr/colorError" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabPause"
@@ -86,10 +83,7 @@
             android:contentDescription="Pause/Play Connections"
             app:srcCompat="@drawable/ic_stop"
             app:tint="?attr/colorOnPrimaryContainer"
-            app:backgroundTint="?attr/colorPrimaryContainer"
-            app:elevation="0dp"
-            app:pressedTranslationZ="0dp"
-            app:hoveredFocusedTranslationZ="0dp" />
+            app:backgroundTint="?attr/colorPrimaryContainer" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

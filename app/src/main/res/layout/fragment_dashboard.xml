@@ -446,13 +446,11 @@
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_bolt"
                 app:tint="?attr/colorOnPrimaryContainer"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                app:elevation="0dp"
-                app:pressedTranslationZ="0dp"
-                app:hoveredFocusedTranslationZ="0dp" />
+                app:backgroundTint="?attr/colorPrimaryContainer" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnUpdateProviders"
+                style="@style/Widget.App.FloatingActionButton.Mini"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="12dp"
@@ -460,11 +458,7 @@
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_cloud"
                 app:tint="?attr/colorOnSecondaryContainer"
-                app:backgroundTint="?attr/colorSecondaryContainer"
-                app:fabSize="mini"
-                app:elevation="0dp"
-                app:pressedTranslationZ="0dp"
-                app:hoveredFocusedTranslationZ="0dp" />
+                app:backgroundTint="?attr/colorSecondaryContainer" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnService"
@@ -473,10 +467,7 @@
                 android:contentDescription="Start/Stop Service"
                 app:srcCompat="@drawable/ic_play_arrow"
                 app:tint="?attr/colorOnPrimaryContainer"
-                app:backgroundTint="?attr/colorPrimaryContainer"
-                app:elevation="0dp"
-                app:pressedTranslationZ="0dp"
-                app:hoveredFocusedTranslationZ="0dp" />
+                app:backgroundTint="?attr/colorPrimaryContainer" />
         </LinearLayout>
 
         <!-- WEBVIEW CONTAINER (OVERLAY) -->

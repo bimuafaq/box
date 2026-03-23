@@ -130,10 +130,7 @@
         android:layout_gravity="end|bottom"
         android:src="@android:drawable/ic_input_add"
         app:tint="?attr/colorOnPrimaryContainer"
-        app:backgroundTint="?attr/colorPrimaryContainer"
-        app:elevation="0dp"
-        app:pressedTranslationZ="0dp"
-        app:hoveredFocusedTranslationZ="0dp" />
+        app:backgroundTint="?attr/colorPrimaryContainer" />
 
     <!-- NATURAL EDITOR OVERLAY -->
     <LinearLayout
