@@ -57,7 +57,6 @@ public class DashboardFragment extends Fragment {
     private long currentRuntimeSeconds = 0;
     private long statsCounter = 0;
     private String cachedCoreName = "";
-    private long lastPingTime = 0;
     
     private SharedPreferences prefs;
     private OnBackPressedCallback backPressedCallback;
@@ -145,13 +144,7 @@ public class DashboardFragment extends Fragment {
         });
 
         btnService.setOnClickListener(v -> handleServiceToggle());
-        btnLatency.setOnClickListener(v -> {
-            long now = System.currentTimeMillis();
-            if (now - lastPingTime < 1000) return;
-            lastPingTime = now;
-            v.animate().rotationBy(360).setDuration(500).start();
-            testAllProxiesLatency();
-        });
+        btnLatency.setOnClickListener(v -> testAllProxiesLatency());
 
         btnUpdateProviders.setOnClickListener(v -> updateAllProviders(v));        
         btnOpen.setOnClickListener(v -> toggleWebView(true));
@@ -584,13 +577,8 @@ private void testAllProxiesLatency() {
                 }
 
                 java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(15);
-                java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(uniqueProxies.size());
-
                 for (String proxyName : uniqueProxies) {
-                    if (proxyName.equalsIgnoreCase("DIRECT") || proxyName.equalsIgnoreCase("REJECT")) {
-                        latch.countDown();
-                        continue;
-                    }
+                    if (proxyName.equalsIgnoreCase("DIRECT") || proxyName.equalsIgnoreCase("REJECT")) continue;
                     
                     executor.submit(() -> {
                         java.net.HttpURLConnection conn = null;
@@ -601,18 +589,15 @@ private void testAllProxiesLatency() {
                             conn.setReadTimeout(5000);
                             conn.setRequestMethod("GET");
                             conn.getResponseCode();
+                            // Refresh UI as each one finishes for immediate feedback
+                            runOnUI(this::refreshProxies);
                         } catch (Exception ignored) {
                         } finally {
                             if (conn != null) conn.disconnect();
-                            latch.countDown();
                         }
                     });
                 }
                 executor.shutdown();
-                try {
-                    latch.await(30, java.util.concurrent.TimeUnit.SECONDS);
-                } catch (InterruptedException ignored) {}
-                runOnUI(this::refreshProxies);
             } catch (Exception ignored) {}
         });
     }
