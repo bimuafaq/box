@@ -83,13 +83,13 @@ public class DashboardFragment extends Fragment {
                 if (!lastServiceRunningState && showClashStats) {
                     refreshProxies();
                 }
+
+                // 1.5 API STATS (Connections, Up/Down) - Every 1s for real-time feel
+                if (showClashStats) {
+                    refreshClashStats();
+                }
             }
             lastServiceRunningState = isServiceRunning;
-
-            // 1.5 API STATS (Connections, Up/Down) - Every 1s for real-time feel
-            if (showClashStats) {
-                refreshClashStats();
-            }
 
             // 2. HEAVY STATS (CPU/RAM) - Every 2s to reduce shell and UI load
             if (statsCounter % 2 == 0) {
@@ -153,11 +153,16 @@ public class DashboardFragment extends Fragment {
         });
 
         btnRefreshProxiesHeader.setOnClickListener(v -> {
+            if (!isServiceRunning) return;
             v.animate().rotationBy(360).setDuration(500).start();
             refreshProxies();
         });
 
-        btnService.setOnClickListener(v -> handleServiceToggle());        btnLatency.setOnClickListener(v -> testAllProxiesLatency());
+        btnService.setOnClickListener(v -> handleServiceToggle());
+        btnLatency.setOnClickListener(v -> {
+            if (!isServiceRunning) return;
+            testAllProxiesLatency();
+        });
 
         btnUpdateProviders.setOnClickListener(v -> updateAllProviders(v));        
         btnOpen.setOnClickListener(v -> toggleWebView(true));
