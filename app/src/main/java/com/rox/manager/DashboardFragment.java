@@ -86,13 +86,15 @@ public class DashboardFragment extends Fragment {
             }
             lastServiceRunningState = isServiceRunning;
 
-            // 2. HEAVY STATS (CPU/RAM/API) - Every 2s to reduce shell and UI load
+            // 1.5 API STATS (Connections, Up/Down) - Every 1s for real-time feel
+            if (showClashStats) {
+                refreshClashStats();
+            }
+
+            // 2. HEAVY STATS (CPU/RAM) - Every 2s to reduce shell and UI load
             if (statsCounter % 2 == 0) {
                 if (isServiceRunning && !isActionRunning) {
                     refreshServiceHeavyStats();
-                }
-                if (showClashStats) {
-                    refreshClashStats();
                 }
             }
 
