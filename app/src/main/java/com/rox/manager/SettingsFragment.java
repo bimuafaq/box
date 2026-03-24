@@ -184,25 +184,61 @@ public class SettingsFragment extends Fragment {
 
     private void showBinNameDialog() {
         String[] options = {"clash", "sing-box", "xray", "v2fly", "hysteria"};
+        String current = currentBinNameText.getText().toString();
+        int checkedItem = 0;
+        for (int i = 0; i < options.length; i++) {
+            if (options[i].equals(current)) {
+                checkedItem = i;
+                break;
+            }
+        }
+
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Select Binary Name")
-                .setItems(options, (dialog, which) -> updateSettingsIni("bin_name", options[which]))
+                .setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
+                    updateSettingsIni("bin_name", options[which]);
+                    dialog.dismiss();
+                })
                 .show();
     }
 
     private void showNetworkModeDialog() {
         String[] options = {"redirect", "tproxy", "mixed", "enhance", "tun"};
+        String current = currentNetworkModeText.getText().toString();
+        int checkedItem = 0;
+        for (int i = 0; i < options.length; i++) {
+            if (options[i].equals(current)) {
+                checkedItem = i;
+                break;
+            }
+        }
+
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Select Network Mode")
-                .setItems(options, (dialog, which) -> updateSettingsIni("network_mode", options[which]))
+                .setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
+                    updateSettingsIni("network_mode", options[which]);
+                    dialog.dismiss();
+                })
                 .show();
     }
 
     private void showClashOptionDialog() {
         String[] options = {"mihomo", "premium"};
+        String current = currentClashOptionText.getText().toString();
+        int checkedItem = 0;
+        for (int i = 0; i < options.length; i++) {
+            if (options[i].equals(current)) {
+                checkedItem = i;
+                break;
+            }
+        }
+
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Select Clash Option")
-                .setItems(options, (dialog, which) -> updateSettingsIni("xclash_option", options[which]))
+                .setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
+                    updateSettingsIni("xclash_option", options[which]);
+                    dialog.dismiss();
+                })
                 .show();
     }
 
@@ -238,16 +274,16 @@ public class SettingsFragment extends Fragment {
     private void updateThemeLabel() {
         int mode = AppCompatDelegate.getDefaultNightMode();
         if (mode == AppCompatDelegate.MODE_NIGHT_YES) {
-            currentThemeText.setText("Dark Mode (Malam)");
+            currentThemeText.setText("Dark Mode");
         } else if (mode == AppCompatDelegate.MODE_NIGHT_NO) {
-            currentThemeText.setText("Light Mode (Siang)");
+            currentThemeText.setText("Light Mode");
         } else {
-            currentThemeText.setText("System Default (Auto)");
+            currentThemeText.setText("System Default");
         }
     }
 
     private void showThemeDialog() {
-        String[] options = {"System Default (Auto)", "Light Mode (Siang)", "Dark Mode (Malam)"};
+        String[] options = {"System Default", "Light Mode", "Dark Mode"};
         int checkedItem = 0;
         int mode = AppCompatDelegate.getDefaultNightMode();
         
