@@ -44,6 +44,7 @@ public class DashboardFragment extends Fragment {
     
     // View References
     private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, clashStatsCard, btnService, btnRefreshProxiesHeader;
+    private MaterialCardView statusCard;
     private TextView statusText, coreText, runtimeText, cpuText, ramText;
     private WebView webView;
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
@@ -125,6 +126,7 @@ public class DashboardFragment extends Fragment {
         clashDownloadText = view.findViewById(R.id.clashDownloadText);
         clashUploadText = view.findViewById(R.id.clashUploadText);
 
+        statusCard = view.findViewById(R.id.statusCard);
         statusText = view.findViewById(R.id.statusText);
         coreText = view.findViewById(R.id.coreText);
         runtimeText = view.findViewById(R.id.runtimeText);
@@ -348,18 +350,22 @@ public class DashboardFragment extends Fragment {
     }
 
     private void updateServiceUI(boolean running, String core, String pid, String etime) {
-        if (statusText == null || btnService == null || coreText == null || runtimeText == null) return;
+        if (statusText == null || btnService == null || coreText == null || runtimeText == null || statusCard == null) return;
         FloatingActionButton fab = (FloatingActionButton) btnService;
         if (running) {
             statusText.setText(R.string.status_running);
-            statusText.setTextColor(MaterialColors.getColor(statusText, android.R.attr.colorPrimary));
+            statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnTertiaryContainer));
+            statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorTertiaryContainer)));
+            
             coreText.setText(String.format("%s (%s)", core.toUpperCase(), pid));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
             fab.setImageResource(R.drawable.ic_stop);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
         } else {
             statusText.setText(R.string.status_stopped);
-            statusText.setTextColor(MaterialColors.getColor(statusText, android.R.attr.colorError));
+            statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
+            statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
+            
             coreText.setText("---");
             runtimeText.setText("00:00:00");
             fab.setImageResource(R.drawable.ic_play_arrow);
@@ -555,7 +561,8 @@ public class DashboardFragment extends Fragment {
         btnService.setEnabled(false);
         
         statusText.setText(msg);
-        statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOutline));
+        statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnSurfaceVariant));
+        statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorSurfaceContainerHigh)));
 
         ThreadManager.runOnShell(() -> {
             ShellHelper.runRootCommandOneShot(command);
@@ -675,7 +682,7 @@ private void testAllProxiesLatency() {
     }
 
     private void nullifyViews() {
-        initialLayout = webViewContainer = webHeader = emptyStatsView = dashHeader = btnLatency = btnOpen = clashStatsCard = btnService = null;
+        initialLayout = webViewContainer = webHeader = emptyStatsView = dashHeader = btnLatency = btnOpen = clashStatsCard = btnService = statusCard = null;
         statusText = coreText = runtimeText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
         proxyGroupsContainer = null;
         btnUpdateProviders = null;
