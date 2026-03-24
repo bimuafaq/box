@@ -596,8 +596,13 @@ private void testAllProxiesLatency() {
                 }
 
                 java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(15);
+                java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(uniqueProxies.size());
+
                 for (String proxyName : uniqueProxies) {
-                    if (proxyName.equalsIgnoreCase("DIRECT") || proxyName.equalsIgnoreCase("REJECT")) continue;
+                    if (proxyName.equalsIgnoreCase("DIRECT") || proxyName.equalsIgnoreCase("REJECT")) {
+                        latch.countDown();
+                        continue;
+                    }
                     
                     executor.submit(() -> {
                         java.net.HttpURLConnection conn = null;
@@ -608,15 +613,18 @@ private void testAllProxiesLatency() {
                             conn.setReadTimeout(5000);
                             conn.setRequestMethod("GET");
                             conn.getResponseCode();
-                            // Refresh UI as each one finishes for immediate feedback
-                            runOnUI(this::refreshProxies);
                         } catch (Exception ignored) {
                         } finally {
                             if (conn != null) conn.disconnect();
+                            latch.countDown();
                         }
                     });
                 }
                 executor.shutdown();
+                try {
+                    latch.await(20, java.util.concurrent.TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {}
+                runOnUI(this::refreshProxies);
             } catch (Exception ignored) {}
         });
     }
