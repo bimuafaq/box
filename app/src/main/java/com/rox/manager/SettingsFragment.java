@@ -87,11 +87,6 @@ public class SettingsFragment extends Fragment {
         ThreadManager.runBackgroundTask(() -> {
             String apiUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui").replaceAll("/(ui|dashboard)/?$", "");
             ClashApiHelper.post(apiUrl + "/cache/fakeip/flush", null);
-            if (isAdded() && getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    if (getView() != null) com.google.android.material.snackbar.Snackbar.make(getView(), "Fake-IP Cache Flushed", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show();
-                });
-            }
         });
     }
 
