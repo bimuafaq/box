@@ -192,7 +192,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/label_clear_fake_ip"
                                 android:textSize="16sp"
-                                android:textColor="?attr/colorError" />
+                                android:textColor="?attr/colorOnSurface" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -204,7 +204,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_refresh"
-                            app:tint="?attr/colorError" />
+                            app:tint="?attr/colorPrimary" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
