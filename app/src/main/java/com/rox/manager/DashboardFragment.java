@@ -195,9 +195,6 @@ public class DashboardFragment extends Fragment {
                         }
                     }
                 }
-                runOnUI(() -> {
-                    if (getView() != null) Snackbar.make(getView(), "Providers updated", Snackbar.LENGTH_SHORT).show();
-                });
             } catch (Exception ignored) {}
         });
     }
