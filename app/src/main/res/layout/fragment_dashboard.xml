@@ -412,18 +412,6 @@
                 app:backgroundTint="?attr/colorPrimaryContainer" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/btnUpdateProviders"
-                style="@style/Widget.App.FloatingActionButton.Mini"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="Update Providers"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_cloud"
-                app:tint="?attr/colorOnSecondaryContainer"
-                app:backgroundTint="?attr/colorSecondaryContainer" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnService"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

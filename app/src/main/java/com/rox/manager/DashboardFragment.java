@@ -49,7 +49,6 @@ public class DashboardFragment extends Fragment {
     private WebView webView;
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private LinearLayout proxyGroupsContainer;
-    private FloatingActionButton btnUpdateProviders;
 
     // Logic State
     private boolean isServiceRunning = false;
@@ -120,7 +119,6 @@ public class DashboardFragment extends Fragment {
         proxyGroupsContainer = view.findViewById(R.id.proxyGroupsContainer);
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
         clashStatsCard = view.findViewById(R.id.clashStatsCard);
-        btnUpdateProviders = view.findViewById(R.id.btnUpdateProviders);
 
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
         clashDownloadText = view.findViewById(R.id.clashDownloadText);
@@ -155,6 +153,7 @@ public class DashboardFragment extends Fragment {
             if (!isServiceRunning) return;
             v.animate().rotationBy(360).setDuration(500).start();
             refreshProxies();
+            updateAllProviders(v);
         });
 
         btnService.setOnClickListener(v -> handleServiceToggle());
@@ -163,7 +162,6 @@ public class DashboardFragment extends Fragment {
             testAllProxiesLatency();
         });
 
-        btnUpdateProviders.setOnClickListener(v -> updateAllProviders(v));        
         btnOpen.setOnClickListener(v -> toggleWebView(true));
         btnClose.setOnClickListener(v -> toggleWebView(false));
 
@@ -274,8 +272,6 @@ public class DashboardFragment extends Fragment {
         btnRefreshProxiesHeader.setVisibility(visibility);
         btnOpen.setVisibility(View.VISIBLE); // Always visible in header
         emptyStatsView.setVisibility(showClashStats ? View.GONE : View.VISIBLE);
-        // btnUpdateProviders visibility will be managed dynamically after checking API
-        if (!showClashStats) btnUpdateProviders.setVisibility(View.GONE);
     }
 
     private void refreshServiceBaseStatus() {
@@ -407,7 +403,6 @@ public class DashboardFragment extends Fragment {
         try {
             JSONObject root = new JSONObject(json);
             JSONObject providers = root.optJSONObject("providers");
-            boolean hasExternalProviders = false;
             
             if (providers != null) {
                 Iterator<String> keys = providers.keys();
@@ -416,12 +411,10 @@ public class DashboardFragment extends Fragment {
                     JSONObject provider = providers.getJSONObject(name);
                     String vehicleType = provider.optString("vehicleType", "");
                     if (!vehicleType.equals("Compatible") && !vehicleType.equals("Inline")) {
-                        hasExternalProviders = true;
                         break;
                     }
                 }
             }
-            btnUpdateProviders.setVisibility(hasExternalProviders ? View.VISIBLE : View.GONE);
         } catch (Exception ignored) {}
     }
 
@@ -685,6 +678,5 @@ private void testAllProxiesLatency() {
         initialLayout = webViewContainer = webHeader = emptyStatsView = dashHeader = btnLatency = btnOpen = clashStatsCard = btnService = statusCard = null;
         statusText = coreText = runtimeText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
         proxyGroupsContainer = null;
-        btnUpdateProviders = null;
     }
 }
