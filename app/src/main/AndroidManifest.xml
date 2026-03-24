@@ -23,7 +23,6 @@
         </activity>
 
         <activity android:name=".ConnectionsActivity" android:label="Connections" />
-        <activity android:name=".RulesActivity" android:label="Rules" />
 
     </application>
 

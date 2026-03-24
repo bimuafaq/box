@@ -29,7 +29,6 @@
     <string name="label_active">ACTIVE</string>
     <string name="label_upload">UPLOAD</string>
     <string name="label_download">DOWNLOAD</string>
-    <string name="btn_clash_rules">Clash Rules</string>
     <string name="label_proxy_groups">PROXY GROUPS</string>
     <string name="label_proxy_group">Proxy Group</string>
 
@@ -68,7 +67,6 @@
     <string name="default_clash_option">mihomo</string>
 
     <!-- Placeholders / List Items -->
-    <string name="placeholder_rule_type">DOMAIN-SUFFIX</string>
     <string name="placeholder_proxy_name">ProxyName</string>
     <string name="placeholder_domain">google.com</string>
     <string name="placeholder_connection_host">example.com</string>

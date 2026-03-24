@@ -43,7 +43,7 @@ public class DashboardFragment extends Fragment {
     private static final String TAG = "DashboardFragment";
     
     // View References
-    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, cardRules, clashStatsCard, btnService, btnRefreshProxiesHeader;
+    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, clashStatsCard, btnService, btnRefreshProxiesHeader;
     private TextView statusText, coreText, runtimeText, cpuText, ramText;
     private WebView webView;
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
@@ -116,7 +116,6 @@ public class DashboardFragment extends Fragment {
         dashHeader = view.findViewById(R.id.dashHeader);
         webView = view.findViewById(R.id.dashWebView);
         emptyStatsView = view.findViewById(R.id.emptyStatsView);
-        cardRules = view.findViewById(R.id.cardRules);
         proxyGroupsContainer = view.findViewById(R.id.proxyGroupsContainer);
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
         clashStatsCard = view.findViewById(R.id.clashStatsCard);
@@ -139,14 +138,12 @@ public class DashboardFragment extends Fragment {
 
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         View btnRefreshWeb = view.findViewById(R.id.btnRefreshWeb);
-        View btnRules = view.findViewById(R.id.btnRulesDash);
         View cardConnections = view.findViewById(R.id.cardConnections);
 
         setupWebView();
 
         // Listeners
         cardConnections.setOnClickListener(v -> startActivity(new Intent(getActivity(), ConnectionsActivity.class)));
-        btnRules.setOnClickListener(v -> startActivity(new Intent(getActivity(), RulesActivity.class)));
         btnRefreshWeb.setOnClickListener(v -> {
             v.animate().rotationBy(360).setDuration(500).start();
             if (webView != null) webView.reload();
@@ -271,7 +268,6 @@ public class DashboardFragment extends Fragment {
         int visibility = showClashStats ? View.VISIBLE : View.GONE;
         clashStatsCard.setVisibility(visibility);
         labelProxyGroups.setVisibility(visibility);
-        cardRules.setVisibility(visibility);
         btnLatency.setVisibility(visibility);
         btnRefreshProxiesHeader.setVisibility(visibility);
         btnOpen.setVisibility(View.VISIBLE); // Always visible in header
@@ -679,7 +675,7 @@ private void testAllProxiesLatency() {
     }
 
     private void nullifyViews() {
-        initialLayout = webViewContainer = webHeader = emptyStatsView = dashHeader = btnLatency = btnOpen = cardRules = clashStatsCard = btnService = null;
+        initialLayout = webViewContainer = webHeader = emptyStatsView = dashHeader = btnLatency = btnOpen = clashStatsCard = btnService = null;
         statusText = coreText = runtimeText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
         proxyGroupsContainer = null;
         btnUpdateProviders = null;
