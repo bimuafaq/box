@@ -14,5 +14,6 @@
 .externalNativeBuild
 .cxx
 /rox/
+/roxx/
 local.properties
 android.suppressUnsupportedCompileSdk=36
