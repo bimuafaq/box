@@ -16,7 +16,7 @@ import android.widget.EditText;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 public class SettingsFragment extends Fragment {
-    private TextView currentThemeText, currentDashUrlText;
+    private TextView currentThemeText;
     private TextView currentBinNameText, currentNetworkModeText, currentClashOptionText;
     private MaterialSwitch switchIpv6, switchQuic, switchClashStats;
     private SharedPreferences prefs;
@@ -26,14 +26,11 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
-        
+
         prefs = getActivity().getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
 
         View themeSelection = view.findViewById(R.id.themeSelection);
         currentThemeText = view.findViewById(R.id.currentThemeText);
-        
-        View dashUrlSelection = view.findViewById(R.id.dashUrlSelection);
-        currentDashUrlText = view.findViewById(R.id.currentDashUrlText);
 
         // Module Config Views
         switchIpv6 = view.findViewById(R.id.switchIpv6);
@@ -42,7 +39,7 @@ public class SettingsFragment extends Fragment {
         currentBinNameText = view.findViewById(R.id.currentBinNameText);
         currentNetworkModeText = view.findViewById(R.id.currentNetworkModeText);
         currentClashOptionText = view.findViewById(R.id.currentClashOptionText);
-        
+
         // Load Clash API preference
         switchClashStats.setChecked(prefs.getBoolean("enable_clash_api", false));
         switchClashStats.setOnCheckedChangeListener((v, checked) -> {
@@ -52,13 +49,11 @@ public class SettingsFragment extends Fragment {
         View binNameSelection = view.findViewById(R.id.binNameSelection);
         View networkModeSelection = view.findViewById(R.id.networkModeSelection);
         View clashOptionSelection = view.findViewById(R.id.clashOptionSelection);
-        
+
         updateThemeLabel();
-        updateDashUrlLabel();
         loadModuleSettings();
 
         themeSelection.setOnClickListener(v -> showThemeDialog());
-        dashUrlSelection.setOnClickListener(v -> showDashUrlDialog());
 
         switchIpv6.setOnCheckedChangeListener((v, checked) -> {
             if (!isUpdatingUI) updateSettingsIni("ipv6", String.valueOf(checked));
@@ -71,7 +66,7 @@ public class SettingsFragment extends Fragment {
         binNameSelection.setOnClickListener(v -> showBinNameDialog());
         networkModeSelection.setOnClickListener(v -> showNetworkModeDialog());
         clashOptionSelection.setOnClickListener(v -> showClashOptionDialog());
-        
+
         View btnClearFakeIp = view.findViewById(R.id.btnClearFakeIp);
         btnClearFakeIp.setOnClickListener(v -> clearFakeIpCache(v));
 
@@ -233,35 +228,6 @@ public class SettingsFragment extends Fragment {
                 .setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
                     updateSettingsIni("xclash_option", options[which]);
                     dialog.dismiss();
-                })
-                .show();
-    }
-
-    private void updateDashUrlLabel() {
-        String url = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
-        currentDashUrlText.setText(url);
-    }
-
-    private void showDashUrlDialog() {
-        EditText input = new EditText(getContext());
-        String currentUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
-        input.setText(currentUrl);
-        input.setSelection(currentUrl.length());
-        input.setHint("http://127.0.0.1:9090/ui");
-
-        new MaterialAlertDialogBuilder(getContext())
-                .setTitle("Dashboard URL")
-                .setView(input)
-                .setPositiveButton("Save", (dialog, which) -> {
-                    String newUrl = input.getText().toString().trim();
-                    if (newUrl.isEmpty()) newUrl = "http://127.0.0.1:9090/ui";
-                    prefs.edit().putString("dash_url", newUrl).apply();
-                    updateDashUrlLabel();
-                })
-                .setNegativeButton("Cancel", null)
-                .setNeutralButton("Default", (dialog, which) -> {
-                    prefs.edit().putString("dash_url", "http://127.0.0.1:9090/ui").apply();
-                    updateDashUrlLabel();
                 })
                 .show();
     }
