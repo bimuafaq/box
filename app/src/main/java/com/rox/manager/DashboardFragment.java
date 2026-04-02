@@ -346,11 +346,11 @@ public class DashboardFragment extends Fragment {
         if (statusText == null || btnService == null || coreText == null || runtimeText == null || statusCard == null) return;
         FloatingActionButton fab = (FloatingActionButton) btnService;
         if (running) {
-            statusText.setText(R.string.status_running);
+            statusText.setText(String.format("PID: %s", pid));
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnTertiaryContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorTertiaryContainer)));
             
-            coreText.setText(String.format("%s (%s)", core.toUpperCase(), pid));
+            coreText.setText(core.toUpperCase());
             currentRuntimeSeconds = parseETimeToSeconds(etime);
             fab.setImageResource(R.drawable.ic_stop);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
