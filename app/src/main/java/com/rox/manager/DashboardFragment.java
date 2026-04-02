@@ -359,7 +359,6 @@ public class DashboardFragment extends Fragment {
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
             
-            coreText.setText("---");
             runtimeText.setText("00:00:00");
             fab.setImageResource(R.drawable.ic_play_arrow);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
