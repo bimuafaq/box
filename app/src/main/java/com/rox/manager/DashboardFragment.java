@@ -43,7 +43,7 @@ public class DashboardFragment extends Fragment {
     private static final String TAG = "DashboardFragment";
     
     // View References
-    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, clashStatsCard, btnService, btnRefreshProxiesHeader;
+    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, clashStatsCard, btnService;
     private MaterialCardView statusCard;
     private TextView statusText, coreText, runtimeText, cpuText, ramText;
     private WebView webView;
@@ -132,7 +132,6 @@ public class DashboardFragment extends Fragment {
         ramText = view.findViewById(R.id.ramText);
 
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
-        btnRefreshProxiesHeader = view.findViewById(R.id.btnRefreshProxiesHeader);
         btnLatency = view.findViewById(R.id.btnLatencyDash);
         btnService = view.findViewById(R.id.btnService);
 
@@ -147,13 +146,6 @@ public class DashboardFragment extends Fragment {
         btnRefreshWeb.setOnClickListener(v -> {
             v.animate().rotationBy(360).setDuration(500).start();
             if (webView != null) webView.reload();
-        });
-
-        btnRefreshProxiesHeader.setOnClickListener(v -> {
-            if (!isServiceRunning) return;
-            v.animate().rotationBy(360).setDuration(500).start();
-            refreshProxies();
-            updateAllProviders(v);
         });
 
         btnService.setOnClickListener(v -> handleServiceToggle());
@@ -171,32 +163,6 @@ public class DashboardFragment extends Fragment {
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), backPressedCallback);
 
         return view;
-    }
-
-    private void updateAllProviders(View btn) {
-        btn.animate().rotationBy(360).setDuration(1000).start();
-        ThreadManager.runBackgroundTask(() -> {
-            String apiUrl = getApiUrl();
-            String res = ClashApiHelper.get(apiUrl + "/providers/proxies");
-            if (res == null || res.startsWith("Error")) return;
-            try {
-                JSONObject root = new JSONObject(res);
-                JSONObject providers = root.optJSONObject("providers");
-                if (providers != null) {
-                    Iterator<String> keys = providers.keys();
-                    while (keys.hasNext()) {
-                        String name = keys.next();
-                        JSONObject provider = providers.optJSONObject(name);
-                        if (provider != null) {
-                            String vehicleType = provider.optString("vehicleType", "");
-                            if (!vehicleType.equals("Compatible") && !vehicleType.equals("Inline")) {
-                                ClashApiHelper.put(apiUrl + "/providers/proxies/" + Uri.encode(name), null);
-                            }
-                        }
-                    }
-                }
-            } catch (Exception ignored) {}
-        });
     }
 
     private void handleServiceToggle() {
@@ -266,8 +232,7 @@ public class DashboardFragment extends Fragment {
         clashStatsCard.setVisibility(visibility);
         labelProxyGroups.setVisibility(visibility);
         btnLatency.setVisibility(visibility);
-        btnRefreshProxiesHeader.setVisibility(visibility);
-        btnOpen.setVisibility(View.VISIBLE); // Always visible in header
+        btnOpen.setVisibility(View.VISIBLE);
         emptyStatsView.setVisibility(showClashStats ? View.GONE : View.VISIBLE);
     }
 

@@ -12,8 +12,23 @@ android {
         versionName = "1.0"
     }
 
+    signingConfigs {
+        release {
+            def signingProps = new Properties()
+            def propsFile = file("${rootProject.projectDir}/rox/signing.properties")
+            if (propsFile.exists()) {
+                signingProps.load(new FileInputStream(propsFile))
+            }
+            storeFile file(signingProps.getProperty('storeFile', ''))
+            storePassword signingProps.getProperty('storePassword', '')
+            keyAlias signingProps.getProperty('keyAlias', '')
+            keyPassword signingProps.getProperty('keyPassword', '')
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled = true
             shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
