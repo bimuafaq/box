@@ -15,9 +15,7 @@
     <string name="value_zero">0</string>
 
     <!-- Home Fragment -->
-    <string name="label_service_status">SERVICE STATUS</string>
     <string name="status_ready">READY</string>
-    <string name="status_running">RUNNING</string>
     <string name="status_stopped">STOPPED</string>
     <string name="label_active_core">ACTIVE CORE</string>
     <string name="label_cpu">CPU</string>
@@ -37,8 +35,8 @@
     <string name="default_log_file">runs.log</string>
 
     <!-- Files Fragment -->
-    <string name="hint_search_files">Search files...</string>
-    <string name="hint_search_text">Search text...</string>
+    <string name="hint_search_files">Search files…</string>
+    <string name="hint_search_text">Search text…</string>
     <string name="default_filename">filename.ini</string>
     <string name="default_path_box">/data/adb/box</string>
     <string name="btn_back_to_parent">Back to Parent</string>
@@ -48,10 +46,6 @@
     <string name="label_app_theme">App Theme</string>
     <string name="label_system_default">System Default</string>
     <string name="cat_dashboard">DASHBOARD</string>
-    <string name="label_dashboard_url">Dashboard URL</string>
-    <string name="default_dashboard_url">http://127.0.0.1:9090/ui</string>
-    <string name="label_internal_dashboard">Internal Dashboard &amp; API</string>
-    <string name="desc_internal_dashboard">Enable dashboard button and live stats</string>
     <string name="label_clear_fake_ip">Clear Fake-IP Cache</string>
     <string name="desc_clear_fake_ip">Flush DNS and Fake-IP records via API</string>
     <string name="cat_module_config">MODULE CONFIGURATION</string>
@@ -68,6 +62,32 @@
 
     <!-- Placeholders / List Items -->
     <string name="placeholder_proxy_name">ProxyName</string>
-    <string name="placeholder_domain">google.com</string>
     <string name="placeholder_connection_host">example.com</string>
+    <string name="placeholder_latency">---</string>
+    <string name="placeholder_proxy_name_label">Proxy Name</string>
+    <string name="placeholder_proxy_type">Shadowsocks</string>
+    <string name="placeholder_network_type">TCP</string>
+    <string name="placeholder_proxy_group_type">Selector</string>
+    <string name="placeholder_connection_meta">192.168.1.1:12345 ➔ 1.1.1.1:443</string>
+    <string name="log_file_not_found">Log file not found or could not be read.</string>
+    <string name="value_empty_mb_upper">0 MB</string>
+    <string name="value_empty_percent_upper">0%</string>
+    <string name="theme_dark_mode">Dark Mode</string>
+    <string name="theme_light_mode">Light Mode</string>
+    <string name="theme_system_default">System Default</string>
+    <string name="dialog_select_theme">Select App Theme</string>
+    <string name="desc_close_all_connections">Close All Connections</string>
+    <string name="desc_pause_play_connections">Pause/Play Connections</string>
+    <string name="desc_test_latency">Test Latency</string>
+    <string name="desc_start_stop_service">Start/Stop Service</string>
+    <string name="desc_add_file">Add file</string>
+    <string name="desc_clear_search">Clear search</string>
+    <string name="desc_previous_result">Previous result</string>
+    <string name="desc_next_result">Next result</string>
+    <string name="connection_meta_format">%1$s \u2022 %2$s \u2794 %3$s</string>
+    <string-array name="theme_options">
+        <item>@string/theme_system_default</item>
+        <item>@string/theme_light_mode</item>
+        <item>@string/theme_dark_mode</item>
+    </string-array>
 </resources>

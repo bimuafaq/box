@@ -19,6 +19,7 @@ import androidx.core.widget.NestedScrollView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -176,7 +177,7 @@ public class LogsFragment extends Fragment {
                     logTextView.setText(formatLogText(result));
                     logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
                 } else {
-                    logTextView.setText("Log file not found or could not be read.");
+                    logTextView.setText(R.string.log_file_not_found);
                 }
             });
         });
@@ -197,7 +198,7 @@ public class LogsFragment extends Fragment {
             int lineEnd = currentPos + line.length();
             if (lineEnd > spannable.length()) break;
 
-            String lower = line.toLowerCase();
+            String lower = line.toLowerCase(Locale.ROOT);
             int color = 0xFF9E9E9E; // Default grey
 
             if (lower.contains("info") || lower.contains("success")) color = 0xFF4CAF50;

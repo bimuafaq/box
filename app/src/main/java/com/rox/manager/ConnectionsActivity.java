@@ -141,7 +141,7 @@ public class ConnectionsActivity extends AppCompatActivity {
         public void setData(List<Connection> newData) {
             data.clear();
             data.addAll(newData);
-            notifyDataSetChanged();
+            notifyItemRangeInserted(0, newData.size());
         }
 
         @NonNull
@@ -155,7 +155,10 @@ public class ConnectionsActivity extends AppCompatActivity {
             Connection conn = data.get(position);
             holder.network.setText(conn.getNetwork());
             holder.host.setText(conn.getHost());
-            holder.meta.setText(conn.getType() + " \u2022 " + conn.getSource() + " \u2794 " + conn.getDestination());
+            String meta = String.format(java.util.Locale.getDefault(),
+                    holder.itemView.getContext().getString(R.string.connection_meta_format),
+                    conn.getType(), conn.getSource(), conn.getDestination());
+            holder.meta.setText(meta);
             holder.proxy.setText(conn.getProxy());
             holder.up.setText(formatSize(conn.getUpload()));
             holder.down.setText(formatSize(conn.getDownload()));

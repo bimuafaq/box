@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Service layer for Clash API interactions.
@@ -248,7 +249,7 @@ public final class ClashApiService {
             JSONObject metadata = item.optJSONObject("metadata");
             if (metadata == null) metadata = new JSONObject();
 
-            String network = metadata.optString("network", "TCP").toUpperCase();
+            String network = metadata.optString("network", "TCP").toUpperCase(Locale.ROOT);
             String host = metadata.optString("host", "");
             String destIp = metadata.optString("destinationIP", "");
             String destPort = metadata.optString("destinationPort", "");

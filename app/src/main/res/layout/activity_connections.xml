@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:windowBackground">
+>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -70,7 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:contentDescription="Close All Connections"
+            android:contentDescription="@string/desc_close_all_connections"
             android:visibility="gone"
             app:srcCompat="@drawable/ic_close_material"
             app:tint="?attr/colorOnError"
@@ -80,7 +80,7 @@
             android:id="@+id/fabPause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="Pause/Play Connections"
+            android:contentDescription="@string/desc_pause_play_connections"
             app:srcCompat="@drawable/ic_stop"
             app:tint="?attr/colorOnPrimaryContainer"
             app:backgroundTint="?attr/colorPrimaryContainer" />

@@ -235,16 +235,16 @@ public class SettingsFragment extends Fragment {
     private void updateThemeLabel() {
         int mode = AppCompatDelegate.getDefaultNightMode();
         if (mode == AppCompatDelegate.MODE_NIGHT_YES) {
-            currentThemeText.setText("Dark Mode");
+            currentThemeText.setText(R.string.theme_dark_mode);
         } else if (mode == AppCompatDelegate.MODE_NIGHT_NO) {
-            currentThemeText.setText("Light Mode");
+            currentThemeText.setText(R.string.theme_light_mode);
         } else {
-            currentThemeText.setText("System Default");
+            currentThemeText.setText(R.string.theme_system_default);
         }
     }
 
     private void showThemeDialog() {
-        String[] options = {"System Default", "Light Mode", "Dark Mode"};
+        String[] options = getResources().getStringArray(R.array.theme_options);
         int checkedItem = 0;
         int mode = AppCompatDelegate.getDefaultNightMode();
         
@@ -252,7 +252,7 @@ public class SettingsFragment extends Fragment {
         else if (mode == AppCompatDelegate.MODE_NIGHT_YES) checkedItem = 2;
 
         new MaterialAlertDialogBuilder(getContext())
-                .setTitle("Select App Theme")
+                .setTitle(R.string.dialog_select_theme)
                 .setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
                     if (which == 0) {
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);

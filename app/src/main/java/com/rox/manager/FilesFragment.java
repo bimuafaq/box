@@ -257,7 +257,8 @@ public class FilesFragment extends Fragment {
                 filteredFiles.add(f);
             }
         }
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemRangeRemoved(0, adapter.getItemCount());
+        adapter.notifyItemRangeInserted(0, filteredFiles.size());
     }
 
     private void openEditor(String path, String name) {

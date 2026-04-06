@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/android:windowBackground">
+>
 
     <!-- DASHBOARD TOOLBAR (Outside Card) -->
     <LinearLayout
@@ -54,6 +54,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:paddingStart="16dp"
         android:paddingEnd="16dp">
         
         <TextView
@@ -67,7 +68,8 @@
             android:textColor="?attr/colorOnSurface"
             android:paddingTop="32dp"
             android:paddingBottom="12dp"
-            android:paddingStart="20dp" />
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp" />
 
         <!-- OPEN PANEL BUTTON (NOW IN HEADER) -->
         <com.google.android.material.button.MaterialButton
@@ -131,7 +133,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/label_active_core"
-                                    android:textSize="10sp"
+                                    android:textSize="12sp"
                                     android:textColor="?attr/colorOnSurfaceVariant"
                                     android:textAllCaps="true"
                                     android:textStyle="bold"
@@ -140,7 +142,7 @@
                                     android:id="@+id/coreText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="---"
+                                    android:text="@string/placeholder_latency"
                                     android:textSize="18sp"
                                     android:textStyle="bold"
                                     android:textColor="?attr/colorOnSurface" />
@@ -183,12 +185,12 @@
                             android:orientation="horizontal">
                             
                             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
-                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_cpu" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_cpu" android:textSize="12sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
                                 <TextView android:id="@+id/cpuText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/value_empty_percent" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                             </LinearLayout>
 
                             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="32dp" android:orientation="vertical">
-                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_ram" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_ram" android:textSize="12sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
                                 <TextView android:id="@+id/ramText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/value_empty_mb" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                             </LinearLayout>
 
@@ -198,7 +200,7 @@
                                 android:layout_weight="1" />
 
                             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:orientation="vertical">
-                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_uptime" android:textSize="9sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_uptime" android:textSize="12sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
                                 <TextView android:id="@+id/runtimeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/value_empty_time" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                             </LinearLayout>
                         </LinearLayout>
@@ -236,7 +238,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/label_active"
-                                android:textSize="9sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
                                 android:textColor="?attr/colorOnSurfaceVariant"
                                 android:alpha="0.6" />
@@ -274,7 +276,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/label_upload"
-                                android:textSize="9sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
                                 android:textColor="?attr/colorOnSurfaceVariant"
                                 android:alpha="0.6" />
@@ -311,7 +313,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/label_download"
-                                android:textSize="9sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
                                 android:textColor="?attr/colorOnSurfaceVariant"
                                 android:alpha="0.6" />
@@ -334,11 +336,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/label_proxy_groups"
-                    android:textSize="11sp"
+                    android:textSize="12sp"
                     android:textColor="?attr/colorPrimary"
                     android:textStyle="bold"
                     android:letterSpacing="0.1"
                     android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                     android:paddingBottom="12dp" />
 
                 <LinearLayout
@@ -363,7 +366,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="12dp"
-                android:contentDescription="Test Latency"
+                android:contentDescription="@string/desc_test_latency"
                 app:srcCompat="@drawable/ic_bolt"
                 app:tint="?attr/colorOnPrimaryContainer"
                 app:backgroundTint="?attr/colorPrimaryContainer" />
@@ -372,7 +375,7 @@
                 android:id="@+id/btnService"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:contentDescription="Start/Stop Service"
+                android:contentDescription="@string/desc_start_stop_service"
                 app:srcCompat="@drawable/ic_play_arrow"
                 app:tint="?attr/colorOnPrimaryContainer"
                 app:backgroundTint="?attr/colorPrimaryContainer" />

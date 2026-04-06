@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="?attr/android:windowBackground">
+>
 
     <TextView
         android:layout_width="wrap_content"
@@ -16,7 +16,8 @@
         android:textColor="?attr/colorOnSurface"
         android:paddingTop="16dp"
         android:paddingBottom="12dp"
-        android:paddingStart="4dp" />
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -33,11 +34,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cat_appearance"
-                android:textSize="11sp"
+                android:textSize="12sp"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:letterSpacing="0.1"
                 android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:paddingBottom="8dp" />
 
             <com.google.android.material.card.MaterialCardView
@@ -79,11 +81,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cat_dashboard"
-                android:textSize="11sp"
+                android:textSize="12sp"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:letterSpacing="0.1"
                 android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:paddingBottom="8dp" />
 
             <com.google.android.material.card.MaterialCardView
@@ -127,6 +130,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_refresh"
+                        android:contentDescription="@string/label_clear_fake_ip"
                         app:tint="?attr/colorPrimary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -136,11 +140,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cat_module_config"
-                android:textSize="11sp"
+                android:textSize="12sp"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:letterSpacing="0.1"
                 android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:paddingBottom="8dp" />
 
             <com.google.android.material.card.MaterialCardView

@@ -4,36 +4,6 @@
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Material3.SmallComponent</item>
     </style>
 
-    <style name="ShapeAppearance.StartButton" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopLeft">28dp</item>
-        <item name="cornerSizeBottomLeft">28dp</item>
-        <item name="cornerSizeTopRight">8dp</item>
-        <item name="cornerSizeBottomRight">8dp</item>
-    </style>
-    
-    <style name="ShapeAppearance.MiddleButton" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">8dp</item>
-    </style>
-    
-    <style name="ShapeAppearance.EndButton" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopLeft">8dp</item>
-        <item name="cornerSizeBottomLeft">8dp</item>
-        <item name="cornerSizeTopRight">28dp</item>
-        <item name="cornerSizeBottomRight">28dp</item>
-    </style>
-
-    <style name="ShapeAppearance.SearchBar" parent="ShapeAppearance.Material3.SmallComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">12dp</item>
-    </style>
-
-    <style name="Widget.App.SearchBar" parent="Widget.Material3.SearchBar">
-        <item name="shapeAppearance">@style/ShapeAppearance.SearchBar</item>
-    </style>
-
     <!-- Navigation Label Styles -->
     <style name="TextAppearance.App.NavigationLabel" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textSize">12sp</item>

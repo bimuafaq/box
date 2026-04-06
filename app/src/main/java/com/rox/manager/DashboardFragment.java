@@ -1,5 +1,6 @@
 package com.rox.manager;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import java.util.Locale;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -274,8 +276,8 @@ public class DashboardFragment extends Fragment {
                     updateServiceUI(isServiceRunning, cachedCoreName, pid, etime);
 
                     if (!isServiceRunning) {
-                        ramText.setText("0 MB");
-                        cpuText.setText("0%");
+                        ramText.setText(R.string.value_empty_mb_upper);
+                        cpuText.setText(R.string.value_empty_percent_upper);
                     }
                 }
             });
@@ -316,7 +318,7 @@ public class DashboardFragment extends Fragment {
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnTertiaryContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorTertiaryContainer)));
 
-            coreText.setText(core.toUpperCase());
+            coreText.setText(core.toUpperCase(Locale.ROOT));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
             fab.setImageResource(R.drawable.ic_stop);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
@@ -325,7 +327,7 @@ public class DashboardFragment extends Fragment {
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
 
-            runtimeText.setText("00:00:00");
+            runtimeText.setText(R.string.value_empty_time);
             fab.setImageResource(R.drawable.ic_play_arrow);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
         }
@@ -552,6 +554,7 @@ public class DashboardFragment extends Fragment {
         return 0;
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void setupWebView() {
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);

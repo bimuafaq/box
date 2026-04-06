@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:windowBackground">
+>
 
     <LinearLayout
         android:id="@+id/fileListLayout"
@@ -21,7 +21,8 @@
             android:textColor="?attr/colorOnSurface"
             android:paddingTop="32dp"
             android:paddingBottom="12dp"
-            android:paddingStart="20dp" />
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp" />
 
         <!-- INLINE MD3 SEARCH BAR -->
         <com.google.android.material.card.MaterialCardView
@@ -47,8 +48,9 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_search_material"
+                    android:contentDescription="@null"
                     app:tint="?attr/colorOnSurfaceVariant" />
-                
+
                 <EditText
                     android:id="@+id/searchEditText"
                     android:layout_width="match_parent"
@@ -61,6 +63,8 @@
                     android:maxLines="1"
                     android:singleLine="true"
                     android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
                     android:textColor="?attr/colorOnSurface"
                     android:textColorHint="?attr/colorOutline" />
             </LinearLayout>
@@ -83,6 +87,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_back_arrow"
+                android:contentDescription="@string/btn_back_to_parent"
                 app:tint="?attr/colorOnSurfaceVariant" />
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -101,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/default_path_box"
-                    android:textSize="11sp"
+                    android:textSize="12sp"
                     android:textColor="?attr/colorOutline" />
             </LinearLayout>
         </LinearLayout>
@@ -129,6 +134,7 @@
         android:layout_margin="24dp"
         android:layout_gravity="end|bottom"
         android:src="@android:drawable/ic_input_add"
+        android:contentDescription="@string/desc_add_file"
         app:tint="?attr/colorOnPrimaryContainer"
         app:backgroundTint="?attr/colorPrimaryContainer" />
 
@@ -138,7 +144,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="?attr/android:windowBackground"
+    
         android:visibility="gone"
         android:clickable="true">
 
@@ -220,14 +226,17 @@
                     android:textSize="14sp"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:imeOptions="actionSearch" />
-                    
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    android:inputType="text" />
+
                 <ImageButton
                     android:id="@+id/btnEditorSearchClear"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_close_material"
+                    android:contentDescription="@string/desc_clear_search"
                     app:tint="?attr/colorOnSurfaceVariant" />
 
                 <View
@@ -242,6 +251,7 @@
                     android:layout_height="36dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_arrow_up_material"
+                    android:contentDescription="@string/desc_previous_result"
                     app:tint="?attr/colorPrimary" />
 
                 <ImageButton
@@ -250,6 +260,7 @@
                     android:layout_height="36dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_arrow_down_material"
+                    android:contentDescription="@string/desc_next_result"
                     app:tint="?attr/colorPrimary" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
