@@ -444,14 +444,19 @@ public class DashboardFragment extends Fragment {
 
             android.graphics.drawable.GradientDrawable dotDrawable = new android.graphics.drawable.GradientDrawable();
             dotDrawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-            dotDrawable.setColor(color);
+            
+            if (isSelected) {
+                dotDrawable.setColor(android.graphics.Color.TRANSPARENT);
+                dotDrawable.setStroke((int) (2 * ctx.getResources().getDisplayMetrics().density), color);
+            } else {
+                dotDrawable.setColor(color);
+            }
 
             View dot = new View(ctx);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotSize, dotSize);
             params.setMargins(2, 0, 2, 0);
             dot.setLayoutParams(params);
             dot.setBackground(dotDrawable);
-            dot.setAlpha(isSelected ? 1.0f : 0.5f);
 
             dotsContainer.addView(dot);
         }
@@ -476,6 +481,22 @@ public class DashboardFragment extends Fragment {
             else if (displayType.equalsIgnoreCase("REJECT")) displayType = "Reject";
             typeTxt.setText(displayType);
             latencyTxt.setText(proxy.delayDisplay());
+
+            // Color latency text to match dot colors
+            int delay = proxy.getDelayMs();
+            int latencyColor;
+            if (delay > 0 && delay < 200) {
+                latencyColor = 0xFF4CAF50;
+            } else if (delay >= 200 && delay < 500) {
+                latencyColor = 0xFF66BB6A;
+            } else if (delay >= 500 && delay < 800) {
+                latencyColor = 0xFFFFC107;
+            } else if (delay >= 800) {
+                latencyColor = 0xFFFF5252;
+            } else {
+                latencyColor = 0xFF9E9E9E;
+            }
+            latencyTxt.setTextColor(latencyColor);
 
             if (proxy.getName().equals(group.getSelected())) {
                 card.setStrokeColor(MaterialColors.getColor(card, android.R.attr.colorPrimary));
