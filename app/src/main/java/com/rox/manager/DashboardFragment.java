@@ -418,13 +418,6 @@ public class DashboardFragment extends Fragment {
     private void renderProxyDots(LinearLayout dotsContainer, List<ProxyInfo> proxies, String selectedName) {
         dotsContainer.removeAllViews();
         for (ProxyInfo proxy : proxies) {
-            View dot = new View(getContext());
-            int size = (int) (12 * getResources().getDisplayMetrics().density);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-            params.setMargins(4, 0, 4, 0);
-            dot.setLayoutParams(params);
-            dot.setBackgroundResource(R.drawable.circle_dot);
-
             // Color based on latency
             int delay = proxy.getDelayMs();
             int color;
@@ -439,7 +432,18 @@ public class DashboardFragment extends Fragment {
             } else {
                 color = 0xFF9E9E9E; // Grey - no data
             }
-            dot.setBackgroundColor(color);
+
+            // Create circular drawable with color
+            android.graphics.drawable.GradientDrawable dotDrawable = new android.graphics.drawable.GradientDrawable();
+            dotDrawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            dotDrawable.setColor(color);
+
+            int size = (int) (12 * getResources().getDisplayMetrics().density);
+            View dot = new View(getContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+            params.setMargins(4, 0, 4, 0);
+            dot.setLayoutParams(params);
+            dot.setBackground(dotDrawable);
 
             // Highlight selected proxy
             if (proxy.getName().equals(selectedName)) {
