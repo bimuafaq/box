@@ -429,15 +429,13 @@ public class DashboardFragment extends Fragment {
             int delay = proxy.getDelayMs();
             int color;
             if (delay > 0 && delay < 200) {
-                color = 0xFF4CAF50;
-            } else if (delay >= 200 && delay < 500) {
-                color = 0xFF66BB6A;
-            } else if (delay >= 500 && delay < 800) {
-                color = 0xFFFFC107;
-            } else if (delay >= 800) {
-                color = 0xFFFF5252;
+                color = 0xFF4CAF50; // Green
+            } else if (delay >= 200 && delay < 400) {
+                color = 0xFFFFC107; // Yellow
+            } else if (delay >= 400) {
+                color = 0xFFFF5252; // Red
             } else {
-                color = 0xFF9E9E9E;
+                color = 0xFF9E9E9E; // Grey (no data)
             }
 
             boolean isSelected = proxy.getName().equals(selectedName);
@@ -486,15 +484,13 @@ public class DashboardFragment extends Fragment {
             int delay = proxy.getDelayMs();
             int latencyColor;
             if (delay > 0 && delay < 200) {
-                latencyColor = 0xFF4CAF50;
-            } else if (delay >= 200 && delay < 500) {
-                latencyColor = 0xFF66BB6A;
-            } else if (delay >= 500 && delay < 800) {
-                latencyColor = 0xFFFFC107;
-            } else if (delay >= 800) {
-                latencyColor = 0xFFFF5252;
+                latencyColor = 0xFF4CAF50; // Green
+            } else if (delay >= 200 && delay < 400) {
+                latencyColor = 0xFFFFC107; // Yellow
+            } else if (delay >= 400) {
+                latencyColor = 0xFFFF5252; // Red
             } else {
-                latencyColor = 0xFF9E9E9E;
+                latencyColor = 0xFF9E9E9E; // Grey
             }
             latencyTxt.setTextColor(latencyColor);
 
