@@ -495,8 +495,8 @@ public class DashboardFragment extends Fragment {
             latencyTxt.setTextColor(latencyColor);
 
             if (proxy.getName().equals(group.getSelected())) {
-                int primaryColor = MaterialColors.getColor(card, android.R.attr.colorPrimary, 0xFF1976D2);
-                card.setCardBackgroundColor(primaryColor);
+                int containerColor = MaterialColors.getColor(card, com.google.android.material.R.attr.colorSecondaryContainer, 0xFF1E1E1E);
+                card.setCardBackgroundColor(containerColor);
             }
 
             card.setOnClickListener(v -> switchProxy(group.getName(), proxy.getName()));
@@ -520,7 +520,7 @@ public class DashboardFragment extends Fragment {
             if (groupNameTxt != null && groupNameTxt.getText().toString().equals(group)) {
                 GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
                 if (itemsContainer != null) {
-                    int primaryColor = MaterialColors.getColor(getContext(), android.R.attr.colorPrimary, 0xFF1976D2);
+                    int containerColor = MaterialColors.getColor(getContext(), com.google.android.material.R.attr.colorSecondaryContainer, 0xFF1E1E1E);
                     int defaultColor = MaterialColors.getColor(getContext(), com.google.android.material.R.attr.colorSurfaceContainerLow, 0xFF1E1E1E);
                     for (int j = 0; j < itemsContainer.getChildCount(); j++) {
                         View cardView = itemsContainer.getChildAt(j);
@@ -529,7 +529,7 @@ public class DashboardFragment extends Fragment {
                             TextView proxyNameTxt = card.findViewById(R.id.proxyName);
                             if (proxyNameTxt != null) {
                                 if (proxyNameTxt.getText().toString().equals(name)) {
-                                    card.setCardBackgroundColor(primaryColor);
+                                    card.setCardBackgroundColor(containerColor);
                                 } else {
                                     card.setCardBackgroundColor(defaultColor);
                                 }
