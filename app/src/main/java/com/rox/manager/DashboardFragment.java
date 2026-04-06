@@ -385,7 +385,10 @@ public class DashboardFragment extends Fragment {
                 latencyTxt.setVisibility(View.GONE);
             }
 
-            typeTxt.setText(proxy.getType().isEmpty() ? proxy.getName() : proxy.getType());
+            String displayType = proxy.getType().isEmpty() ? proxy.getName() : proxy.getType();
+            if (displayType.equalsIgnoreCase("DIRECT")) displayType = "Direct";
+            else if (displayType.equalsIgnoreCase("REJECT")) displayType = "Reject";
+            typeTxt.setText(displayType);
             latencyTxt.setText(proxy.delayDisplay());
 
             if (proxy.getName().equals(group.getSelected())) {
