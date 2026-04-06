@@ -16,43 +16,74 @@
         android:padding="8dp">
 
         <LinearLayout
+            android:id="@+id/proxyGroupHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="bottom"
+            android:gravity="center_vertical"
             android:baselineAligned="false"
             android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+            android:paddingEnd="8dp"
             android:paddingTop="8dp"
             android:paddingBottom="4dp">
-            
-            <TextView
-                android:id="@+id/proxyGroupName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_proxy_group"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
 
-            <TextView
-                android:id="@+id/proxyGroupType"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/placeholder_proxy_group_type"
-                android:textSize="12sp"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:alpha="0.6" />
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="bottom">
+
+                <TextView
+                    android:id="@+id/proxyGroupName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_proxy_group"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                    android:id="@+id/proxyGroupType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/placeholder_proxy_group_type"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:alpha="0.6" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/proxyGroupToggle"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_arrow_down_material"
+                android:contentDescription="@string/desc_expand_proxy"
+                app:tint="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 
+        <!-- Collapsed view: colored dots -->
+        <LinearLayout
+            android:id="@+id/proxyDotsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp" />
+
+        <!-- Expanded view: detailed proxy cards -->
         <GridLayout
             android:id="@+id/proxyItemsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:columnCount="2"
-            android:alignmentMode="alignMargins" />
+            android:alignmentMode="alignMargins"
+            android:visibility="gone" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

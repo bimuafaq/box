@@ -84,6 +84,7 @@
     <string name="desc_clear_search">Clear search</string>
     <string name="desc_previous_result">Previous result</string>
     <string name="desc_next_result">Next result</string>
+    <string name="desc_expand_proxy">Expand proxy list</string>
     <string name="connection_meta_format">%1$s \u2022 %2$s \u2794 %3$s</string>
     <string-array name="theme_options">
         <item>@string/theme_system_default</item>

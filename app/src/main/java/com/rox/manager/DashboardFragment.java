@@ -16,6 +16,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -35,8 +36,10 @@ import com.rox.manager.model.ProxyGroup;
 import com.rox.manager.model.ProxyInfo;
 import com.rox.manager.service.ClashApiService;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * DashboardFragment: The primary interface for service status and proxy management.
@@ -56,6 +59,9 @@ public class DashboardFragment extends Fragment {
     private WebView webView;
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private LinearLayout proxyGroupsContainer;
+
+    // Track which proxy groups are expanded
+    private final Set<String> expandedGroups = new HashSet<>();
 
     // Logic State
     private boolean isServiceRunning = false;
@@ -371,8 +377,85 @@ public class DashboardFragment extends Fragment {
         View groupView = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy_group, proxyGroupsContainer, false);
         ((TextView) groupView.findViewById(R.id.proxyGroupName)).setText(group.getName());
         ((TextView) groupView.findViewById(R.id.proxyGroupType)).setText(group.getType());
-        GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
 
+        GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
+        LinearLayout dotsContainer = groupView.findViewById(R.id.proxyDotsContainer);
+        ImageView toggleIcon = groupView.findViewById(R.id.proxyGroupToggle);
+        View header = groupView.findViewById(R.id.proxyGroupHeader);
+
+        boolean isExpanded = expandedGroups.contains(group.getName());
+        itemsContainer.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+        dotsContainer.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
+        toggleIcon.setRotation(isExpanded ? 180 : 0);
+
+        // Render colored dots (always rendered but visibility toggled)
+        renderProxyDots(dotsContainer, group.getProxies(), group.getSelected());
+
+        // Render detailed cards (only if expanded)
+        if (isExpanded) {
+            renderDetailedProxies(itemsContainer, group);
+        }
+
+        // Toggle expand/collapse on header click
+        header.setOnClickListener(v -> {
+            if (expandedGroups.contains(group.getName())) {
+                expandedGroups.remove(group.getName());
+                itemsContainer.setVisibility(View.GONE);
+                dotsContainer.setVisibility(View.VISIBLE);
+                toggleIcon.animate().rotation(0).setDuration(200).start();
+            } else {
+                expandedGroups.add(group.getName());
+                itemsContainer.setVisibility(View.VISIBLE);
+                dotsContainer.setVisibility(View.GONE);
+                toggleIcon.animate().rotation(180).setDuration(200).start();
+                renderDetailedProxies(itemsContainer, group);
+            }
+        });
+
+        proxyGroupsContainer.addView(groupView);
+    }
+
+    private void renderProxyDots(LinearLayout dotsContainer, List<ProxyInfo> proxies, String selectedName) {
+        dotsContainer.removeAllViews();
+        for (ProxyInfo proxy : proxies) {
+            View dot = new View(getContext());
+            int size = (int) (12 * getResources().getDisplayMetrics().density);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+            params.setMargins(4, 0, 4, 0);
+            dot.setLayoutParams(params);
+            dot.setBackgroundResource(R.drawable.circle_dot);
+
+            // Color based on latency
+            int delay = proxy.getDelayMs();
+            int color;
+            if (delay > 0 && delay < 200) {
+                color = 0xFF4CAF50; // Green - excellent
+            } else if (delay >= 200 && delay < 500) {
+                color = 0xFF8BC34A; // Light green - good
+            } else if (delay >= 500 && delay < 800) {
+                color = 0xFFFFC107; // Yellow - medium
+            } else if (delay >= 800) {
+                color = 0xFFFF9800; // Orange - poor
+            } else {
+                color = 0xFF9E9E9E; // Grey - no data
+            }
+            dot.setBackgroundColor(color);
+
+            // Highlight selected proxy
+            if (proxy.getName().equals(selectedName)) {
+                dot.setAlpha(1.0f);
+                dot.setScaleX(1.3f);
+                dot.setScaleY(1.3f);
+            } else {
+                dot.setAlpha(0.7f);
+            }
+
+            dotsContainer.addView(dot);
+        }
+    }
+
+    private void renderDetailedProxies(GridLayout itemsContainer, ProxyGroup group) {
+        itemsContainer.removeAllViews();
         for (ProxyInfo proxy : group.getProxies()) {
             View proxyCard = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy, itemsContainer, false);
             TextView nameTxt = proxyCard.findViewById(R.id.proxyName);
@@ -407,7 +490,6 @@ public class DashboardFragment extends Fragment {
 
             itemsContainer.addView(proxyCard);
         }
-        proxyGroupsContainer.addView(groupView);
     }
 
     private void switchProxy(String group, String name) {
