@@ -417,42 +417,41 @@ public class DashboardFragment extends Fragment {
 
     private void renderProxyDots(LinearLayout dotsContainer, List<ProxyInfo> proxies, String selectedName) {
         dotsContainer.removeAllViews();
+        Context ctx = getContext();
+        if (ctx == null) return;
+
+        int dotSize = (int) (12 * ctx.getResources().getDisplayMetrics().density);
+        int ringSize = (int) (16 * ctx.getResources().getDisplayMetrics().density);
+        int ringStroke = (int) (2 * ctx.getResources().getDisplayMetrics().density);
+
         for (ProxyInfo proxy : proxies) {
             // Color based on latency
             int delay = proxy.getDelayMs();
             int color;
             if (delay > 0 && delay < 200) {
-                color = 0xFF4CAF50; // Green - excellent
+                color = 0xFF4CAF50;
             } else if (delay >= 200 && delay < 500) {
-                color = 0xFF8BC34A; // Light green - good
+                color = 0xFF66BB6A;
             } else if (delay >= 500 && delay < 800) {
-                color = 0xFFFFC107; // Yellow - medium
+                color = 0xFFFFC107;
             } else if (delay >= 800) {
-                color = 0xFFFF9800; // Orange - poor
+                color = 0xFFFF5252;
             } else {
-                color = 0xFF9E9E9E; // Grey - no data
+                color = 0xFF9E9E9E;
             }
 
-            // Create circular drawable with color
+            boolean isSelected = proxy.getName().equals(selectedName);
+
             android.graphics.drawable.GradientDrawable dotDrawable = new android.graphics.drawable.GradientDrawable();
             dotDrawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
             dotDrawable.setColor(color);
 
-            int size = (int) (12 * getResources().getDisplayMetrics().density);
-            View dot = new View(getContext());
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-            params.setMargins(4, 0, 4, 0);
+            View dot = new View(ctx);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotSize, dotSize);
+            params.setMargins(2, 0, 2, 0);
             dot.setLayoutParams(params);
             dot.setBackground(dotDrawable);
-
-            // Highlight selected proxy
-            if (proxy.getName().equals(selectedName)) {
-                dot.setAlpha(1.0f);
-                dot.setScaleX(1.3f);
-                dot.setScaleY(1.3f);
-            } else {
-                dot.setAlpha(0.7f);
-            }
+            dot.setAlpha(isSelected ? 1.0f : 0.5f);
 
             dotsContainer.addView(dot);
         }
