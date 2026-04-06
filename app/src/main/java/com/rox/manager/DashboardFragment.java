@@ -495,7 +495,7 @@ public class DashboardFragment extends Fragment {
             latencyTxt.setTextColor(latencyColor);
 
             if (proxy.getName().equals(group.getSelected())) {
-                int containerColor = MaterialColors.getColor(card, com.google.android.material.R.attr.colorSecondaryContainer, 0xFF1E1E1E);
+                int containerColor = MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurfaceContainerHighest, 0xFF353535);
                 card.setCardBackgroundColor(containerColor);
             }
 
@@ -520,7 +520,7 @@ public class DashboardFragment extends Fragment {
             if (groupNameTxt != null && groupNameTxt.getText().toString().equals(group)) {
                 GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
                 if (itemsContainer != null) {
-                    int containerColor = MaterialColors.getColor(getContext(), com.google.android.material.R.attr.colorSecondaryContainer, 0xFF1E1E1E);
+                    int containerColor = MaterialColors.getColor(getContext(), com.google.android.material.R.attr.colorSurfaceContainerHighest, 0xFF353535);
                     int defaultColor = MaterialColors.getColor(getContext(), com.google.android.material.R.attr.colorSurfaceContainerLow, 0xFF1E1E1E);
                     for (int j = 0; j < itemsContainer.getChildCount(); j++) {
                         View cardView = itemsContainer.getChildAt(j);
