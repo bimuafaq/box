@@ -147,7 +147,11 @@ public class DashboardFragment extends Fragment {
         setupWebView();
 
         // Listeners
-        cardConnections.setOnClickListener(v -> startActivity(new Intent(getActivity(), ConnectionsActivity.class)));
+        cardConnections.setOnClickListener(v -> {
+            if (isAdded()) {
+                startActivity(new Intent(getActivity(), ConnectionsActivity.class));
+            }
+        });
         btnRefreshWeb.setOnClickListener(v -> {
             v.animate().rotationBy(360).setDuration(500).start();
             if (webView != null) webView.reload();

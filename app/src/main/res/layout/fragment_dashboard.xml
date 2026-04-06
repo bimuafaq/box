@@ -206,150 +206,128 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- STATS GRID (Connections Left, Traffic Stacked Right) -->
+                <!-- STATS GRID (Connections - Upload - Download sejajar) -->
                 <LinearLayout
                     android:id="@+id/clashStatsCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:visibility="gone"
-                    android:weightSum="2"
+                    android:weightSum="3"
                     android:layout_marginBottom="16dp">
-                    
-                    <!-- LEFT: CONNECTIONS (Big Card with Overlay) -->
+
+                    <!-- CONNECTIONS -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardConnections"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="6dp"
-                        app:cardCornerRadius="24dp"
+                        app:cardCornerRadius="20dp"
                         app:cardBackgroundColor="?attr/colorSurfaceContainer"
                         app:strokeWidth="0dp"
                         style="?attr/materialCardViewFilledStyle">
-                        
-                        <FrameLayout
+
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:clipChildren="true"
-                            android:clipToPadding="true">
+                            android:layout_height="wrap_content"
+                            android:padding="12dp"
+                            android:orientation="vertical">
 
-                            <!-- LARGE CLIPPED ICON OVERLAY -->
-                            <ImageView
-                                android:layout_width="100dp"
-                                android:layout_height="100dp"
-                                android:src="@drawable/ic_dashboard"
-                                app:tint="?attr/colorPrimary"
-                                android:alpha="0.1"
-                                android:layout_gravity="bottom|end"
-                                android:layout_marginBottom="-25dp"
-                                android:layout_marginEnd="-25dp" />
-
-                            <LinearLayout
+                            <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="20dp"
-                                android:layout_gravity="top|start">
-                                
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/label_active"
-                                    android:textSize="11sp"
-                                    android:textStyle="bold"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:alpha="0.8"
-                                    android:letterSpacing="0.1" />
+                                android:text="@string/label_active"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:alpha="0.6" />
 
-                                <TextView
-                                    android:id="@+id/clashConnectionsText"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/value_zero"
-                                    android:textSize="36sp"
-                                    android:textStyle="bold"
-                                    android:textColor="?attr/colorPrimary"
-                                    android:layout_marginTop="2dp"
-                                    android:includeFontPadding="false" />
-                            </LinearLayout>
-                        </FrameLayout>
+                            <TextView
+                                android:id="@+id/clashConnectionsText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/value_zero"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurface" />
+                        </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- RIGHT: TRAFFIC (Stacked) -->
-                    <LinearLayout
+                    <!-- UPLOAD -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginEnd="3dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                        app:strokeWidth="0dp"
+                        style="?attr/materialCardViewFilledStyle">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="12dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_upload"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:alpha="0.6" />
+
+                            <TextView
+                                android:id="@+id/clashUploadText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/value_zero_bytes"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurface" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- DOWNLOAD -->
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="6dp"
-                        android:orientation="vertical">
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                        app:strokeWidth="0dp"
+                        style="?attr/materialCardViewFilledStyle">
 
-                        <!-- UPLOAD CARD -->
-                        <com.google.android.material.card.MaterialCardView
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="6dp"
-                            app:cardCornerRadius="20dp"
-                            app:cardBackgroundColor="?attr/colorSurfaceContainer"
-                            app:strokeWidth="0dp"
-                            style="?attr/materialCardViewFilledStyle">
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:padding="12dp"
-                                android:orientation="vertical">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/label_upload"
-                                    android:textSize="9sp"
-                                    android:textStyle="bold"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:alpha="0.6" />
-                                <TextView
-                                    android:id="@+id/clashUploadText"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/value_zero_bytes"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold"
-                                    android:textColor="?attr/colorPrimary" />
-                            </LinearLayout>
-                        </com.google.android.material.card.MaterialCardView>
+                            android:padding="12dp"
+                            android:orientation="vertical">
 
-                        <!-- DOWNLOAD CARD -->
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            app:cardCornerRadius="20dp"
-                            app:cardBackgroundColor="?attr/colorSurfaceContainer"
-                            app:strokeWidth="0dp"
-                            style="?attr/materialCardViewFilledStyle">
-                            <LinearLayout
-                                android:layout_width="match_parent"
+                            <TextView
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:padding="12dp"
-                                android:orientation="vertical">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/label_download"
-                                    android:textSize="9sp"
-                                    android:textStyle="bold"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:alpha="0.6" />
-                                <TextView
-                                    android:id="@+id/clashDownloadText"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/value_zero_bytes"
-                                    android:textSize="14sp"
-                                    android:textStyle="bold"
-                                    android:textColor="?attr/colorPrimary" />
-                            </LinearLayout>
-                        </com.google.android.material.card.MaterialCardView>
-                    </LinearLayout>
+                                android:text="@string/label_download"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:alpha="0.6" />
+
+                            <TextView
+                                android:id="@+id/clashDownloadText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/value_zero_bytes"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurface" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
                 <!-- PROXY GROUPS SECTION -->
