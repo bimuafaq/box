@@ -48,7 +48,7 @@ public class DashboardFragment extends Fragment {
     private static final String TAG = "DashboardFragment";
 
     // View References
-    private View initialLayout, webViewContainer, webHeader, emptyStatsView, dashHeader, btnLatency, btnOpen, clashStatsCard, btnService;
+    private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService;
     private MaterialCardView statusCard;
     private TextView statusText, coreText, runtimeText, cpuText, ramText;
     private WebView webView;
@@ -59,7 +59,6 @@ public class DashboardFragment extends Fragment {
     private boolean isServiceRunning = false;
     private boolean lastServiceRunningState = false;
     private boolean isActionRunning = false;
-    private boolean showClashStats = false;
     private long currentRuntimeSeconds = 0;
     private long statsCounter = 0;
     private String cachedCoreName = "";
@@ -85,14 +84,12 @@ public class DashboardFragment extends Fragment {
                 updateRuntimeUI(currentRuntimeSeconds);
 
                 // Auto 1sec refresh if service just started running
-                if (!lastServiceRunningState && showClashStats) {
+                if (!lastServiceRunningState) {
                     refreshProxies();
                 }
 
                 // API STATS (Connections, Up/Down) - Every 1s for real-time feel
-                if (showClashStats) {
-                    refreshClashStats();
-                }
+                refreshClashStats();
             }
             lastServiceRunningState = isServiceRunning;
 
@@ -120,10 +117,8 @@ public class DashboardFragment extends Fragment {
         webHeader = view.findViewById(R.id.webHeader);
         dashHeader = view.findViewById(R.id.dashHeader);
         webView = view.findViewById(R.id.dashWebView);
-        emptyStatsView = view.findViewById(R.id.emptyStatsView);
         proxyGroupsContainer = view.findViewById(R.id.proxyGroupsContainer);
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
-        clashStatsCard = view.findViewById(R.id.clashStatsCard);
 
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
         clashDownloadText = view.findViewById(R.id.clashDownloadText);
@@ -212,8 +207,6 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        showClashStats = true;
-        updateClashUIVisibility();
         startPolling();
     }
 
@@ -242,15 +235,6 @@ public class DashboardFragment extends Fragment {
     private void stopPolling() {
         isPollingActive = false;
         pollingHandler.removeCallbacks(pollingRunnable);
-    }
-
-    private void updateClashUIVisibility() {
-        int visibility = showClashStats ? View.VISIBLE : View.GONE;
-        clashStatsCard.setVisibility(visibility);
-        labelProxyGroups.setVisibility(visibility);
-        btnLatency.setVisibility(visibility);
-        btnOpen.setVisibility(View.VISIBLE);
-        emptyStatsView.setVisibility(showClashStats ? View.GONE : View.VISIBLE);
     }
 
     // -- Service Status (shell-based, not Clash API) --------------------------
@@ -585,7 +569,7 @@ public class DashboardFragment extends Fragment {
     }
 
     private void nullifyViews() {
-        initialLayout = webViewContainer = webHeader = emptyStatsView = dashHeader = btnLatency = btnOpen = clashStatsCard = btnService = statusCard = null;
+        initialLayout = webViewContainer = webHeader = dashHeader = btnLatency = btnOpen = btnService = statusCard = null;
         statusText = coreText = runtimeText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
         proxyGroupsContainer = null;
     }

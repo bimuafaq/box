@@ -77,8 +77,7 @@
             android:layout_height="48dp"
             app:icon="@drawable/ic_dashboard"
             app:iconSize="22dp"
-            app:iconTint="?attr/colorOnSurface"
-            android:visibility="gone" />
+            app:iconTint="?attr/colorOnSurface" />
     </LinearLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -212,7 +211,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:visibility="gone"
                     android:weightSum="3"
                     android:layout_marginBottom="16dp">
 
@@ -341,29 +339,13 @@
                     android:textStyle="bold"
                     android:letterSpacing="0.1"
                     android:paddingStart="8dp"
-                    android:paddingBottom="12dp"
-                    android:visibility="gone" />
+                    android:paddingBottom="12dp" />
 
                 <LinearLayout
                     android:id="@+id/proxyGroupsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
-
-                <!-- EMPTY STATE -->
-                <LinearLayout
-                    android:id="@+id/emptyStatsView"
-                    android:layout_width="match_parent"
-                    android:layout_height="400dp"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:src="@drawable/ic_dashboard"
-                        app:tint="?attr/colorPrimary"
-                        android:alpha="0.3" />
-                </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
@@ -382,7 +364,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="12dp"
                 android:contentDescription="Test Latency"
-                android:visibility="gone"
                 app:srcCompat="@drawable/ic_bolt"
                 app:tint="?attr/colorOnPrimaryContainer"
                 app:backgroundTint="?attr/colorPrimaryContainer" />
