@@ -9,18 +9,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
+import com.rox.manager.model.ApiResult;
+import com.rox.manager.model.Connection;
+import com.rox.manager.service.ClashApiService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Live connection viewer.
+ *
+ * <p>All Clash API interactions go through {@link ClashApiService}, which returns
+ * typed {@link Connection} models. The UI layer never parses raw JSON.
+ */
 public class ConnectionsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ConnAdapter adapter;
@@ -28,13 +39,15 @@ public class ConnectionsActivity extends AppCompatActivity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isRunning = false;
     private boolean isPausedByUser = false;
+    private ClashApiService clashApiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connections);
-        
+
         prefs = getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
+        clashApiService = new ClashApiService(getApiUrl());
 
         recyclerView = findViewById(R.id.recyclerConns);
         MaterialButton btnRefresh = findViewById(R.id.btnRefreshConns);
@@ -50,7 +63,7 @@ public class ConnectionsActivity extends AppCompatActivity {
             v.animate().rotationBy(360).setDuration(500).start();
             refresh();
         });
-        
+
         fabPause.setOnClickListener(v -> {
             isPausedByUser = !isPausedByUser;
             if (isPausedByUser) {
@@ -66,44 +79,27 @@ public class ConnectionsActivity extends AppCompatActivity {
                 fabClearAll.setVisibility(View.GONE);
             }
         });
-        
+
         fabClearAll.setOnClickListener(v -> closeAllConnections());
-        
+
         btnBack.setOnClickListener(v -> finish());
     }
 
     private void closeAllConnections() {
         ThreadManager.runBackgroundTask(() -> {
-            String apiUrl = getApiUrl();
-            ClashApiHelper.delete(apiUrl + "/connections");
+            clashApiService.closeAllConnections();
             runOnUiThread(this::refresh);
         });
     }
 
     private void refresh() {
-        if (!isRunning && !isPausedByUser) return; // Prevent running if activity is paused, allow manual refresh if paused by user
+        if (!isRunning && !isPausedByUser) return;
         ThreadManager.runBackgroundTask(() -> {
-            String apiUrl = getApiUrl();
-            String res = ClashApiHelper.get(apiUrl + "/connections");
-            runOnUiThread(() -> {
-                parseAndSet(res);
-            });
-        });
-    }
-
-    private void parseAndSet(String json) {
-        if (json == null || json.startsWith("Error")) return;
-        try {
-            JSONObject root = new JSONObject(json);
-            JSONArray conns = root.optJSONArray("connections");
-            if (conns != null) {
-                List<JSONObject> list = new ArrayList<>();
-                for (int i = 0; i < conns.length(); i++) {
-                    list.add(conns.getJSONObject(i));
-                }
-                adapter.setData(list);
+            ApiResult<List<Connection>> result = clashApiService.getConnections();
+            if (result.isSuccess() && result.getData() != null) {
+                runOnUiThread(() -> adapter.setData(result.getData()));
             }
-        } catch (Exception ignored) {}
+        });
     }
 
     private String getApiUrl() {
@@ -138,9 +134,9 @@ public class ConnectionsActivity extends AppCompatActivity {
     };
 
     private class ConnAdapter extends RecyclerView.Adapter<ConnAdapter.ViewHolder> {
-        private final List<JSONObject> data = new ArrayList<>();
+        private final List<Connection> data = new ArrayList<>();
 
-        public void setData(List<JSONObject> newData) {
+        public void setData(List<Connection> newData) {
             data.clear();
             data.addAll(newData);
             notifyDataSetChanged();
@@ -154,45 +150,13 @@ public class ConnectionsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            try {
-                JSONObject item = data.get(position);
-                JSONObject metadata = item.optJSONObject("metadata");
-                if (metadata == null) metadata = new JSONObject();
-                
-                String network = metadata.optString("network", "TCP").toUpperCase();
-                holder.network.setText(network);
-                
-                String host = metadata.optString("host", "");
-                String destIp = metadata.optString("destinationIP", "");
-                String destPort = metadata.optString("destinationPort", "");
-                
-                if (host.isEmpty()) {
-                    host = destIp;
-                    if (!destPort.isEmpty()) host += ":" + destPort;
-                } else if (!destPort.isEmpty()) {
-                    host += ":" + destPort;
-                }
-                holder.host.setText(host);
-                
-                String sourceIp = metadata.optString("sourceIP", "");
-                String sourcePort = metadata.optString("sourcePort", "");
-                String src = sourceIp;
-                if (!sourcePort.isEmpty()) src += ":" + sourcePort;
-                
-                String dest = destIp;
-                if (!destPort.isEmpty()) dest += ":" + destPort;
-                
-                String type = metadata.optString("type", "HTTP");
-                
-                String meta = type + " • " + src + " ➔ " + dest;
-                holder.meta.setText(meta);
-                
-                JSONArray chain = item.optJSONArray("chains");
-                holder.proxy.setText((chain != null && chain.length() > 0) ? chain.optString(0, "DIRECT") : "DIRECT");
-                
-                holder.up.setText(formatSize(item.optLong("upload", 0)));
-                holder.down.setText(formatSize(item.optLong("download", 0)));
-            } catch (Exception ignored) {}
+            Connection conn = data.get(position);
+            holder.network.setText(conn.getNetwork());
+            holder.host.setText(conn.getHost());
+            holder.meta.setText(conn.getType() + " \u2022 " + conn.getSource() + " \u2794 " + conn.getDestination());
+            holder.proxy.setText(conn.getProxy());
+            holder.up.setText(formatSize(conn.getUpload()));
+            holder.down.setText(formatSize(conn.getDownload()));
         }
 
         @Override

@@ -15,6 +15,8 @@ import android.content.SharedPreferences;
 import android.widget.EditText;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
+import com.rox.manager.service.ClashApiService;
+
 public class SettingsFragment extends Fragment {
     private TextView currentThemeText;
     private TextView currentBinNameText, currentNetworkModeText, currentClashOptionText;
@@ -74,14 +76,15 @@ public class SettingsFragment extends Fragment {
     }
 
     private void clearFakeIpCache(View btn) {
-        View icon = ((ViewGroup) btn).getChildAt(1); // The ImageView is the second child of the LinearLayout
+        View icon = ((ViewGroup) btn).getChildAt(1);
         if (icon != null) {
             icon.animate().rotationBy(360).setDuration(500).start();
         }
-        
+
         ThreadManager.runBackgroundTask(() -> {
             String apiUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui").replaceAll("/(ui|dashboard)/?$", "");
-            ClashApiHelper.post(apiUrl + "/cache/fakeip/flush", null);
+            ClashApiService service = new ClashApiService(apiUrl);
+            service.flushFakeIpCache();
         });
     }
 
