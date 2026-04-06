@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
->
+    android:orientation="vertical">
 
     <!-- DASHBOARD TOOLBAR (Outside Card) -->
     <LinearLayout
@@ -68,8 +67,8 @@
             android:textColor="?attr/colorOnSurface"
             android:paddingTop="32dp"
             android:paddingBottom="12dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp" />
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp" />
 
         <!-- OPEN PANEL BUTTON (NOW IN HEADER) -->
         <com.google.android.material.button.MaterialButton
