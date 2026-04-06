@@ -448,10 +448,11 @@ public class DashboardFragment extends Fragment {
 
         // 2. Background API call via service layer
         ThreadManager.runBackgroundTask(() -> {
-            boolean success = getClashApiService().switchProxy(group, name);
-            if (success) {
+            ApiResult<Boolean> result = getClashApiService().switchProxy(group, name);
+            if (result.isSuccess()) {
                 refreshProxies();
             } else {
+                Log.w(TAG, "Proxy switch failed: " + result.getErrorMessage());
                 runOnUI(this::refreshProxies);
             }
         });

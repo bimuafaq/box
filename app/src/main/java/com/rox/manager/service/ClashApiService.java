@@ -28,6 +28,9 @@ import java.util.List;
  */
 public final class ClashApiService {
 
+    private static final int TIMEOUT_DEFAULT = ClashApiHelper.TIMEOUT;
+    private static final int TIMEOUT_PROXY = 5000;
+
     private final String baseUrl;
 
     public ClashApiService(String baseUrl) {
@@ -40,22 +43,7 @@ public final class ClashApiService {
      * Fetches connection statistics (connection count, download/upload totals).
      */
     public ApiResult<ClashStats> getStats() {
-        String raw = ClashApiHelper.get(baseUrl + "/connections");
-        if (raw == null || raw.startsWith("Error")) {
-            return ApiResult.error(raw != null ? raw : "No response");
-        }
-        try {
-            JSONObject root = new JSONObject(raw);
-            JSONArray conns = root.optJSONArray("connections");
-            ClashStats stats = new ClashStats(
-                    conns != null ? conns.length() : 0,
-                    root.optLong("downloadTotal", 0),
-                    root.optLong("uploadTotal", 0)
-            );
-            return ApiResult.success(stats);
-        } catch (Exception e) {
-            return ApiResult.error("Parse error: " + e.getMessage());
-        }
+        return fetchConnections().map(this::parseStatsOnly);
     }
 
     // -- Proxies --------------------------------------------------------------
@@ -119,27 +107,30 @@ public final class ClashApiService {
     }
 
     /**
-     * Switches the selected proxy within a group. Returns true on success.
+     * Switches the selected proxy within a group.
      */
-    public boolean switchProxy(String group, String name) {
+    public ApiResult<Boolean> switchProxy(String group, String name) {
         try {
             URL url = new URL(baseUrl + "/proxies/" + Uri.encode(group));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("PUT");
-            conn.setConnectTimeout(2000);
+            conn.setConnectTimeout(TIMEOUT_PROXY);
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type", "application/json");
 
-            String body = "{\"name\":\"" + name + "\"}";
+            String body = new JSONObject().put("name", name).toString();
             try (java.io.OutputStream os = conn.getOutputStream()) {
                 os.write(body.getBytes(StandardCharsets.UTF_8));
             }
 
             int code = conn.getResponseCode();
             conn.disconnect();
-            return code >= 200 && code < 300;
+            if (code >= 200 && code < 300) {
+                return ApiResult.success(true);
+            }
+            return ApiResult.error("HTTP " + code);
         } catch (Exception e) {
-            return false;
+            return ApiResult.error(e.getMessage());
         }
     }
 
@@ -149,40 +140,105 @@ public final class ClashApiService {
      * Fetches the current list of active connections.
      */
     public ApiResult<List<Connection>> getConnections() {
-        String raw = ClashApiHelper.get(baseUrl + "/connections");
-        if (raw == null || raw.startsWith("Error")) {
-            return ApiResult.error(raw != null ? raw : "No response");
-        }
-        try {
-            JSONObject root = new JSONObject(raw);
-            JSONArray conns = root.optJSONArray("connections");
-            if (conns == null) {
-                return ApiResult.success(new ArrayList<>());
-            }
+        return fetchConnections().map(this::parseConnectionsList);
+    }
 
-            List<Connection> list = new ArrayList<>();
-            for (int i = 0; i < conns.length(); i++) {
-                JSONObject item = conns.getJSONObject(i);
-                list.add(parseConnection(item));
-            }
-            return ApiResult.success(list);
-        } catch (Exception e) {
-            return ApiResult.error("Parse error: " + e.getMessage());
-        }
+    /**
+     * Fetches the full /connections payload and parses both stats and connections.
+     * Returns a single result containing both to avoid duplicate HTTP calls.
+     */
+    public ApiResult<ConnectionsResult> getConnectionsFull() {
+        return fetchConnections().map(this::parseConnectionsResult);
     }
 
     /**
      * Closes all active connections.
      */
-    public void closeAllConnections() {
-        ClashApiHelper.delete(baseUrl + "/connections");
+    public ApiResult<Void> closeAllConnections() {
+        String raw = ClashApiHelper.delete(baseUrl + "/connections");
+        if (raw != null && raw.startsWith("Error")) {
+            return ApiResult.error(raw);
+        }
+        return ApiResult.success(null);
     }
 
     /**
      * Flushes the Fake-IP cache.
      */
-    public void flushFakeIpCache() {
-        ClashApiHelper.post(baseUrl + "/cache/fakeip/flush", null);
+    public ApiResult<Void> flushFakeIpCache() {
+        String raw = ClashApiHelper.post(baseUrl + "/cache/fakeip/flush", "{}");
+        if (raw != null && raw.startsWith("Error")) {
+            return ApiResult.error(raw);
+        }
+        return ApiResult.success(null);
+    }
+
+    // -- Combined result types ------------------------------------------------
+
+    /**
+     * Combined result containing both connection stats and the full list.
+     */
+    public static final class ConnectionsResult {
+        private final ClashStats stats;
+        private final List<Connection> connections;
+
+        public ConnectionsResult(ClashStats stats, List<Connection> connections) {
+            this.stats = stats;
+            this.connections = connections;
+        }
+
+        public ClashStats getStats() { return stats; }
+        public List<Connection> getConnections() { return connections; }
+    }
+
+    // -- Private helpers ------------------------------------------------------
+
+    /** Fetches raw /connections response (shared by stats and list methods). */
+    private ApiResult<String> fetchConnections() {
+        String raw = ClashApiHelper.get(baseUrl + "/connections");
+        if (raw == null || raw.startsWith("Error")) {
+            return ApiResult.error(raw != null ? raw : "No response");
+        }
+        return ApiResult.success(raw);
+    }
+
+    /** Parses just the stats from a raw /connections response. */
+    private ClashStats parseStatsOnly(String raw) {
+        try {
+            JSONObject root = new JSONObject(raw);
+            JSONArray conns = root.optJSONArray("connections");
+            return new ClashStats(
+                    conns != null ? conns.length() : 0,
+                    root.optLong("downloadTotal", 0),
+                    root.optLong("uploadTotal", 0)
+            );
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Parses the connection list from a raw /connections response. */
+    private List<Connection> parseConnectionsList(String raw) {
+        try {
+            JSONObject root = new JSONObject(raw);
+            JSONArray conns = root.optJSONArray("connections");
+            if (conns == null) return new ArrayList<>();
+
+            List<Connection> list = new ArrayList<>();
+            for (int i = 0; i < conns.length(); i++) {
+                list.add(parseConnection(conns.getJSONObject(i)));
+            }
+            return list;
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    /** Parses both stats and connections from a single /connections response. */
+    private ConnectionsResult parseConnectionsResult(String raw) {
+        ClashStats stats = parseStatsOnly(raw);
+        List<Connection> connections = parseConnectionsList(raw);
+        return new ConnectionsResult(stats, connections);
     }
 
     // -- Private helpers ------------------------------------------------------

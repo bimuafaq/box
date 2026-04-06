@@ -23,4 +23,14 @@ public final class ApiResult<T> {
     public boolean isSuccess() { return errorMessage == null; }
     public T getData() { return data; }
     public String getErrorMessage() { return errorMessage; }
+
+    /**
+     * Transforms the success value, preserving error state.
+     */
+    public <U> ApiResult<U> map(java.util.function.Function<T, U> fn) {
+        if (errorMessage != null) {
+            return ApiResult.error(errorMessage);
+        }
+        return ApiResult.success(fn.apply(data));
+    }
 }

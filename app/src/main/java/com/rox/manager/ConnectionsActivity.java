@@ -87,8 +87,10 @@ public class ConnectionsActivity extends AppCompatActivity {
 
     private void closeAllConnections() {
         ThreadManager.runBackgroundTask(() -> {
-            clashApiService.closeAllConnections();
-            runOnUiThread(this::refresh);
+            ApiResult<Void> result = clashApiService.closeAllConnections();
+            if (result.isSuccess()) {
+                runOnUiThread(this::refresh);
+            }
         });
     }
 

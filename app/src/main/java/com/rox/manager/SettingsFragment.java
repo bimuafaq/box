@@ -16,6 +16,7 @@ import android.widget.EditText;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 import com.rox.manager.service.ClashApiService;
+import com.rox.manager.model.ApiResult;
 
 public class SettingsFragment extends Fragment {
     private TextView currentThemeText;
@@ -84,7 +85,10 @@ public class SettingsFragment extends Fragment {
         ThreadManager.runBackgroundTask(() -> {
             String apiUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui").replaceAll("/(ui|dashboard)/?$", "");
             ClashApiService service = new ClashApiService(apiUrl);
-            service.flushFakeIpCache();
+            ApiResult<Void> result = service.flushFakeIpCache();
+            if (!result.isSuccess()) {
+                android.util.Log.w("SettingsFragment", "FakeIP cache flush failed: " + result.getErrorMessage());
+            }
         });
     }
 

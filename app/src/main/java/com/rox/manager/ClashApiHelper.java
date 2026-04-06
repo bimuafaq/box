@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class ClashApiHelper {
     private static final String TAG = "ClashApiHelper";
-    private static final int TIMEOUT = 3000;
+    public static final int TIMEOUT = 3000;
 
     public static String fetch(String urlStr, String method, String body) {
         HttpURLConnection conn = null;
