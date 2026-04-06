@@ -212,7 +212,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        showClashStats = prefs.getBoolean("enable_clash_api", false);
+        showClashStats = true;
         updateClashUIVisibility();
         startPolling();
     }
