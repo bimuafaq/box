@@ -165,7 +165,7 @@ public class DashboardFragment extends Fragment {
             testAllProxiesLatency();
         });
 
-        btnOpen.setOnClickListener(v -> toggleWebView(true));
+        btnOpen.setOnClickListener(v -> showDashboardUrlDialog());
         btnClose.setOnClickListener(v -> toggleWebView(false));
 
         backPressedCallback = new OnBackPressedCallback(false) {
@@ -192,7 +192,38 @@ public class DashboardFragment extends Fragment {
         }
     }
 
+    private void showDashboardUrlDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getContext());
+        builder.setTitle("Dashboard URL");
+
+        android.widget.EditText input = new android.widget.EditText(getContext());
+        input.setText("http://127.0.0.1:9090/ui");
+        input.setHint("Enter dashboard URL");
+        input.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_URI);
+        android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
+            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
+        input.setLayoutParams(lp);
+        input.setPadding(50, 20, 50, 0);
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(getContext());
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.addView(input);
+        builder.setView(layout);
+
+        builder.setPositiveButton("Open", (dialog, which) -> {
+            String url = input.getText().toString().trim();
+            if (url.isEmpty()) url = "http://127.0.0.1:9090/ui";
+            toggleWebView(true, url);
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
     private void toggleWebView(boolean open) {
+        toggleWebView(open, "http://127.0.0.1:9090/ui");
+    }
+
+    private void toggleWebView(boolean open, String url) {
         if (open) {
             stopPolling();
             initialLayout.setVisibility(View.GONE);
@@ -200,7 +231,7 @@ public class DashboardFragment extends Fragment {
             webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
             btnService.setVisibility(View.GONE);
-            webView.loadUrl("http://127.0.0.1:9090/ui");
+            webView.loadUrl(url);
         } else {
             webHeader.setVisibility(View.GONE);
             webViewContainer.setVisibility(View.GONE);
