@@ -58,6 +58,7 @@ public class ConnectionsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ConnAdapter();
         recyclerView.setAdapter(adapter);
+        recyclerView.setItemAnimator(null);
 
         btnRefresh.setOnClickListener(v -> {
             v.animate().rotationBy(360).setDuration(500).start();
@@ -139,15 +140,9 @@ public class ConnectionsActivity extends AppCompatActivity {
         private final List<Connection> data = new ArrayList<>();
 
         public void setData(List<Connection> newData) {
-            int oldSize = data.size();
-            if (oldSize > 0) {
-                notifyItemRangeRemoved(0, oldSize);
-                data.clear();
-            }
+            data.clear();
             data.addAll(newData);
-            if (!newData.isEmpty()) {
-                notifyItemRangeInserted(0, newData.size());
-            }
+            notifyDataSetChanged();
         }
 
         @NonNull
