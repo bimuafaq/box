@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager() {
         viewPager.setAdapter(new ViewPager2Adapter(this));
         viewPager.setUserInputEnabled(false);
+        viewPager.setOffscreenPageLimit(1);
     }
 
     private void setupNavigation() {
