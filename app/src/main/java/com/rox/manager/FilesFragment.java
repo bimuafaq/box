@@ -95,6 +95,7 @@ public class FilesFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FileAdapter();
         recyclerView.setAdapter(adapter);
+        recyclerView.setItemAnimator(null);
 
         swipeRefresh.setOnRefreshListener(this::loadFiles);
         
@@ -257,8 +258,7 @@ public class FilesFragment extends Fragment {
                 filteredFiles.add(f);
             }
         }
-        adapter.notifyItemRangeRemoved(0, adapter.getItemCount());
-        adapter.notifyItemRangeInserted(0, filteredFiles.size());
+        adapter.notifyDataSetChanged();
     }
 
     private void openEditor(String path, String name) {
