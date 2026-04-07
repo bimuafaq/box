@@ -378,12 +378,12 @@
             android:orientation="vertical"
             android:gravity="center_horizontal">
 
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnService"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_play_arrow"
-                app:iconTint="?attr/colorOnPrimaryContainer"
+                android:src="@drawable/ic_play_arrow"
+                app:tint="?attr/colorOnPrimaryContainer"
                 app:backgroundTint="?attr/colorPrimaryContainer" />
 
             <TextView
