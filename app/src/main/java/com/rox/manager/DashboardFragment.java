@@ -55,7 +55,7 @@ public class DashboardFragment extends Fragment {
     // View References
     private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService;
     private MaterialCardView statusCard;
-    private TextView statusText, coreText, runtimeText, cpuText, ramText;
+    private TextView statusText, coreText, cpuText, ramText;
     private WebView webView;
     private TextView labelProxyGroups, clashConnectionsText, clashDownloadText, clashUploadText;
     private LinearLayout proxyGroupsContainer;
@@ -135,7 +135,6 @@ public class DashboardFragment extends Fragment {
         statusCard = view.findViewById(R.id.statusCard);
         statusText = view.findViewById(R.id.statusText);
         coreText = view.findViewById(R.id.coreText);
-        runtimeText = view.findViewById(R.id.runtimeText);
         cpuText = view.findViewById(R.id.cpuText);
         ramText = view.findViewById(R.id.ramText);
 
@@ -317,7 +316,7 @@ public class DashboardFragment extends Fragment {
     }
 
     private void updateServiceUI(boolean running, String core, String pid, String etime) {
-        if (statusText == null || btnService == null || coreText == null || runtimeText == null || statusCard == null) return;
+        if (statusText == null || btnService == null || coreText == null || statusCard == null) return;
         ExtendedFloatingActionButton fab = (ExtendedFloatingActionButton) btnService;
         if (running) {
             statusText.setText(String.format("PID: %s", pid));
@@ -326,7 +325,6 @@ public class DashboardFragment extends Fragment {
 
             coreText.setText(core.toUpperCase(Locale.ROOT));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
-            runtimeText.setVisibility(View.GONE);
             fab.setIconResource(R.drawable.ic_stop);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
             fab.extend();
@@ -337,8 +335,6 @@ public class DashboardFragment extends Fragment {
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
 
-            runtimeText.setText(R.string.value_empty_time);
-            runtimeText.setVisibility(View.GONE);
             fab.setIconResource(R.drawable.ic_play_arrow);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
             fab.shrink();
@@ -648,7 +644,6 @@ public class DashboardFragment extends Fragment {
     }
 
     private void updateRuntimeUI(long totalSeconds) {
-        runtimeText.setVisibility(View.GONE);
         String uptime = String.format(Locale.getDefault(), "%02d:%02d:%02d", totalSeconds / 3600, (totalSeconds % 3600) / 60, totalSeconds % 60);
         ExtendedFloatingActionButton fab = (ExtendedFloatingActionButton) btnService;
         if (fab.isExtended()) {
@@ -690,7 +685,7 @@ public class DashboardFragment extends Fragment {
 
     private void nullifyViews() {
         initialLayout = webViewContainer = webHeader = dashHeader = btnLatency = btnOpen = btnService = statusCard = null;
-        statusText = coreText = runtimeText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
+        statusText = coreText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
         proxyGroupsContainer = null;
     }
 }
