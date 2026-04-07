@@ -10,7 +10,6 @@
     <!-- Common -->
     <string name="value_empty_percent">0%</string>
     <string name="value_empty_mb">0 MB</string>
-    <string name="value_empty_time">00:00:00</string>
     <string name="value_zero_bytes">0 B</string>
     <string name="value_zero">0</string>
 
@@ -20,7 +19,6 @@
     <string name="label_active_core">ACTIVE CORE</string>
     <string name="label_cpu">CPU</string>
     <string name="label_ram">RAM</string>
-    <string name="label_uptime">UPTIME</string>
     
     <!-- Dashboard Fragment -->
     <string name="label_web_interface">Web Interface</string>
@@ -79,7 +77,6 @@
     <string name="desc_close_all_connections">Close All Connections</string>
     <string name="desc_pause_play_connections">Pause/Play Connections</string>
     <string name="desc_test_latency">Test Latency</string>
-    <string name="desc_start_stop_service">Start/Stop Service</string>
     <string name="desc_add_file">Add file</string>
     <string name="desc_clear_search">Clear search</string>
     <string name="desc_previous_result">Previous result</string>
