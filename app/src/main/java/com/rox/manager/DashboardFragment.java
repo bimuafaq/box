@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import com.rox.manager.model.ApiResult;
@@ -193,22 +194,16 @@ public class DashboardFragment extends Fragment {
     }
 
     private void showDashboardUrlDialog() {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
         builder.setTitle("Dashboard URL");
 
         android.widget.EditText input = new android.widget.EditText(getContext());
         input.setText("http://127.0.0.1:9090/ui");
         input.setHint("Enter dashboard URL");
         input.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_URI);
-        android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
-            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
-        input.setLayoutParams(lp);
-        input.setPadding(50, 20, 50, 0);
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(getContext());
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.addView(input);
-        builder.setView(layout);
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        input.setPadding(padding, padding, padding, padding);
+        builder.setView(input);
 
         builder.setPositiveButton("Open", (dialog, which) -> {
             String url = input.getText().toString().trim();
