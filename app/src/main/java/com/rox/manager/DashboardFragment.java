@@ -28,7 +28,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import com.rox.manager.model.ApiResult;
 import com.rox.manager.model.ClashStats;
@@ -54,6 +54,7 @@ public class DashboardFragment extends Fragment {
 
     // View References
     private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService;
+    private TextView fabUptimeText;
     private MaterialCardView statusCard;
     private TextView statusText, coreText, cpuText, ramText;
     private WebView webView;
@@ -141,6 +142,7 @@ public class DashboardFragment extends Fragment {
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
         btnLatency = view.findViewById(R.id.btnLatencyDash);
         btnService = view.findViewById(R.id.btnService);
+        fabUptimeText = view.findViewById(R.id.fabUptimeText);
 
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         View btnRefreshWeb = view.findViewById(R.id.btnRefreshWeb);
@@ -317,7 +319,7 @@ public class DashboardFragment extends Fragment {
 
     private void updateServiceUI(boolean running, String core, String pid, String etime) {
         if (statusText == null || btnService == null || coreText == null || statusCard == null) return;
-        ExtendedFloatingActionButton fab = (ExtendedFloatingActionButton) btnService;
+        FloatingActionButton fab = (FloatingActionButton) btnService;
         if (running) {
             statusText.setText(String.format("PID: %s", pid));
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnTertiaryContainer));
@@ -325,20 +327,23 @@ public class DashboardFragment extends Fragment {
 
             coreText.setText(core.toUpperCase(Locale.ROOT));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
-            fab.setIconResource(R.drawable.ic_stop);
+            fab.setImageResource(R.drawable.ic_stop);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
-            fab.extend();
-            String uptime = String.format(Locale.getDefault(), "%02d:%02d:%02d", currentRuntimeSeconds / 3600, (currentRuntimeSeconds % 3600) / 60, currentRuntimeSeconds % 60);
-            fab.setText(uptime);
+            if (fabUptimeText != null) {
+                fabUptimeText.setVisibility(View.VISIBLE);
+                String uptime = String.format(Locale.getDefault(), "%02d:%02d:%02d", currentRuntimeSeconds / 3600, (currentRuntimeSeconds % 3600) / 60, currentRuntimeSeconds % 60);
+                fabUptimeText.setText(uptime);
+            }
         } else {
             statusText.setText(R.string.status_stopped);
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
 
-            fab.setIconResource(R.drawable.ic_play_arrow);
+            fab.setImageResource(R.drawable.ic_play_arrow);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
-            fab.shrink();
-            fab.setText("");
+            if (fabUptimeText != null) {
+                fabUptimeText.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -644,10 +649,9 @@ public class DashboardFragment extends Fragment {
     }
 
     private void updateRuntimeUI(long totalSeconds) {
-        String uptime = String.format(Locale.getDefault(), "%02d:%02d:%02d", totalSeconds / 3600, (totalSeconds % 3600) / 60, totalSeconds % 60);
-        ExtendedFloatingActionButton fab = (ExtendedFloatingActionButton) btnService;
-        if (fab.isExtended()) {
-            fab.setText(uptime);
+        if (fabUptimeText != null && fabUptimeText.getVisibility() == View.VISIBLE) {
+            String uptime = String.format(Locale.getDefault(), "%02d:%02d:%02d", totalSeconds / 3600, (totalSeconds % 3600) / 60, totalSeconds % 60);
+            fabUptimeText.setText(uptime);
         }
     }
 
