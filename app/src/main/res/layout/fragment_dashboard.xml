@@ -199,8 +199,6 @@
                                 android:layout_weight="1" />
 
                             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:orientation="vertical">
-                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_uptime" android:textSize="12sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
-                                <TextView android:id="@+id/runtimeText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/value_empty_time" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
