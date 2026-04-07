@@ -139,9 +139,15 @@ public class ConnectionsActivity extends AppCompatActivity {
         private final List<Connection> data = new ArrayList<>();
 
         public void setData(List<Connection> newData) {
-            data.clear();
+            int oldSize = data.size();
+            if (oldSize > 0) {
+                notifyItemRangeRemoved(0, oldSize);
+                data.clear();
+            }
             data.addAll(newData);
-            notifyItemRangeInserted(0, newData.size());
+            if (!newData.isEmpty()) {
+                notifyItemRangeInserted(0, newData.size());
+            }
         }
 
         @NonNull
