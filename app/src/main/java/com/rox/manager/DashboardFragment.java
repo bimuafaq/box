@@ -28,7 +28,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import com.rox.manager.model.ApiResult;
 import com.rox.manager.model.ClashStats;
@@ -318,7 +318,7 @@ public class DashboardFragment extends Fragment {
 
     private void updateServiceUI(boolean running, String core, String pid, String etime) {
         if (statusText == null || btnService == null || coreText == null || runtimeText == null || statusCard == null) return;
-        FloatingActionButton fab = (FloatingActionButton) btnService;
+        ExtendedFloatingActionButton fab = (ExtendedFloatingActionButton) btnService;
         if (running) {
             statusText.setText(String.format("PID: %s", pid));
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnTertiaryContainer));
@@ -326,16 +326,21 @@ public class DashboardFragment extends Fragment {
 
             coreText.setText(core.toUpperCase(Locale.ROOT));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
-            fab.setImageResource(R.drawable.ic_stop);
+            fab.setIconResource(R.drawable.ic_stop);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
+            fab.extend();
+            String uptime = String.format(Locale.getDefault(), "⏱ %02d:%02d:%02d", currentRuntimeSeconds / 3600, (currentRuntimeSeconds % 3600) / 60, currentRuntimeSeconds % 60);
+            fab.setText(uptime);
         } else {
             statusText.setText(R.string.status_stopped);
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
 
             runtimeText.setText(R.string.value_empty_time);
-            fab.setImageResource(R.drawable.ic_play_arrow);
+            fab.setIconResource(R.drawable.ic_play_arrow);
             fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
+            fab.shrink();
+            fab.setText("");
         }
     }
 
