@@ -199,10 +199,12 @@ public class DashboardFragment extends Fragment {
             dashHeader.setVisibility(View.GONE);
             webHeader.setVisibility(View.VISIBLE);
             webViewContainer.setVisibility(View.VISIBLE);
+            btnService.setVisibility(View.GONE);
             webView.loadUrl("http://127.0.0.1:9090/ui");
         } else {
             webHeader.setVisibility(View.GONE);
             webViewContainer.setVisibility(View.GONE);
+            btnService.setVisibility(View.VISIBLE);
             initialLayout.setVisibility(View.VISIBLE);
             dashHeader.setVisibility(View.VISIBLE);
             webView.loadUrl("about:blank");
