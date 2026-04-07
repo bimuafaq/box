@@ -198,7 +198,8 @@ public class DashboardFragment extends Fragment {
         builder.setTitle("Dashboard URL");
 
         android.widget.EditText input = new android.widget.EditText(getContext());
-        input.setText("http://127.0.0.1:9090/ui");
+        String savedUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
+        input.setText(savedUrl);
         input.setHint("Enter dashboard URL");
         input.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_URI);
         int padding = (int) (16 * getResources().getDisplayMetrics().density);
@@ -208,6 +209,7 @@ public class DashboardFragment extends Fragment {
         builder.setPositiveButton("Open", (dialog, which) -> {
             String url = input.getText().toString().trim();
             if (url.isEmpty()) url = "http://127.0.0.1:9090/ui";
+            prefs.edit().putString("dash_url", url).apply();
             toggleWebView(true, url);
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
