@@ -179,7 +179,7 @@ public class DashboardFragment extends Fragment {
         });
 
         btnService.setOnClickListener(v -> handleServiceToggle());
-        btnProxyViewMode.setOnClickListener(v -> showProxyViewPopupMenu(v));
+        btnProxyViewMode.setOnClickListener(v -> toggleProxyView());
         btnRefreshProviders.setOnClickListener(v -> {
             if (!isServiceRunning) return;
             refreshProxyProviders();
@@ -738,105 +738,25 @@ public class DashboardFragment extends Fragment {
         isLatencyTestRunning = false;
     }
 
-    // -- Proxy View Selector -------------------------------------------------
+    // -- Proxy View Toggle ---------------------------------------------------
 
-    private void showProxyViewPopupMenu(View anchor) {
-        if (getContext() == null) return;
-
-        String[] items = new String[]{"Proxy Groups", "Proxy Providers"};
-        int selectedIndex = showProxyProviders ? 1 : 0;
-        int headerColor = labelProxyGroups.getCurrentTextColor();
-        int popupBgColor = com.google.android.material.color.MaterialColors.getColor(
-                getContext(), com.google.android.material.R.attr.colorSurfaceContainer, 0xFF2D2D2D);
-        int selectedBgColor = com.google.android.material.color.MaterialColors.getColor(
-                getContext(), com.google.android.material.R.attr.colorSurfaceContainerHighest, 0xFF454545);
-        int normalTextColor = com.google.android.material.color.MaterialColors.getColor(
-                getContext(), android.R.attr.textColorSecondary, 0xFFAAAAAA);
-        int cornerRadius = (int) (16 * getContext().getResources().getDisplayMetrics().density);
-        int itemRadius = (int) (10 * getContext().getResources().getDisplayMetrics().density);
-        int itemPadding = (int) (12 * getContext().getResources().getDisplayMetrics().density);
-        int popupWidth = (int) (200 * getContext().getResources().getDisplayMetrics().density);
-
-        android.graphics.drawable.GradientDrawable popupBg = new android.graphics.drawable.GradientDrawable();
-        popupBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-        popupBg.setColor(popupBgColor);
-        popupBg.setCornerRadius(cornerRadius);
-
-        // Custom list view with selector disabled
-        android.widget.ListView listView = new android.widget.ListView(
-                new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Theme_Material3_DayNight));
-        listView.setDivider(null);
-        listView.setSelector(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
-        listView.setCacheColorHint(android.graphics.Color.TRANSPARENT);
-        listView.setVerticalScrollBarEnabled(false);
-        listView.setPadding(0, 0, 0, 0);
-        listView.setClipToPadding(false);
-
-        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
-                getContext(), android.R.layout.simple_list_item_1, items) {
-            @NonNull
-            @Override
-            public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-                TextView textView = view.findViewById(android.R.id.text1);
-
-                android.graphics.drawable.GradientDrawable selectedBg = new android.graphics.drawable.GradientDrawable();
-                selectedBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
-                selectedBg.setCornerRadius(itemRadius);
-
-                if (position == selectedIndex) {
-                    selectedBg.setColor(selectedBgColor);
-                    view.setBackground(selectedBg);
-                    if (textView != null) {
-                        textView.setTextColor(headerColor);
-                    }
-                } else {
-                    view.setBackgroundColor(android.graphics.Color.TRANSPARENT);
-                    if (textView != null) {
-                        textView.setTextColor(normalTextColor);
-                    }
-                }
-
-                view.setPadding(itemPadding, itemPadding, itemPadding, itemPadding);
-                return view;
-            }
-        };
-        listView.setAdapter(adapter);
-
-        android.widget.PopupWindow popupWindow = new android.widget.PopupWindow(
-                new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Theme_Material3_DayNight));
-        popupWindow.setContentView(listView);
-        popupWindow.setWidth(popupWidth);
-        popupWindow.setHeight(android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setFocusable(true);
-        popupWindow.setBackgroundDrawable(popupBg);
-        popupWindow.setOutsideTouchable(true);
-
-        // Calculate offset: align right edge of popup with right edge of anchor button
-        int[] anchorPos = new int[2];
-        anchor.getLocationOnScreen(anchorPos);
-        int offset = anchorPos[0] + anchor.getWidth() - popupWidth;
-
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            showProxyProviders = (position == 1);
-            btnRefreshProviders.setVisibility(showProxyProviders ? View.VISIBLE : View.GONE);
-            if (showProxyProviders) {
-                renderProxyProvidersView();
-            } else {
-                refreshProxies();
-            }
-            popupWindow.dismiss();
-        });
-
-        // Show below anchor, aligned to right edge
-        popupWindow.showAsDropDown(anchor, offset, 0);
+    private void toggleProxyView() {
+        showProxyProviders = !showProxyProviders;
+        btnProxyViewMode.animate().rotationBy(180).setDuration(200).start();
+        if (showProxyProviders) {
+            btnRefreshProviders.setVisibility(View.VISIBLE);
+            renderProxyProvidersView();
+        } else {
+            btnRefreshProviders.setVisibility(View.GONE);
+            refreshProxies();
+        }
     }
 
     private void renderProxyProvidersView() {
         if (proxyGroupsContainer == null) return;
         proxyGroupsContainer.removeAllViews();
 
-        labelProxyGroups.setText("PROXY PROVIDERS ▼");
+        labelProxyGroups.setText("PROXY PROVIDERS");
 
         ThreadManager.runBackgroundTask(() -> {
             ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
