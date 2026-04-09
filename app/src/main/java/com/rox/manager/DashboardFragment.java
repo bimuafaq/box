@@ -755,19 +755,22 @@ public class DashboardFragment extends Fragment {
         int cornerRadius = (int) (16 * getContext().getResources().getDisplayMetrics().density);
         int itemRadius = (int) (10 * getContext().getResources().getDisplayMetrics().density);
         int itemPadding = (int) (12 * getContext().getResources().getDisplayMetrics().density);
+        int popupWidth = (int) (200 * getContext().getResources().getDisplayMetrics().density);
 
         android.graphics.drawable.GradientDrawable popupBg = new android.graphics.drawable.GradientDrawable();
         popupBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
         popupBg.setColor(popupBgColor);
         popupBg.setCornerRadius(cornerRadius);
 
-        android.widget.ListPopupWindow popupWindow = new android.widget.ListPopupWindow(
-                new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Theme_Material3_DayNight),
-                null, android.R.attr.listPopupWindowStyle);
-        popupWindow.setAnchorView(anchor);
-        popupWindow.setWidth((int) (200 * getContext().getResources().getDisplayMetrics().density));
-        popupWindow.setModal(true);
-        popupWindow.setBackgroundDrawable(popupBg);
+        // Custom list view with selector disabled
+        android.widget.ListView listView = new android.widget.ListView(
+                new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Theme_Material3_DayNight));
+        listView.setDivider(null);
+        listView.setSelector(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        listView.setCacheColorHint(android.graphics.Color.TRANSPARENT);
+        listView.setVerticalScrollBarEnabled(false);
+        listView.setPadding(0, 0, 0, 0);
+        listView.setClipToPadding(false);
 
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
                 getContext(), android.R.layout.simple_list_item_1, items) {
@@ -798,8 +801,23 @@ public class DashboardFragment extends Fragment {
                 return view;
             }
         };
-        popupWindow.setAdapter(adapter);
-        popupWindow.setOnItemClickListener((parent, view, position, id) -> {
+        listView.setAdapter(adapter);
+
+        android.widget.PopupWindow popupWindow = new android.widget.PopupWindow(
+                new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Theme_Material3_DayNight));
+        popupWindow.setContentView(listView);
+        popupWindow.setWidth(popupWidth);
+        popupWindow.setHeight(android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setFocusable(true);
+        popupWindow.setBackgroundDrawable(popupBg);
+        popupWindow.setOutsideTouchable(true);
+
+        // Calculate offset: align right edge of popup with right edge of anchor button
+        int[] anchorPos = new int[2];
+        anchor.getLocationOnScreen(anchorPos);
+        int offset = anchorPos[0] + anchor.getWidth() - popupWidth;
+
+        listView.setOnItemClickListener((parent, view, position, id) -> {
             showProxyProviders = (position == 1);
             btnRefreshProviders.setVisibility(showProxyProviders ? View.VISIBLE : View.GONE);
             if (showProxyProviders) {
@@ -809,9 +827,9 @@ public class DashboardFragment extends Fragment {
             }
             popupWindow.dismiss();
         });
-        popupWindow.show();
-        // Adjust position after layout is measured
-        anchor.post(() -> popupWindow.setHorizontalOffset(-anchor.getWidth()));
+
+        // Show below anchor, aligned to right edge
+        popupWindow.showAsDropDown(anchor, offset, 0);
     }
 
     private void renderProxyProvidersView() {
