@@ -430,7 +430,6 @@ public class DashboardFragment extends Fragment {
                     showProxyProviders = false;
                     labelProxyGroups.setText(R.string.label_proxy_groups);
                     renderProxyGroups(groups);
-                    checkAndShowProvidersButton();
                 });
             }
         });
@@ -871,45 +870,27 @@ public class DashboardFragment extends Fragment {
         });
     }
 
-    private void checkAndShowProvidersButton() {
-        ThreadManager.runBackgroundTask(() -> {
-            ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
-            boolean hasProviders = result.isSuccess() 
-                    && result.getData() != null 
-                    && !result.getData().isEmpty();
-            
-            android.util.Log.d(TAG, "Proxy providers check: success=" + result.isSuccess() 
-                    + ", count=" + (result.getData() != null ? result.getData().size() : 0));
-            
-            runOnUI(() -> {
-                if (btnRefreshProviders != null) {
-                    btnRefreshProviders.setVisibility(hasProviders ? View.VISIBLE : View.GONE);
-                }
-            });
-        });
-    }
-
     private void refreshProxyProviders() {
+        if (proxyGroupsContainer == null || !showProxyProviders) return;
+
         btnRefreshProviders.setEnabled(false);
         btnRefreshProviders.animate().rotationBy(360).setDuration(500).start();
 
         ThreadManager.runBackgroundTask(() -> {
-            // Get provider names from the API
             ApiResult<List<String>> providersResult = getClashApiService().getProxyProviderNames();
             if (providersResult.isSuccess() && providersResult.getData() != null) {
                 List<String> providers = providersResult.getData();
-                // Update each provider sequentially (like yacd)
                 for (String providerName : providers) {
                     getClashApiService().updateProxyProvider(providerName);
                 }
             }
 
-            // Fetch updated proxy data with new proxies
             ApiResult<List<ProxyGroup>> updatedResult = getClashApiService().getProxyGroups();
             runOnUI(() -> {
                 if (updatedResult.isSuccess() && updatedResult.getData() != null) {
                     updateLatencyUI(updatedResult.getData());
                 }
+                renderProxyProvidersView();
                 btnRefreshProviders.setEnabled(true);
             });
         });
