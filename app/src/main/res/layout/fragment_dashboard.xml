@@ -347,6 +347,17 @@
                         android:letterSpacing="0.1" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRefreshProviders"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/desc_refresh_providers"
+                        android:visibility="gone"
+                        app:icon="@drawable/ic_refresh"
+                        app:iconSize="20dp"
+                        app:iconTint="?attr/colorPrimary" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLatencyDash"
                         style="@style/Widget.Material3.Button.IconButton"
                         android:layout_width="48dp"

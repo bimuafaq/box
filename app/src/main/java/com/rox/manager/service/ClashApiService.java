@@ -188,6 +188,50 @@ public final class ClashApiService {
         return ApiResult.success(null);
     }
 
+    // -- Proxy Providers ------------------------------------------------------
+
+    /**
+     * Checks if any proxy providers exist in the config.
+     * Returns a list of provider names, or empty list if none.
+     */
+    public ApiResult<List<String>> getProxyProviderNames() {
+        String raw = ClashApiHelper.get(baseUrl + "/providers/proxies");
+        if (raw != null && raw.startsWith("Error")) {
+            return ApiResult.error(raw);
+        }
+        try {
+            JSONObject root = new JSONObject(raw != null ? raw : "{}");
+            JSONObject providers = root.optJSONObject("providers");
+            List<String> names = new ArrayList<>();
+            if (providers != null) {
+                Iterator<String> keys = providers.keys();
+                while (keys.hasNext()) {
+                    names.add(keys.next());
+                }
+            }
+            return ApiResult.success(names);
+        } catch (Exception e) {
+            return ApiResult.error("Parse error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Updates (refreshes) a single proxy provider.
+     * This fetches the latest config from the provider URL without restarting Clash.
+     */
+    public ApiResult<Boolean> updateProxyProvider(String providerName) {
+        try {
+            String body = "{}";
+            String raw = ClashApiHelper.put(baseUrl + "/providers/proxies/" + Uri.encode(providerName), body);
+            if (raw != null && !raw.startsWith("Error")) {
+                return ApiResult.success(true);
+            }
+            return ApiResult.error(raw != null ? raw : "Unknown error");
+        } catch (Exception e) {
+            return ApiResult.error(e.getMessage());
+        }
+    }
+
     // -- Private helpers ------------------------------------------------------
 
     /** Fetches raw /connections response (shared by stats and list methods). */

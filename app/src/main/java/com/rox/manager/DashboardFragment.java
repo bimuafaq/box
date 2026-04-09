@@ -54,7 +54,7 @@ public class DashboardFragment extends Fragment {
     private static final String TAG = "DashboardFragment";
 
     // View References
-    private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService;
+    private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService, btnRefreshProviders;
     private MaterialCardView statusCard;
     private TextView statusText, coreText, cpuText, ramText, fabUptimeText;
     private WebView webView;
@@ -146,6 +146,7 @@ public class DashboardFragment extends Fragment {
         btnOpen = view.findViewById(R.id.btnOpenFullWeb);
         btnLatency = view.findViewById(R.id.btnLatencyDash);
         btnService = view.findViewById(R.id.btnService);
+        btnRefreshProviders = view.findViewById(R.id.btnRefreshProviders);
 
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         View btnRefreshWeb = view.findViewById(R.id.btnRefreshWeb);
@@ -165,6 +166,10 @@ public class DashboardFragment extends Fragment {
         });
 
         btnService.setOnClickListener(v -> handleServiceToggle());
+        btnRefreshProviders.setOnClickListener(v -> {
+            if (!isServiceRunning) return;
+            refreshProxyProviders();
+        });
         btnLatency.setOnClickListener(v -> {
             if (!isServiceRunning) return;
             // Cancel previous test if running
@@ -403,7 +408,10 @@ public class DashboardFragment extends Fragment {
             ApiResult<List<ProxyGroup>> result = getClashApiService().getProxyGroups();
             if (result.isSuccess() && result.getData() != null) {
                 List<ProxyGroup> groups = result.getData();
-                runOnUI(() -> renderProxyGroups(groups));
+                runOnUI(() -> {
+                    renderProxyGroups(groups);
+                    checkAndShowProvidersButton();
+                });
             }
         });
     }
@@ -708,6 +716,45 @@ public class DashboardFragment extends Fragment {
 
     private void cancelLatencyTest() {
         isLatencyTestRunning = false;
+    }
+
+    private void checkAndShowProvidersButton() {
+        ThreadManager.runBackgroundTask(() -> {
+            ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
+            if (result.isSuccess() && result.getData() != null && !result.getData().isEmpty()) {
+                runOnUI(() -> {
+                    if (btnRefreshProviders != null) {
+                        btnRefreshProviders.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        });
+    }
+
+    private void refreshProxyProviders() {
+        btnRefreshProviders.setEnabled(false);
+        btnRefreshProviders.animate().rotationBy(360).setDuration(500).start();
+
+        ThreadManager.runBackgroundTask(() -> {
+            // Get provider names from the API
+            ApiResult<List<String>> providersResult = getClashApiService().getProxyProviderNames();
+            if (providersResult.isSuccess() && providersResult.getData() != null) {
+                List<String> providers = providersResult.getData();
+                // Update each provider sequentially (like yacd)
+                for (String providerName : providers) {
+                    getClashApiService().updateProxyProvider(providerName);
+                }
+            }
+
+            // Fetch updated proxy data with new proxies
+            ApiResult<List<ProxyGroup>> updatedResult = getClashApiService().getProxyGroups();
+            runOnUI(() -> {
+                if (updatedResult.isSuccess() && updatedResult.getData() != null) {
+                    updateLatencyUI(updatedResult.getData());
+                }
+                btnRefreshProviders.setEnabled(true);
+            });
+        });
     }
 
     // -- Service actions (shell-based) ----------------------------------------

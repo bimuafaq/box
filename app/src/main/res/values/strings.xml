@@ -77,6 +77,7 @@
     <string name="desc_close_all_connections">Close All Connections</string>
     <string name="desc_pause_play_connections">Pause/Play Connections</string>
     <string name="desc_test_latency">Test Latency</string>
+    <string name="desc_refresh_providers">Refresh Providers</string>
     <string name="desc_add_file">Add file</string>
     <string name="desc_clear_search">Clear search</string>
     <string name="desc_previous_result">Previous result</string>
