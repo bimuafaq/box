@@ -159,6 +159,7 @@ public class DashboardFragment extends Fragment {
         btnLatency = view.findViewById(R.id.btnLatencyDash);
         btnService = view.findViewById(R.id.btnService);
         btnRefreshProviders = view.findViewById(R.id.btnRefreshProviders);
+        btnRefreshProviders.setVisibility(View.GONE);
 
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         View btnRefreshWeb = view.findViewById(R.id.btnRefreshWeb);
@@ -741,24 +742,53 @@ public class DashboardFragment extends Fragment {
 
     private void showProxyViewPopupMenu(View anchor) {
         if (getContext() == null) return;
-        android.widget.PopupMenu popup = new android.widget.PopupMenu(
-                new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Widget_Material3_PopupMenu),
-                anchor, android.view.Gravity.END);
-        popup.getMenu().add(0, 0, 0, "Proxy Groups");
-        popup.getMenu().add(0, 1, 1, "Proxy Providers");
-        popup.getMenu().setGroupCheckable(0, true, true);
-        popup.getMenu().getItem(showProxyProviders ? 1 : 0).setChecked(true);
-        popup.setOnMenuItemClickListener(item -> {
-            showProxyProviders = (item.getItemId() == 1);
+
+        String[] items = new String[]{"Proxy Groups", "Proxy Providers"};
+        int selectedIndex = showProxyProviders ? 1 : 0;
+        int selectedColor = com.google.android.material.color.MaterialColors.getColor(
+                getContext(), com.google.android.material.R.attr.colorSurfaceContainerHighest, 0xFFE0E0E0);
+
+        android.widget.ListPopupWindow popupWindow = new android.widget.ListPopupWindow(
+                new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Theme_Material3_DayNight),
+                null, android.R.attr.listPopupWindowStyle);
+        popupWindow.setAnchorView(anchor);
+        popupWindow.setWidth(android.widget.ListPopupWindow.WRAP_CONTENT);
+        popupWindow.setModal(true);
+        popupWindow.setBackgroundDrawable(getContext().getDrawable(R.drawable.popup_background_md3));
+        popupWindow.setHorizontalOffset(-anchor.getWidth());
+
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
+                getContext(), android.R.layout.simple_list_item_1, items) {
+            @NonNull
+            @Override
+            public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = view.findViewById(android.R.id.text1);
+                if (textView != null) {
+                    textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+                    int padding = (int) (16 * getContext().getResources().getDisplayMetrics().density);
+                    view.setPadding(padding, padding, padding, padding);
+                }
+                if (position == selectedIndex) {
+                    view.setBackgroundColor(selectedColor);
+                } else {
+                    view.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+                }
+                return view;
+            }
+        };
+        popupWindow.setAdapter(adapter);
+        popupWindow.setOnItemClickListener((parent, view, position, id) -> {
+            showProxyProviders = (position == 1);
             btnRefreshProviders.setVisibility(showProxyProviders ? View.VISIBLE : View.GONE);
             if (showProxyProviders) {
                 renderProxyProvidersView();
             } else {
                 refreshProxies();
             }
-            return true;
+            popupWindow.dismiss();
         });
-        popup.show();
+        popupWindow.show();
     }
 
     private void renderProxyProvidersView() {
