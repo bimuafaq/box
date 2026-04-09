@@ -741,17 +741,20 @@ public class DashboardFragment extends Fragment {
 
     private void showProxyViewPopupMenu(View anchor) {
         if (getContext() == null) return;
-        android.widget.PopupMenu popup = new android.widget.PopupMenu(getContext(), anchor);
-        popup.getMenu().add(0, 0, 0, "Main Proxies").setChecked(!showProxyProviders);
-        popup.getMenu().add(0, 1, 1, "Proxy Providers").setChecked(showProxyProviders);
+        android.widget.PopupMenu popup = new android.widget.PopupMenu(
+                new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Theme_Material3_DayNight),
+                anchor);
+        popup.getMenu().add(0, 0, 0, "Proxies Group");
+        popup.getMenu().add(0, 1, 1, "Proxy Providers");
         popup.getMenu().setGroupCheckable(0, true, true);
+        popup.getMenu().getItem(showProxyProviders ? 1 : 0).setChecked(true);
         popup.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == 0) {
-                showProxyProviders = false;
-                refreshProxies();
-            } else {
-                showProxyProviders = true;
+            showProxyProviders = (item.getItemId() == 1);
+            btnRefreshProviders.setVisibility(showProxyProviders ? View.VISIBLE : View.GONE);
+            if (showProxyProviders) {
                 renderProxyProvidersView();
+            } else {
+                refreshProxies();
             }
             return true;
         });
