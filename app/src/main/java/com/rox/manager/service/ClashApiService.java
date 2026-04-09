@@ -193,6 +193,7 @@ public final class ClashApiService {
     /**
      * Checks if any proxy providers exist in the config.
      * Returns a list of provider names, or empty list if none.
+     * Only returns non-empty list when actual proxy providers (sub YAML files) exist.
      */
     public ApiResult<List<String>> getProxyProviderNames() {
         String raw = ClashApiHelper.get(baseUrl + "/providers/proxies");
@@ -203,10 +204,19 @@ public final class ClashApiService {
             JSONObject root = new JSONObject(raw != null ? raw : "{}");
             JSONObject providers = root.optJSONObject("providers");
             List<String> names = new ArrayList<>();
-            if (providers != null) {
+            if (providers != null && providers.length() > 0) {
                 Iterator<String> keys = providers.keys();
                 while (keys.hasNext()) {
-                    names.add(keys.next());
+                    String name = keys.next();
+                    // Validate it's a real provider (has name, type, vehicleType fields)
+                    JSONObject provider = providers.optJSONObject(name);
+                    if (provider != null && provider.has("name") && provider.has("vehicleType")) {
+                        // Only include File/HTTP type providers (not CompatibleProvider with inline proxies)
+                        String vehicleType = provider.optString("vehicleType", "");
+                        if (vehicleType.equalsIgnoreCase("File") || vehicleType.equalsIgnoreCase("HTTP")) {
+                            names.add(name);
+                        }
+                    }
                 }
             }
             return ApiResult.success(names);

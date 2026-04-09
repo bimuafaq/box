@@ -721,13 +721,18 @@ public class DashboardFragment extends Fragment {
     private void checkAndShowProvidersButton() {
         ThreadManager.runBackgroundTask(() -> {
             ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
-            if (result.isSuccess() && result.getData() != null && !result.getData().isEmpty()) {
-                runOnUI(() -> {
-                    if (btnRefreshProviders != null) {
-                        btnRefreshProviders.setVisibility(View.VISIBLE);
-                    }
-                });
-            }
+            boolean hasProviders = result.isSuccess() 
+                    && result.getData() != null 
+                    && !result.getData().isEmpty();
+            
+            android.util.Log.d(TAG, "Proxy providers check: success=" + result.isSuccess() 
+                    + ", count=" + (result.getData() != null ? result.getData().size() : 0));
+            
+            runOnUI(() -> {
+                if (btnRefreshProviders != null) {
+                    btnRefreshProviders.setVisibility(hasProviders ? View.VISIBLE : View.GONE);
+                }
+            });
         });
     }
 
