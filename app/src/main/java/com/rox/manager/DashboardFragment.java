@@ -684,13 +684,24 @@ public class DashboardFragment extends Fragment {
             }
         }
 
-        // Update all existing views (both expanded cards and collapsed dots)
+        applyLatencyUpdates(latencyMap);
+    }
+
+    /**
+     * Applies latency updates to all existing proxy views (expanded cards + collapsed dots).
+     * Shared between proxy groups and provider view updates.
+     */
+    private void applyLatencyUpdates(java.util.Map<String, Integer> latencyMap) {
+        if (proxyGroupsContainer == null || getContext() == null) return;
+
+        int ringStroke = (int) (2 * getContext().getResources().getDisplayMetrics().density);
+
         for (int i = 0; i < proxyGroupsContainer.getChildCount(); i++) {
             View groupView = proxyGroupsContainer.getChildAt(i);
-            
+
             // Update expanded proxy cards
             GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
-            if (itemsContainer != null) {
+            if (itemsContainer != null && itemsContainer.getVisibility() == View.VISIBLE) {
                 for (int j = 0; j < itemsContainer.getChildCount(); j++) {
                     View proxyCard = itemsContainer.getChildAt(j);
                     if (proxyCard instanceof MaterialCardView) {
@@ -705,21 +716,19 @@ public class DashboardFragment extends Fragment {
                     }
                 }
             }
-            
+
             // Update collapsed dots
             LinearLayout dotsContainer = groupView.findViewById(R.id.proxyDotsContainer);
             if (dotsContainer != null && dotsContainer.getVisibility() == View.VISIBLE) {
-                int ringStroke = (int) (2 * getContext().getResources().getDisplayMetrics().density);
                 for (int j = 0; j < dotsContainer.getChildCount(); j++) {
                     View dot = dotsContainer.getChildAt(j);
                     String proxyName = (String) dot.getTag();
                     if (proxyName != null && latencyMap.containsKey(proxyName)) {
                         int delay = latencyMap.get(proxyName);
                         int color = getLatencyColor(delay);
-                        
+
                         android.graphics.drawable.GradientDrawable bg = (android.graphics.drawable.GradientDrawable) dot.getBackground();
                         if (bg != null) {
-                            // Check if ring (selected) by checking if current fill is transparent
                             int fillColor;
                             android.content.res.ColorStateList csl = bg.getColor();
                             if (csl != null) {
@@ -728,11 +737,9 @@ public class DashboardFragment extends Fragment {
                                 fillColor = android.graphics.Color.TRANSPARENT;
                             }
                             if (fillColor == android.graphics.Color.TRANSPARENT) {
-                                // Ring style - update stroke
                                 bg.setColor(android.graphics.Color.TRANSPARENT);
                                 bg.setStroke((int) ringStroke, color);
                             } else {
-                                // Solid dot - update fill
                                 bg.setColor(color);
                             }
                         }
@@ -754,6 +761,7 @@ public class DashboardFragment extends Fragment {
             btnRefreshProviders.setVisibility(View.VISIBLE);
             btnLatency.setVisibility(View.GONE);
             btnHealthcheckAll.setVisibility(View.VISIBLE);
+            expandedProviders.clear();
             renderProxyProvidersView();
         } else {
             btnRefreshProviders.setVisibility(View.GONE);
@@ -766,7 +774,6 @@ public class DashboardFragment extends Fragment {
     private void renderProxyProvidersView() {
         if (proxyGroupsContainer == null) return;
         proxyGroupsContainer.removeAllViews();
-        expandedProviders.clear();
 
         ThreadManager.runBackgroundTask(() -> {
             ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
@@ -892,97 +899,69 @@ public class DashboardFragment extends Fragment {
         ThreadManager.runBackgroundTask(() -> {
             ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
             if (!result.isSuccess() || result.getData() == null) {
-                runOnUI(() -> {
-                    isProviderHealthcheckRunning = false;
-                    btnHealthcheckAll.setEnabled(true);
-                });
+                isProviderHealthcheckRunning = false;
+                runOnUI(() -> btnHealthcheckAll.setEnabled(true));
                 return;
             }
 
             List<String> providers = result.getData();
-            for (String providerName : providers) {
-                getClashApiService().healthcheckProvider(providerName);
-            }
 
-            // Small delay then fetch updated providers
+            // Fire healthchecks in parallel
+            java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(
+                    Math.min(providers.size(), 4));
+            java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(providers.size());
+            for (String providerName : providers) {
+                executor.submit(() -> {
+                    try {
+                        getClashApiService().healthcheckProvider(providerName);
+                    } catch (Exception ignored) {
+                    } finally {
+                        latch.countDown();
+                    }
+                });
+            }
+            executor.shutdown();
+
+            // Wait for healthchecks to complete (max 30s)
+            try { latch.await(30, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
+
+            // Small delay for Clash to finalize results
             try { Thread.sleep(500); } catch (InterruptedException ignored) {}
 
-            // Build latency map from all providers without re-rendering
-            java.util.Map<String, Integer> latencyMap = new java.util.HashMap<>();
+            // Fetch updated provider details in parallel
+            java.util.Map<String, Integer> latencyMap = new java.util.concurrent.ConcurrentHashMap<>();
+            java.util.concurrent.CountDownLatch fetchLatch = new java.util.concurrent.CountDownLatch(providers.size());
+            java.util.concurrent.ExecutorService fetchExecutor = java.util.concurrent.Executors.newFixedThreadPool(
+                    Math.min(providers.size(), 4));
             for (String providerName : providers) {
-                ApiResult<ClashApiService.ProviderInfo> providerResult = getClashApiService().getProviderDetails(providerName);
-                if (providerResult.isSuccess() && providerResult.getData() != null) {
-                    for (ProxyInfo proxy : providerResult.getData().getProxies()) {
-                        latencyMap.put(proxy.getName(), proxy.getDelayMs());
+                fetchExecutor.submit(() -> {
+                    try {
+                        ApiResult<ClashApiService.ProviderInfo> providerResult = getClashApiService().getProviderDetails(providerName);
+                        if (providerResult.isSuccess() && providerResult.getData() != null) {
+                            for (ProxyInfo proxy : providerResult.getData().getProxies()) {
+                                latencyMap.put(proxy.getName(), proxy.getDelayMs());
+                            }
+                        }
+                    } catch (Exception ignored) {
+                    } finally {
+                        fetchLatch.countDown();
                     }
-                }
+                });
             }
+            fetchExecutor.shutdown();
+            try { fetchLatch.await(30, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
 
-            // Update only latency values on existing views (no re-render, preserve expand state)
+            // Reset flag before posting to UI thread (Fix #1: prevent stuck flag on detach)
+            isProviderHealthcheckRunning = false;
             runOnUI(() -> {
-                isProviderHealthcheckRunning = false;
                 btnHealthcheckAll.setEnabled(true);
-                updateProviderLatencyUI(latencyMap);
+                applyLatencyUpdates(latencyMap);
             });
         });
     }
 
     private void updateProviderLatencyUI(java.util.Map<String, Integer> latencyMap) {
-        if (proxyGroupsContainer == null) return;
-
-        int ringStroke = (int) (2 * getContext().getResources().getDisplayMetrics().density);
-
-        for (int i = 0; i < proxyGroupsContainer.getChildCount(); i++) {
-            View groupView = proxyGroupsContainer.getChildAt(i);
-
-            // Update expanded proxy cards
-            GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
-            if (itemsContainer != null && itemsContainer.getVisibility() == View.VISIBLE) {
-                for (int j = 0; j < itemsContainer.getChildCount(); j++) {
-                    View proxyCard = itemsContainer.getChildAt(j);
-                    if (proxyCard instanceof MaterialCardView) {
-                        TextView nameTxt = proxyCard.findViewById(R.id.proxyName);
-                        TextView latencyTxt = proxyCard.findViewById(R.id.proxyLatency);
-
-                        if (nameTxt != null && latencyTxt != null && latencyMap.containsKey(nameTxt.getText().toString())) {
-                            int delay = latencyMap.get(nameTxt.getText().toString());
-                            latencyTxt.setText(delay > 0 ? delay + " ms" : "- ms");
-                            latencyTxt.setTextColor(getLatencyColor(delay));
-                        }
-                    }
-                }
-            }
-
-            // Update collapsed dots
-            LinearLayout dotsContainer = groupView.findViewById(R.id.proxyDotsContainer);
-            if (dotsContainer != null && dotsContainer.getVisibility() == View.VISIBLE) {
-                for (int j = 0; j < dotsContainer.getChildCount(); j++) {
-                    View dot = dotsContainer.getChildAt(j);
-                    String proxyName = (String) dot.getTag();
-                    if (proxyName != null && latencyMap.containsKey(proxyName)) {
-                        int delay = latencyMap.get(proxyName);
-                        int color = getLatencyColor(delay);
-
-                        android.graphics.drawable.GradientDrawable bg = (android.graphics.drawable.GradientDrawable) dot.getBackground();
-                        if (bg != null) {
-                            int fillColor;
-                            android.content.res.ColorStateList csl = bg.getColor();
-                            if (csl != null) {
-                                fillColor = csl.getDefaultColor();
-                            } else {
-                                fillColor = android.graphics.Color.TRANSPARENT;
-                            }
-                            if (fillColor == android.graphics.Color.TRANSPARENT) {
-                                bg.setColor(android.graphics.Color.TRANSPARENT);
-                                bg.setStroke((int) ringStroke, color);
-                            } else {
-                                bg.setColor(color);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        applyLatencyUpdates(latencyMap);
     }
 
     private void refreshProxyProviders() {

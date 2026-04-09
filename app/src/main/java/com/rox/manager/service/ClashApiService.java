@@ -380,7 +380,7 @@ public final class ClashApiService {
                     String pName = p.optString("name", "");
                     String pType = p.optString("type", "");
                     int delay = p.optInt("delay", -1);
-                    if (p.has("history") && p.optJSONArray("history") != null && p.optJSONArray("history").length() > 0) {
+                    if (delay <= 0 && p.has("history") && p.optJSONArray("history") != null && p.optJSONArray("history").length() > 0) {
                         delay = p.optJSONArray("history").getJSONObject(p.optJSONArray("history").length() - 1).optInt("delay", -1);
                     }
                     proxies.add(new ProxyInfo(pName, pType, delay));
