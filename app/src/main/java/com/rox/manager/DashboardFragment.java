@@ -754,7 +754,7 @@ public class DashboardFragment extends Fragment {
                 getContext(), android.R.attr.textColorSecondary, 0xFFAAAAAA);
         int cornerRadius = (int) (16 * getContext().getResources().getDisplayMetrics().density);
         int itemRadius = (int) (10 * getContext().getResources().getDisplayMetrics().density);
-        int popupPadding = (int) (8 * getContext().getResources().getDisplayMetrics().density);
+        int itemPadding = (int) (12 * getContext().getResources().getDisplayMetrics().density);
 
         android.graphics.drawable.GradientDrawable popupBg = new android.graphics.drawable.GradientDrawable();
         popupBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
@@ -765,10 +765,9 @@ public class DashboardFragment extends Fragment {
                 new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Theme_Material3_DayNight),
                 null, android.R.attr.listPopupWindowStyle);
         popupWindow.setAnchorView(anchor);
-        popupWindow.setWidth((int) (180 * getContext().getResources().getDisplayMetrics().density));
+        popupWindow.setWidth((int) (200 * getContext().getResources().getDisplayMetrics().density));
         popupWindow.setModal(true);
         popupWindow.setBackgroundDrawable(popupBg);
-        popupWindow.setHorizontalOffset(-(int) (anchor.getWidth() * 1.5));
 
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
                 getContext(), android.R.layout.simple_list_item_1, items) {
@@ -776,16 +775,11 @@ public class DashboardFragment extends Fragment {
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
-                view.setClickable(false);
                 TextView textView = view.findViewById(android.R.id.text1);
-                int outerPadding = (int) (12 * getContext().getResources().getDisplayMetrics().density);
 
                 android.graphics.drawable.GradientDrawable selectedBg = new android.graphics.drawable.GradientDrawable();
                 selectedBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
                 selectedBg.setCornerRadius(itemRadius);
-
-                // Add inner padding so selected card doesn't stick to popup edges
-                int innerPadding = (int) (6 * getContext().getResources().getDisplayMetrics().density);
 
                 if (position == selectedIndex) {
                     selectedBg.setColor(selectedBgColor);
@@ -793,16 +787,14 @@ public class DashboardFragment extends Fragment {
                     if (textView != null) {
                         textView.setTextColor(headerColor);
                     }
-                    view.setPadding(outerPadding, innerPadding, outerPadding, innerPadding);
                 } else {
                     view.setBackgroundColor(android.graphics.Color.TRANSPARENT);
                     if (textView != null) {
                         textView.setTextColor(normalTextColor);
                     }
-                    view.setPadding(outerPadding, outerPadding, outerPadding, outerPadding);
                 }
 
-                view.setClipToOutline(true);
+                view.setPadding(itemPadding, itemPadding, itemPadding, itemPadding);
                 return view;
             }
         };
@@ -818,6 +810,8 @@ public class DashboardFragment extends Fragment {
             popupWindow.dismiss();
         });
         popupWindow.show();
+        // Adjust position after layout is measured
+        anchor.post(() -> popupWindow.setHorizontalOffset(-anchor.getWidth()));
     }
 
     private void renderProxyProvidersView() {
