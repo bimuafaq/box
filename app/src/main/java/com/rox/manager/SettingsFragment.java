@@ -100,7 +100,10 @@ public class SettingsFragment extends Fragment {
                     prefs.getString("dash_url", "http://127.0.0.1:9090/ui"));
             ClashApiService service = new ClashApiService(apiUrl);
             ApiResult<Boolean> result = service.reloadConfig();
-            if (!result.isSuccess()) {
+            if (result.isSuccess()) {
+                // Signal DashboardFragment to refresh proxies
+                prefs.edit().putBoolean("reload_config_triggered", true).apply();
+            } else {
                 android.util.Log.w("SettingsFragment", "Config reload failed: " + result.getErrorMessage());
             }
         });

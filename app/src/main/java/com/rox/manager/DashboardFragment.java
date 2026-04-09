@@ -101,6 +101,12 @@ public class DashboardFragment extends Fragment {
                     refreshProxies();
                 }
 
+                // PROXY LIST: Fetch after config reload from Settings
+                if (prefs.getBoolean("reload_config_triggered", false)) {
+                    prefs.edit().remove("reload_config_triggered").apply();
+                    refreshProxies();
+                }
+
                 // STATS ONLY (Connections, Up/Down) - Every 1s real-time
                 refreshClashStats();
             }
@@ -258,6 +264,11 @@ public class DashboardFragment extends Fragment {
     public void onResume() {
         super.onResume();
         startPolling();
+        // Check if config was just reloaded from Settings
+        if (prefs.getBoolean("reload_config_triggered", false)) {
+            prefs.edit().remove("reload_config_triggered").apply();
+            refreshProxies();
+        }
     }
 
     @Override

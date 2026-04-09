@@ -134,7 +134,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_play_arrow"
+                            android:src="@drawable/ic_refresh"
                             android:contentDescription="@string/label_reload_config"
                             app:tint="?attr/colorPrimary" />
                     </LinearLayout>
