@@ -745,16 +745,28 @@ public class DashboardFragment extends Fragment {
 
         String[] items = new String[]{"Proxy Groups", "Proxy Providers"};
         int selectedIndex = showProxyProviders ? 1 : 0;
-        int selectedColor = com.google.android.material.color.MaterialColors.getColor(
-                getContext(), com.google.android.material.R.attr.colorSurfaceContainerHighest, 0xFFE0E0E0);
+        int headerColor = labelProxyGroups.getCurrentTextColor();
+        int popupBgColor = com.google.android.material.color.MaterialColors.getColor(
+                getContext(), com.google.android.material.R.attr.colorSurfaceContainer, 0xFF2D2D2D);
+        int selectedBgColor = com.google.android.material.color.MaterialColors.getColor(
+                getContext(), com.google.android.material.R.attr.colorSurfaceContainerHighest, 0xFF454545);
+        int normalTextColor = com.google.android.material.color.MaterialColors.getColor(
+                getContext(), android.R.attr.textColorSecondary, 0xFFAAAAAA);
+        int cornerRadius = (int) (16 * getContext().getResources().getDisplayMetrics().density);
+        int itemRadius = (int) (12 * getContext().getResources().getDisplayMetrics().density);
+
+        android.graphics.drawable.GradientDrawable popupBg = new android.graphics.drawable.GradientDrawable();
+        popupBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+        popupBg.setColor(popupBgColor);
+        popupBg.setCornerRadius(cornerRadius);
 
         android.widget.ListPopupWindow popupWindow = new android.widget.ListPopupWindow(
                 new android.view.ContextThemeWrapper(getContext(), com.google.android.material.R.style.Theme_Material3_DayNight),
                 null, android.R.attr.listPopupWindowStyle);
         popupWindow.setAnchorView(anchor);
-        popupWindow.setWidth(android.widget.ListPopupWindow.WRAP_CONTENT);
+        popupWindow.setWidth((int) (180 * getContext().getResources().getDisplayMetrics().density));
         popupWindow.setModal(true);
-        popupWindow.setBackgroundDrawable(getContext().getDrawable(R.drawable.popup_background_md3));
+        popupWindow.setBackgroundDrawable(popupBg);
         popupWindow.setHorizontalOffset(-anchor.getWidth());
 
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
@@ -764,16 +776,29 @@ public class DashboardFragment extends Fragment {
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView textView = view.findViewById(android.R.id.text1);
-                if (textView != null) {
-                    textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
-                    int padding = (int) (16 * getContext().getResources().getDisplayMetrics().density);
-                    view.setPadding(padding, padding, padding, padding);
-                }
+                int padding = (int) (14 * getContext().getResources().getDisplayMetrics().density);
+
+                android.graphics.drawable.GradientDrawable selectedBg = new android.graphics.drawable.GradientDrawable();
+                selectedBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+                selectedBg.setCornerRadius(itemRadius);
+
                 if (position == selectedIndex) {
-                    view.setBackgroundColor(selectedColor);
+                    selectedBg.setColor(selectedBgColor);
+                    view.setBackground(selectedBg);
+                    if (textView != null) {
+                        textView.setTextColor(headerColor);
+                        textView.setTypeface(null, android.graphics.Typeface.BOLD);
+                    }
                 } else {
                     view.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+                    if (textView != null) {
+                        textView.setTextColor(normalTextColor);
+                        textView.setTypeface(null, android.graphics.Typeface.NORMAL);
+                    }
                 }
+
+                view.setPadding(padding, padding, padding, padding);
+                view.setClipToOutline(true);
                 return view;
             }
         };
