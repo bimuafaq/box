@@ -259,6 +259,72 @@ public final class ClashApiService {
         }
     }
 
+    /**
+     * Runs healthcheck on all proxies within a provider.
+     * Tests all proxies in parallel — faster than individual delay tests.
+     */
+    public ApiResult<Boolean> healthcheckProvider(String providerName) {
+        String raw = ClashApiHelper.get(baseUrl + "/providers/proxies/" + Uri.encode(providerName) + "/healthcheck");
+        if (raw != null && !raw.startsWith("Error")) {
+            return ApiResult.success(true);
+        }
+        return ApiResult.error(raw != null ? raw : "Unknown error");
+    }
+
+    /**
+     * Fetches details of a single proxy provider including its proxies and latency.
+     */
+    public ApiResult<ProviderInfo> getProviderDetails(String providerName) {
+        String raw = ClashApiHelper.get(baseUrl + "/providers/proxies/" + Uri.encode(providerName));
+        if (raw == null || raw.startsWith("Error")) {
+            return ApiResult.error(raw != null ? raw : "No response");
+        }
+        try {
+            JSONObject json = new JSONObject(raw);
+            String name = json.optString("name", providerName);
+            String type = json.optString("type", "");
+            String vehicleType = json.optString("vehicleType", "");
+            String updatedAt = json.optString("updatedAt", "");
+            JSONArray proxiesArr = json.optJSONArray("proxies");
+            List<ProxyInfo> proxies = new ArrayList<>();
+            if (proxiesArr != null) {
+                for (int i = 0; i < proxiesArr.length(); i++) {
+                    JSONObject p = proxiesArr.getJSONObject(i);
+                    String pName = p.optString("name", "");
+                    String pType = p.optString("type", "");
+                    int delay = p.optInt("delay", -1);
+                    if (p.has("history") && p.optJSONArray("history") != null && p.optJSONArray("history").length() > 0) {
+                        delay = p.optJSONArray("history").getJSONObject(p.optJSONArray("history").length() - 1).optInt("delay", -1);
+                    }
+                    proxies.add(new ProxyInfo(pName, pType, delay));
+                }
+            }
+            return ApiResult.success(new ProviderInfo(name, type, vehicleType, updatedAt, proxies));
+        } catch (Exception e) {
+            return ApiResult.error("Parse error: " + e.getMessage());
+        }
+    }
+
+    public static final class ProviderInfo {
+        private final String name, type, vehicleType, updatedAt;
+        private final List<ProxyInfo> proxies;
+
+        public ProviderInfo(String name, String type, String vehicleType, String updatedAt, List<ProxyInfo> proxies) {
+            this.name = name;
+            this.type = type;
+            this.vehicleType = vehicleType;
+            this.updatedAt = updatedAt;
+            this.proxies = proxies;
+        }
+
+        public String getName() { return name; }
+        public String getType() { return type; }
+        public String getVehicleType() { return vehicleType; }
+        public String getUpdatedAt() { return updatedAt; }
+        public List<ProxyInfo> getProxies() { return proxies; }
+        public int getProxyCount() { return proxies != null ? proxies.size() : 0; }
+    }
+
     // -- Private helpers ------------------------------------------------------
 
     /** Fetches raw /connections response (shared by stats and list methods). */

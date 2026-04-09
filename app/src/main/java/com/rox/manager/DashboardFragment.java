@@ -54,7 +54,7 @@ public class DashboardFragment extends Fragment {
     private static final String TAG = "DashboardFragment";
 
     // View References
-    private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService, btnRefreshProviders;
+    private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService, btnRefreshProviders, proxyGroupsHeader;
     private MaterialCardView statusCard;
     private TextView statusText, coreText, cpuText, ramText, fabUptimeText;
     private WebView webView;
@@ -83,6 +83,10 @@ public class DashboardFragment extends Fragment {
     // Latency Test State
     private volatile boolean isLatencyTestRunning = false;
     private volatile java.util.concurrent.ExecutorService latencyExecutor = null;
+
+    // Proxy View Mode
+    private boolean showProxyProviders = false;
+    private volatile boolean isProviderHealthcheckRunning = false;
 
     private final Runnable pollingRunnable = new Runnable() {
         @Override
@@ -138,6 +142,7 @@ public class DashboardFragment extends Fragment {
         webView = view.findViewById(R.id.dashWebView);
         proxyGroupsContainer = view.findViewById(R.id.proxyGroupsContainer);
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
+        proxyGroupsHeader = view.findViewById(R.id.proxyGroupsHeader);
 
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
         clashDownloadText = view.findViewById(R.id.clashDownloadText);
@@ -172,6 +177,7 @@ public class DashboardFragment extends Fragment {
         });
 
         btnService.setOnClickListener(v -> handleServiceToggle());
+        proxyGroupsHeader.setOnClickListener(v -> showProxyViewSelector());
         btnRefreshProviders.setOnClickListener(v -> {
             if (!isServiceRunning) return;
             refreshProxyProviders();
@@ -420,6 +426,8 @@ public class DashboardFragment extends Fragment {
             if (result.isSuccess() && result.getData() != null) {
                 List<ProxyGroup> groups = result.getData();
                 runOnUI(() -> {
+                    showProxyProviders = false;
+                    labelProxyGroups.setText(R.string.label_proxy_groups);
                     renderProxyGroups(groups);
                     checkAndShowProvidersButton();
                 });
@@ -727,6 +735,139 @@ public class DashboardFragment extends Fragment {
 
     private void cancelLatencyTest() {
         isLatencyTestRunning = false;
+    }
+
+    // -- Proxy View Selector -------------------------------------------------
+
+    private void showProxyViewSelector() {
+        if (getContext() == null) return;
+        String[] options = new String[]{"Main Proxies", "Proxy Providers"};
+        int checked = showProxyProviders ? 1 : 0;
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setTitle("View Proxies As");
+        builder.setSingleChoiceItems(options, checked, (dialog, which) -> {
+            showProxyProviders = (which == 1);
+            dialog.dismiss();
+            if (showProxyProviders) {
+                renderProxyProvidersView();
+            } else {
+                refreshProxies();
+            }
+        });
+        builder.show();
+    }
+
+    private void renderProxyProvidersView() {
+        if (proxyGroupsContainer == null) return;
+        proxyGroupsContainer.removeAllViews();
+
+        labelProxyGroups.setText("PROXY PROVIDERS ▼");
+
+        ThreadManager.runBackgroundTask(() -> {
+            ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
+            if (!result.isSuccess() || result.getData() == null || result.getData().isEmpty()) {
+                runOnUI(() -> {
+                    TextView emptyText = new TextView(getContext());
+                    emptyText.setText("No proxy providers found");
+                    emptyText.setTextColor(0xFF9E9E9E);
+                    emptyText.setPadding(32, 48, 32, 48);
+                    proxyGroupsContainer.addView(emptyText);
+                });
+                return;
+            }
+
+            List<String> providerNames = result.getData();
+            runOnUI(() -> {
+                for (String providerName : providerNames) {
+                    renderProviderCard(providerName);
+                }
+            });
+        });
+    }
+
+    private void renderProviderCard(String providerName) {
+        ThreadManager.runBackgroundTask(() -> {
+            ApiResult<ClashApiService.ProviderInfo> result = getClashApiService().getProviderDetails(providerName);
+            if (result.isSuccess() && result.getData() != null) {
+                runOnUI(() -> renderProviderCardView(result.getData()));
+            }
+        });
+    }
+
+    private void renderProviderCardView(ClashApiService.ProviderInfo provider) {
+        if (getContext() == null) return;
+        View cardView = LayoutInflater.from(getContext()).inflate(R.layout.item_proxy_group, proxyGroupsContainer, false);
+
+        TextView nameTxt = cardView.findViewById(R.id.proxyGroupName);
+        TextView typeTxt = cardView.findViewById(R.id.proxyGroupType);
+        ImageView toggleIcon = cardView.findViewById(R.id.proxyGroupToggle);
+        GridLayout itemsContainer = cardView.findViewById(R.id.proxyItemsContainer);
+        LinearLayout dotsContainer = cardView.findViewById(R.id.proxyDotsContainer);
+
+        // Header: name + proxy count
+        nameTxt.setText(provider.getName());
+        typeTxt.setText(provider.getVehicleType() + " • " + provider.getProxyCount() + " proxies");
+        toggleIcon.setVisibility(View.GONE);
+
+        // Show proxy dots
+        renderProxyDots(dotsContainer, provider.getProxies(), "");
+        dotsContainer.setVisibility(View.VISIBLE);
+        itemsContainer.setVisibility(View.GONE);
+
+        // Add healthcheck button below the group header
+        com.google.android.material.button.MaterialButton btnHealthcheck = new com.google.android.material.button.MaterialButton(getContext());
+        btnHealthcheck.setText("Healthcheck");
+        btnHealthcheck.setIconResource(R.drawable.ic_bolt);
+        btnHealthcheck.setIconSize((int) (16 * getContext().getResources().getDisplayMetrics().density));
+        btnHealthcheck.setTextSize(12);
+        btnHealthcheck.setPadding(16, 8, 16, 8);
+        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        btnParams.setMargins(16, 8, 16, 16);
+        btnHealthcheck.setLayoutParams(btnParams);
+        btnHealthcheck.setOnClickListener(v -> healthcheckProvider(provider.getName()));
+
+        LinearLayout cardContent = cardView.findViewById(android.R.id.content);
+        if (cardContent == null) {
+            // Find the root LinearLayout of the card
+            cardContent = (LinearLayout) ((ViewGroup) dotsContainer.getParent());
+        }
+        cardContent.addView(btnHealthcheck);
+
+        proxyGroupsContainer.addView(cardView);
+    }
+
+    private void healthcheckProvider(String providerName) {
+        if (isProviderHealthcheckRunning) return;
+        isProviderHealthcheckRunning = true;
+
+        ThreadManager.runBackgroundTask(() -> {
+            getClashApiService().healthcheckProvider(providerName);
+
+            // Small delay then fetch updated provider
+            try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+
+            ApiResult<ClashApiService.ProviderInfo> result = getClashApiService().getProviderDetails(providerName);
+            if (result.isSuccess() && result.getData() != null) {
+                runOnUI(() -> {
+                    // Re-render this provider card with updated latency
+                    for (int i = 0; i < proxyGroupsContainer.getChildCount(); i++) {
+                        View card = proxyGroupsContainer.getChildAt(i);
+                        TextView nameTxt = card.findViewById(R.id.proxyGroupName);
+                        if (nameTxt != null && nameTxt.getText().toString().equals(providerName)) {
+                            // Re-render this card
+                            proxyGroupsContainer.removeViewAt(i);
+                            renderProviderCardView(result.getData());
+                            break;
+                        }
+                    }
+                    isProviderHealthcheckRunning = false;
+                });
+            } else {
+                runOnUI(() -> isProviderHealthcheckRunning = false);
+            }
+        });
     }
 
     private void checkAndShowProvidersButton() {
