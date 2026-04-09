@@ -80,6 +80,11 @@
     <string name="desc_refresh_providers">Refresh Providers</string>
     <string name="label_reload_config">Reload Clash Config</string>
     <string name="desc_reload_config">Apply config changes without restart</string>
+    <string name="label_proxy_providers">PROXY PROVIDERS</string>
+    <string name="desc_proxy_view_mode">Proxy View Mode</string>
+    <string name="no_proxy_providers">No proxy providers found</string>
+    <string name="label_healthcheck">Healthcheck</string>
+    <string name="format_provider_info">%1$s • %2$d proxies</string>
     <string name="desc_add_file">Add file</string>
     <string name="desc_clear_search">Clear search</string>
     <string name="desc_previous_result">Previous result</string>

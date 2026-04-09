@@ -742,7 +742,6 @@ public class DashboardFragment extends Fragment {
 
     private void toggleProxyView() {
         showProxyProviders = !showProxyProviders;
-        btnProxyViewMode.animate().rotationBy(180).setDuration(200).start();
         if (showProxyProviders) {
             btnRefreshProviders.setVisibility(View.VISIBLE);
             renderProxyProvidersView();
@@ -756,14 +755,12 @@ public class DashboardFragment extends Fragment {
         if (proxyGroupsContainer == null) return;
         proxyGroupsContainer.removeAllViews();
 
-        labelProxyGroups.setText("PROXY PROVIDERS");
-
         ThreadManager.runBackgroundTask(() -> {
             ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
             if (!result.isSuccess() || result.getData() == null || result.getData().isEmpty()) {
                 runOnUI(() -> {
                     TextView emptyText = new TextView(getContext());
-                    emptyText.setText("No proxy providers found");
+                    emptyText.setText(R.string.no_proxy_providers);
                     emptyText.setTextColor(0xFF9E9E9E);
                     emptyText.setPadding(32, 48, 32, 48);
                     proxyGroupsContainer.addView(emptyText);
@@ -801,7 +798,9 @@ public class DashboardFragment extends Fragment {
 
         // Header: name + proxy count
         nameTxt.setText(provider.getName());
-        typeTxt.setText(provider.getVehicleType() + " • " + provider.getProxyCount() + " proxies");
+        typeTxt.setText(String.format(java.util.Locale.getDefault(),
+                getString(R.string.format_provider_info),
+                provider.getVehicleType(), provider.getProxyCount()));
         toggleIcon.setVisibility(View.GONE);
 
         // Show proxy dots
@@ -811,7 +810,7 @@ public class DashboardFragment extends Fragment {
 
         // Add healthcheck button below the group header
         com.google.android.material.button.MaterialButton btnHealthcheck = new com.google.android.material.button.MaterialButton(getContext());
-        btnHealthcheck.setText("Healthcheck");
+        btnHealthcheck.setText(R.string.label_healthcheck);
         btnHealthcheck.setIconResource(R.drawable.ic_bolt);
         btnHealthcheck.setIconSize((int) (16 * getContext().getResources().getDisplayMetrics().density));
         btnHealthcheck.setTextSize(12);
