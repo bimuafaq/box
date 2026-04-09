@@ -54,7 +54,7 @@ public class DashboardFragment extends Fragment {
     private static final String TAG = "DashboardFragment";
 
     // View References
-    private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService, btnRefreshProviders, proxyGroupsHeader, btnProxyViewMode;
+    private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService, btnRefreshProviders, proxyGroupsHeader, btnProxyViewMode, btnHealthcheckAll;
     private MaterialCardView statusCard;
     private TextView statusText, coreText, cpuText, ramText, fabUptimeText;
     private WebView webView;
@@ -63,6 +63,8 @@ public class DashboardFragment extends Fragment {
 
     // Track which proxy groups are expanded
     private final Set<String> expandedGroups = new HashSet<>();
+    // Track which provider cards are expanded
+    private final Set<String> expandedProviders = new HashSet<>();
 
     // Logic State
     private boolean isServiceRunning = false;
@@ -160,6 +162,8 @@ public class DashboardFragment extends Fragment {
         btnService = view.findViewById(R.id.btnService);
         btnRefreshProviders = view.findViewById(R.id.btnRefreshProviders);
         btnRefreshProviders.setVisibility(View.GONE);
+        btnHealthcheckAll = view.findViewById(R.id.btnHealthcheckAll);
+        btnHealthcheckAll.setVisibility(View.GONE);
 
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         View btnRefreshWeb = view.findViewById(R.id.btnRefreshWeb);
@@ -191,6 +195,10 @@ public class DashboardFragment extends Fragment {
                 cancelLatencyTest();
             }
             testAllProxiesLatency();
+        });
+        btnHealthcheckAll.setOnClickListener(v -> {
+            if (!isServiceRunning) return;
+            healthcheckAllProviders();
         });
 
         btnOpen.setOnClickListener(v -> showDashboardUrlDialog());
@@ -744,9 +752,13 @@ public class DashboardFragment extends Fragment {
         showProxyProviders = !showProxyProviders;
         if (showProxyProviders) {
             btnRefreshProviders.setVisibility(View.VISIBLE);
+            btnLatency.setVisibility(View.GONE);
+            btnHealthcheckAll.setVisibility(View.VISIBLE);
             renderProxyProvidersView();
         } else {
             btnRefreshProviders.setVisibility(View.GONE);
+            btnLatency.setVisibility(View.VISIBLE);
+            btnHealthcheckAll.setVisibility(View.GONE);
             refreshProxies();
         }
     }
@@ -754,6 +766,7 @@ public class DashboardFragment extends Fragment {
     private void renderProxyProvidersView() {
         if (proxyGroupsContainer == null) return;
         proxyGroupsContainer.removeAllViews();
+        expandedProviders.clear();
 
         ThreadManager.runBackgroundTask(() -> {
             ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
@@ -795,38 +808,44 @@ public class DashboardFragment extends Fragment {
         ImageView toggleIcon = cardView.findViewById(R.id.proxyGroupToggle);
         GridLayout itemsContainer = cardView.findViewById(R.id.proxyItemsContainer);
         LinearLayout dotsContainer = cardView.findViewById(R.id.proxyDotsContainer);
+        View header = cardView.findViewById(R.id.proxyGroupHeader);
 
         // Header: name + proxy count
         nameTxt.setText(provider.getName());
         typeTxt.setText(String.format(java.util.Locale.getDefault(),
                 getString(R.string.format_provider_info),
                 provider.getVehicleType(), provider.getProxyCount()));
-        toggleIcon.setVisibility(View.GONE);
 
-        // Show proxy dots
+        // Check if this provider is expanded
+        boolean isExpanded = expandedProviders.contains(provider.getName());
+        itemsContainer.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+        dotsContainer.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
+        toggleIcon.setRotation(isExpanded ? 180 : 0);
+        toggleIcon.setVisibility(View.VISIBLE);
+
+        // Render proxy dots for collapsed view
         renderProxyDots(dotsContainer, provider.getProxies(), "");
-        dotsContainer.setVisibility(View.VISIBLE);
-        itemsContainer.setVisibility(View.GONE);
 
-        // Add healthcheck button below the group header
-        com.google.android.material.button.MaterialButton btnHealthcheck = new com.google.android.material.button.MaterialButton(getContext());
-        btnHealthcheck.setText(R.string.label_healthcheck);
-        btnHealthcheck.setIconResource(R.drawable.ic_bolt);
-        btnHealthcheck.setIconSize((int) (16 * getContext().getResources().getDisplayMetrics().density));
-        btnHealthcheck.setTextSize(12);
-        btnHealthcheck.setPadding(16, 8, 16, 8);
-        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        btnParams.setMargins(16, 8, 16, 16);
-        btnHealthcheck.setLayoutParams(btnParams);
-        btnHealthcheck.setOnClickListener(v -> healthcheckProvider(provider.getName()));
-
-        LinearLayout cardContent = cardView.findViewById(android.R.id.content);
-        if (cardContent == null) {
-            // Find the root LinearLayout of the card
-            cardContent = (LinearLayout) ((ViewGroup) dotsContainer.getParent());
+        // Render detailed proxy cards for expanded view
+        if (isExpanded) {
+            renderDetailedProxies(itemsContainer, new ProxyGroup(provider.getName(), "", "", provider.getProxies()));
         }
-        cardContent.addView(btnHealthcheck);
+
+        // Toggle expand/collapse on header click
+        header.setOnClickListener(v -> {
+            if (expandedProviders.contains(provider.getName())) {
+                expandedProviders.remove(provider.getName());
+                itemsContainer.setVisibility(View.GONE);
+                dotsContainer.setVisibility(View.VISIBLE);
+                toggleIcon.animate().rotation(0).setDuration(200).start();
+            } else {
+                expandedProviders.add(provider.getName());
+                itemsContainer.setVisibility(View.VISIBLE);
+                dotsContainer.setVisibility(View.GONE);
+                toggleIcon.animate().rotation(180).setDuration(200).start();
+                renderDetailedProxies(itemsContainer, new ProxyGroup(provider.getName(), "", "", provider.getProxies()));
+            }
+        });
 
         proxyGroupsContainer.addView(cardView);
     }
@@ -861,6 +880,109 @@ public class DashboardFragment extends Fragment {
                 runOnUI(() -> isProviderHealthcheckRunning = false);
             }
         });
+    }
+
+    private void healthcheckAllProviders() {
+        if (isProviderHealthcheckRunning) return;
+        isProviderHealthcheckRunning = true;
+
+        btnHealthcheckAll.setEnabled(false);
+        btnHealthcheckAll.animate().rotationBy(360).setDuration(500).start();
+
+        ThreadManager.runBackgroundTask(() -> {
+            ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
+            if (!result.isSuccess() || result.getData() == null) {
+                runOnUI(() -> {
+                    isProviderHealthcheckRunning = false;
+                    btnHealthcheckAll.setEnabled(true);
+                });
+                return;
+            }
+
+            List<String> providers = result.getData();
+            for (String providerName : providers) {
+                getClashApiService().healthcheckProvider(providerName);
+            }
+
+            // Small delay then fetch updated providers
+            try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+
+            // Build latency map from all providers without re-rendering
+            java.util.Map<String, Integer> latencyMap = new java.util.HashMap<>();
+            for (String providerName : providers) {
+                ApiResult<ClashApiService.ProviderInfo> providerResult = getClashApiService().getProviderDetails(providerName);
+                if (providerResult.isSuccess() && providerResult.getData() != null) {
+                    for (ProxyInfo proxy : providerResult.getData().getProxies()) {
+                        latencyMap.put(proxy.getName(), proxy.getDelayMs());
+                    }
+                }
+            }
+
+            // Update only latency values on existing views (no re-render, preserve expand state)
+            runOnUI(() -> {
+                isProviderHealthcheckRunning = false;
+                btnHealthcheckAll.setEnabled(true);
+                updateProviderLatencyUI(latencyMap);
+            });
+        });
+    }
+
+    private void updateProviderLatencyUI(java.util.Map<String, Integer> latencyMap) {
+        if (proxyGroupsContainer == null) return;
+
+        int ringStroke = (int) (2 * getContext().getResources().getDisplayMetrics().density);
+
+        for (int i = 0; i < proxyGroupsContainer.getChildCount(); i++) {
+            View groupView = proxyGroupsContainer.getChildAt(i);
+
+            // Update expanded proxy cards
+            GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
+            if (itemsContainer != null && itemsContainer.getVisibility() == View.VISIBLE) {
+                for (int j = 0; j < itemsContainer.getChildCount(); j++) {
+                    View proxyCard = itemsContainer.getChildAt(j);
+                    if (proxyCard instanceof MaterialCardView) {
+                        TextView nameTxt = proxyCard.findViewById(R.id.proxyName);
+                        TextView latencyTxt = proxyCard.findViewById(R.id.proxyLatency);
+
+                        if (nameTxt != null && latencyTxt != null && latencyMap.containsKey(nameTxt.getText().toString())) {
+                            int delay = latencyMap.get(nameTxt.getText().toString());
+                            latencyTxt.setText(delay > 0 ? delay + " ms" : "- ms");
+                            latencyTxt.setTextColor(getLatencyColor(delay));
+                        }
+                    }
+                }
+            }
+
+            // Update collapsed dots
+            LinearLayout dotsContainer = groupView.findViewById(R.id.proxyDotsContainer);
+            if (dotsContainer != null && dotsContainer.getVisibility() == View.VISIBLE) {
+                for (int j = 0; j < dotsContainer.getChildCount(); j++) {
+                    View dot = dotsContainer.getChildAt(j);
+                    String proxyName = (String) dot.getTag();
+                    if (proxyName != null && latencyMap.containsKey(proxyName)) {
+                        int delay = latencyMap.get(proxyName);
+                        int color = getLatencyColor(delay);
+
+                        android.graphics.drawable.GradientDrawable bg = (android.graphics.drawable.GradientDrawable) dot.getBackground();
+                        if (bg != null) {
+                            int fillColor;
+                            android.content.res.ColorStateList csl = bg.getColor();
+                            if (csl != null) {
+                                fillColor = csl.getDefaultColor();
+                            } else {
+                                fillColor = android.graphics.Color.TRANSPARENT;
+                            }
+                            if (fillColor == android.graphics.Color.TRANSPARENT) {
+                                bg.setColor(android.graphics.Color.TRANSPARENT);
+                                bg.setStroke((int) ringStroke, color);
+                            } else {
+                                bg.setColor(color);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void refreshProxyProviders() {
@@ -979,5 +1101,6 @@ public class DashboardFragment extends Fragment {
         statusText = coreText = cpuText = ramText = labelProxyGroups = clashConnectionsText = clashDownloadText = clashUploadText = null;
         fabUptimeText = null;
         proxyGroupsContainer = null;
+        btnHealthcheckAll = null;
     }
 }

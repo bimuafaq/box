@@ -85,6 +85,7 @@ public final class ClashApiService {
 
     /**
      * Fetches all proxy groups with their members, types, and latency data.
+     * Enriches provider proxies with type and latency data from /providers/proxies endpoints.
      */
     public ApiResult<List<ProxyGroup>> getProxyGroups() {
         String raw = ClashApiHelper.get(baseUrl + "/proxies");
@@ -98,7 +99,10 @@ public final class ClashApiService {
                 return ApiResult.error("No proxies in response");
             }
 
+            // Step 1: Build initial proxy groups from /proxies
             List<ProxyGroup> groups = new ArrayList<>();
+            java.util.Set<String> allProxyNames = new java.util.HashSet<>();
+
             Iterator<String> keys = proxies.keys();
             while (keys.hasNext()) {
                 String groupName = keys.next();
@@ -106,7 +110,6 @@ public final class ClashApiService {
                 if (group == null || !group.has("all")) continue;
 
                 String type = group.optString("type", "");
-                // Skip non-selectable system entries
                 if (type.equals("Pass") || type.equals("Reject") || type.equals("Direct")) continue;
 
                 String selected = group.optString("now", "");
@@ -120,6 +123,7 @@ public final class ClashApiService {
                         proxyList.add(new ProxyInfo(name, "", -1));
                         continue;
                     }
+                    allProxyNames.add(name);
                     JSONObject p = proxies.optJSONObject(name);
                     if (p != null) {
                         String pType = p.optString("type", "");
@@ -135,10 +139,93 @@ public final class ClashApiService {
                 }
                 groups.add(new ProxyGroup(groupName, type, selected, proxyList));
             }
+
+            // Step 2: Enrich with provider proxy type + latency data
+            java.util.Map<String, JSONObject> providerProxyData = buildProviderProxyMap(allProxyNames);
+
+            // Step 3: Re-build proxy list with enriched data for missing entries
+            for (int g = 0; g < groups.size(); g++) {
+                ProxyGroup group = groups.get(g);
+                List<ProxyInfo> enrichedList = new ArrayList<>();
+                for (ProxyInfo proxy : group.getProxies()) {
+                    boolean hasType = !proxy.getType().isEmpty();
+                    boolean hasDelay = proxy.getDelayMs() > 0;
+
+                    if (hasType && hasDelay) {
+                        // Already has complete data, keep it
+                        enrichedList.add(proxy);
+                    } else {
+                        // Try to enrich missing fields from provider data
+                        JSONObject enriched = providerProxyData.get(proxy.getName());
+                        String pType = hasType ? proxy.getType() : (enriched != null ? enriched.optString("type", "") : "");
+                        int delay = hasDelay ? proxy.getDelayMs() : getProxyDelay(enriched);
+                        enrichedList.add(new ProxyInfo(proxy.getName(), pType, delay));
+                    }
+                }
+                groups.set(g, new ProxyGroup(group.getName(), group.getType(), group.getSelected(), enrichedList));
+            }
+
             return ApiResult.success(groups);
         } catch (Exception e) {
             return ApiResult.error("Parse error: " + e.getMessage());
         }
+    }
+
+    /**
+     * Builds a map of proxy name -> proxy data from all providers.
+     * Only includes proxies that are referenced in the main /proxies response.
+     */
+    private java.util.Map<String, JSONObject> buildProviderProxyMap(java.util.Set<String> allProxyNames) {
+        java.util.Map<String, JSONObject> result = new java.util.HashMap<>();
+        try {
+            String providersRaw = ClashApiHelper.get(baseUrl + "/providers/proxies");
+            if (providersRaw == null || providersRaw.startsWith("Error")) return result;
+
+            JSONObject providersRoot = new JSONObject(providersRaw);
+            JSONObject providers = providersRoot.optJSONObject("providers");
+            if (providers == null) return result;
+
+            Iterator<String> providerKeys = providers.keys();
+            while (providerKeys.hasNext()) {
+                String providerName = providerKeys.next();
+                JSONObject provider = providers.optJSONObject(providerName);
+                if (provider == null) continue;
+
+                String vehicleType = provider.optString("vehicleType", "");
+                if (!vehicleType.equalsIgnoreCase("File") && !vehicleType.equalsIgnoreCase("HTTP")) continue;
+
+                JSONArray proxiesArr = provider.optJSONArray("proxies");
+                if (proxiesArr == null) continue;
+
+                for (int i = 0; i < proxiesArr.length(); i++) {
+                    JSONObject p = proxiesArr.getJSONObject(i);
+                    String pName = p.optString("name", "");
+                    if (allProxyNames.contains(pName) && !result.containsKey(pName)) {
+                        result.put(pName, p);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // Silently fail - not critical
+        }
+        return result;
+    }
+
+    /**
+     * Extracts delay value from a proxy JSON object.
+     * Tries direct "delay" field first, then last history entry.
+     */
+    private int getProxyDelay(JSONObject proxy) {
+        if (proxy == null) return -1;
+        int delay = proxy.optInt("delay", -1);
+        if (delay > 0) return delay;
+        try {
+            JSONArray history = proxy.optJSONArray("history");
+            if (history != null && history.length() > 0) {
+                return history.getJSONObject(history.length() - 1).optInt("delay", -1);
+            }
+        } catch (Exception ignored) {}
+        return -1;
     }
 
     /**
