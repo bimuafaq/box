@@ -12,9 +12,10 @@ import com.rox.manager.model.ProxyInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,13 +30,46 @@ import java.util.Locale;
  */
 public final class ClashApiService {
 
-    private static final int TIMEOUT_DEFAULT = ClashApiHelper.TIMEOUT;
     private static final int TIMEOUT_PROXY = 5000;
 
     private final String baseUrl;
 
     public ClashApiService(String baseUrl) {
-        this.baseUrl = baseUrl.replaceAll("/(ui|dashboard)/?$", "");
+        this.baseUrl = normalizeBaseUrl(baseUrl);
+    }
+
+    /**
+     * Tests the latency of a single proxy. Returns the delay in milliseconds.
+     * Does NOT fetch full proxy list - only hits the /delay endpoint.
+     */
+    public ApiResult<Integer> testProxyLatency(String proxyName) {
+        HttpURLConnection conn = null;
+        try {
+            String urlStr = baseUrl + "/proxies/" + Uri.encode(proxyName)
+                    + "/delay?timeout=5000&url=http%3A%2F%2Fwww.gstatic.com%2Fgenerate_204";
+            URL url = new URL(urlStr);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(TIMEOUT_PROXY);
+            conn.setReadTimeout(TIMEOUT_PROXY);
+
+            int code = conn.getResponseCode();
+            if (code == 200) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) sb.append(line);
+                reader.close();
+
+                JSONObject json = new JSONObject(sb.toString());
+                return ApiResult.success(json.optInt("delay", -1));
+            }
+            return ApiResult.error("HTTP " + code);
+        } catch (Exception e) {
+            return ApiResult.error(e.getMessage());
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
     }
 
     // -- Stats ----------------------------------------------------------------
@@ -112,24 +146,12 @@ public final class ClashApiService {
      */
     public ApiResult<Boolean> switchProxy(String group, String name) {
         try {
-            URL url = new URL(baseUrl + "/proxies/" + Uri.encode(group));
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setConnectTimeout(TIMEOUT_PROXY);
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Content-Type", "application/json");
-
             String body = new JSONObject().put("name", name).toString();
-            try (java.io.OutputStream os = conn.getOutputStream()) {
-                os.write(body.getBytes(StandardCharsets.UTF_8));
-            }
-
-            int code = conn.getResponseCode();
-            conn.disconnect();
-            if (code >= 200 && code < 300) {
+            String raw = ClashApiHelper.put(baseUrl + "/proxies/" + Uri.encode(group), body);
+            if (raw != null && !raw.startsWith("Error")) {
                 return ApiResult.success(true);
             }
-            return ApiResult.error("HTTP " + code);
+            return ApiResult.error(raw != null ? raw : "Unknown error");
         } catch (Exception e) {
             return ApiResult.error(e.getMessage());
         }
@@ -142,14 +164,6 @@ public final class ClashApiService {
      */
     public ApiResult<List<Connection>> getConnections() {
         return fetchConnections().map(this::parseConnectionsList);
-    }
-
-    /**
-     * Fetches the full /connections payload and parses both stats and connections.
-     * Returns a single result containing both to avoid duplicate HTTP calls.
-     */
-    public ApiResult<ConnectionsResult> getConnectionsFull() {
-        return fetchConnections().map(this::parseConnectionsResult);
     }
 
     /**
@@ -172,24 +186,6 @@ public final class ClashApiService {
             return ApiResult.error(raw);
         }
         return ApiResult.success(null);
-    }
-
-    // -- Combined result types ------------------------------------------------
-
-    /**
-     * Combined result containing both connection stats and the full list.
-     */
-    public static final class ConnectionsResult {
-        private final ClashStats stats;
-        private final List<Connection> connections;
-
-        public ConnectionsResult(ClashStats stats, List<Connection> connections) {
-            this.stats = stats;
-            this.connections = connections;
-        }
-
-        public ClashStats getStats() { return stats; }
-        public List<Connection> getConnections() { return connections; }
     }
 
     // -- Private helpers ------------------------------------------------------
@@ -235,15 +231,6 @@ public final class ClashApiService {
         }
     }
 
-    /** Parses both stats and connections from a single /connections response. */
-    private ConnectionsResult parseConnectionsResult(String raw) {
-        ClashStats stats = parseStatsOnly(raw);
-        List<Connection> connections = parseConnectionsList(raw);
-        return new ConnectionsResult(stats, connections);
-    }
-
-    // -- Private helpers ------------------------------------------------------
-
     private static Connection parseConnection(JSONObject item) {
         try {
             JSONObject metadata = item.optJSONObject("metadata");
@@ -280,5 +267,11 @@ public final class ClashApiService {
         } catch (Exception e) {
             return new Connection("", "", "", "", "", "", 0, 0);
         }
+    }
+
+    /** Normalizes the base URL by stripping UI/dashboard suffixes. */
+    public static String normalizeBaseUrl(String url) {
+        if (url == null) return "";
+        return url.replaceAll("/(ui|dashboard)/?$", "");
     }
 }

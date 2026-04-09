@@ -80,24 +80,28 @@ public class DashboardFragment extends Fragment {
     private final Handler pollingHandler = new Handler(Looper.getMainLooper());
     private boolean isPollingActive = false;
 
+    // Latency Test State
+    private volatile boolean isLatencyTestRunning = false;
+    private volatile java.util.concurrent.ExecutorService latencyExecutor = null;
+
     private final Runnable pollingRunnable = new Runnable() {
         @Override
         public void run() {
             if (!isPollingActive) return;
 
-            // 1. SERVICE STATUS & UPTIME (Every 1s - High Priority for stability)
+            // 1. SERVICE STATUS & UPTIME (Every 1s)
             refreshServiceBaseStatus();
 
             if (isServiceRunning) {
                 currentRuntimeSeconds++;
                 updateRuntimeUI(currentRuntimeSeconds);
 
-                // Auto 1sec refresh if service just started running
+                // PROXY LIST: Fetch ONCE when service just started
                 if (!lastServiceRunningState) {
                     refreshProxies();
                 }
 
-                // API STATS (Connections, Up/Down) - Every 1s for real-time feel
+                // STATS ONLY (Connections, Up/Down) - Every 1s real-time
                 refreshClashStats();
             }
             lastServiceRunningState = isServiceRunning;
@@ -163,6 +167,10 @@ public class DashboardFragment extends Fragment {
         btnService.setOnClickListener(v -> handleServiceToggle());
         btnLatency.setOnClickListener(v -> {
             if (!isServiceRunning) return;
+            // Cancel previous test if running
+            if (isLatencyTestRunning) {
+                cancelLatencyTest();
+            }
             testAllProxiesLatency();
         });
 
@@ -256,6 +264,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onDestroyView() {
         stopPolling();
+        cancelLatencyTest();
         cleanupWebView();
         nullifyViews();
         clashApiService = null;
@@ -454,7 +463,6 @@ public class DashboardFragment extends Fragment {
         if (ctx == null) return;
 
         int dotSize = (int) (12 * ctx.getResources().getDisplayMetrics().density);
-        int ringSize = (int) (16 * ctx.getResources().getDisplayMetrics().density);
         int ringStroke = (int) (2 * ctx.getResources().getDisplayMetrics().density);
 
         for (ProxyInfo proxy : proxies) {
@@ -475,10 +483,10 @@ public class DashboardFragment extends Fragment {
 
             android.graphics.drawable.GradientDrawable dotDrawable = new android.graphics.drawable.GradientDrawable();
             dotDrawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-            
+
             if (isSelected) {
                 dotDrawable.setColor(android.graphics.Color.TRANSPARENT);
-                dotDrawable.setStroke((int) (2 * ctx.getResources().getDisplayMetrics().density), color);
+                dotDrawable.setStroke(ringStroke, color);
             } else {
                 dotDrawable.setColor(color);
             }
@@ -488,6 +496,7 @@ public class DashboardFragment extends Fragment {
             params.setMargins(2, 0, 2, 0);
             dot.setLayoutParams(params);
             dot.setBackground(dotDrawable);
+            dot.setTag(proxy.getName()); // Tag with proxy name for updates
 
             dotsContainer.addView(dot);
         }
@@ -512,20 +521,7 @@ public class DashboardFragment extends Fragment {
             else if (displayType.equalsIgnoreCase("REJECT")) displayType = "Reject";
             typeTxt.setText(displayType);
             latencyTxt.setText(proxy.delayDisplay());
-
-            // Color latency text to match dot colors
-            int delay = proxy.getDelayMs();
-            int latencyColor;
-            if (delay > 0 && delay < 200) {
-                latencyColor = 0xFF4CAF50; // Green
-            } else if (delay >= 200 && delay < 400) {
-                latencyColor = 0xFFFFC107; // Yellow
-            } else if (delay >= 400) {
-                latencyColor = 0xFFFF5252; // Red
-            } else {
-                latencyColor = 0xFF9E9E9E; // Grey
-            }
-            latencyTxt.setTextColor(latencyColor);
+            latencyTxt.setTextColor(getLatencyColor(proxy.getDelayMs()));
 
             if (proxy.getName().equals(group.getSelected())) {
                 int containerColor = MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurfaceContainerHighest, 0xFF353535);
@@ -587,53 +583,131 @@ public class DashboardFragment extends Fragment {
     }
 
     private void testAllProxiesLatency() {
+        // Cancel previous test immediately (yacd boolean guard)
+        cancelLatencyTest();
+        isLatencyTestRunning = true;
+
         ThreadManager.runBackgroundTask(() -> {
             ApiResult<List<ProxyGroup>> result = getClashApiService().getProxyGroups();
-            if (!result.isSuccess() || result.getData() == null) return;
+            if (!result.isSuccess() || result.getData() == null || !isLatencyTestRunning) {
+                isLatencyTestRunning = false;
+                return;
+            }
 
+            // Collect unique proxy names
             java.util.HashSet<String> uniqueProxies = new java.util.HashSet<>();
             for (ProxyGroup group : result.getData()) {
-                if (group.getType().equals("Selector") || group.getType().equals("URLTest") || group.getType().equals("Fallback")) {
+                if (group.getType().equals("Selector") || group.getType().equals("URLTest") || group.getType().equals("Fallback") || group.getType().equals("LoadBalance")) {
                     for (ProxyInfo proxy : group.getProxies()) {
                         uniqueProxies.add(proxy.getName());
                     }
-                } else {
-                    uniqueProxies.add(group.getName());
                 }
             }
 
-            String apiUrl = getApiUrl();
-            java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(15);
-            java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(uniqueProxies.size());
+            // Fire-and-forget ALL latency tests in parallel (like yacd's Promise.all)
+            int threadCount = Math.min(uniqueProxies.size(), 10);
+            java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(threadCount);
 
             for (String proxyName : uniqueProxies) {
                 if (proxyName.equalsIgnoreCase("DIRECT") || proxyName.equalsIgnoreCase("REJECT")) {
-                    latch.countDown();
                     continue;
                 }
 
                 executor.submit(() -> {
-                    java.net.HttpURLConnection conn = null;
-                    try {
-                        java.net.URL url = new java.net.URL(apiUrl + "/proxies/" + android.net.Uri.encode(proxyName) + "/delay?timeout=5000&url=http%3A%2F%2Fwww.gstatic.com%2Fgenerate_204");
-                        conn = (java.net.HttpURLConnection) url.openConnection();
-                        conn.setConnectTimeout(3000);
-                        conn.setReadTimeout(5000);
-                        conn.setRequestMethod("GET");
-                        conn.getResponseCode();
-                    } catch (Exception ignored) {
-                    } finally {
-                        if (conn != null) conn.disconnect();
-                        latch.countDown();
-                    }
+                    if (!isLatencyTestRunning) return;
+                    getClashApiService().testProxyLatency(proxyName);
+                    // Fire-and-forget: Clash stores delay internally
                 });
             }
+
             executor.shutdown();
-            try {
-                latch.await(20, java.util.concurrent.TimeUnit.SECONDS);
-            } catch (InterruptedException ignored) {}
-            runOnUI(this::refreshProxies);
+
+            // Short delay - let fast proxies complete, then fetch whatever we have
+            try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+
+            // Fetch and update ALL proxies at once
+            if (isLatencyTestRunning) {
+                ApiResult<List<ProxyGroup>> updatedResult = getClashApiService().getProxyGroups();
+                if (updatedResult.isSuccess() && updatedResult.getData() != null) {
+                    runOnUI(() -> updateLatencyUI(updatedResult.getData()));
+                }
+            }
+
+            isLatencyTestRunning = false;
         });
+    }
+
+    private void updateLatencyUI(List<ProxyGroup> updatedGroups) {
+        if (proxyGroupsContainer == null) return;
+
+        // Create a map of proxy name to latency for quick lookup
+        java.util.Map<String, Integer> latencyMap = new java.util.HashMap<>();
+        for (ProxyGroup group : updatedGroups) {
+            for (ProxyInfo proxy : group.getProxies()) {
+                latencyMap.put(proxy.getName(), proxy.getDelayMs());
+            }
+        }
+
+        // Update all existing views (both expanded cards and collapsed dots)
+        for (int i = 0; i < proxyGroupsContainer.getChildCount(); i++) {
+            View groupView = proxyGroupsContainer.getChildAt(i);
+            
+            // Update expanded proxy cards
+            GridLayout itemsContainer = groupView.findViewById(R.id.proxyItemsContainer);
+            if (itemsContainer != null) {
+                for (int j = 0; j < itemsContainer.getChildCount(); j++) {
+                    View proxyCard = itemsContainer.getChildAt(j);
+                    if (proxyCard instanceof MaterialCardView) {
+                        TextView nameTxt = proxyCard.findViewById(R.id.proxyName);
+                        TextView latencyTxt = proxyCard.findViewById(R.id.proxyLatency);
+
+                        if (nameTxt != null && latencyTxt != null && latencyMap.containsKey(nameTxt.getText().toString())) {
+                            int delay = latencyMap.get(nameTxt.getText().toString());
+                            latencyTxt.setText(delay > 0 ? delay + " ms" : "- ms");
+                            latencyTxt.setTextColor(getLatencyColor(delay));
+                        }
+                    }
+                }
+            }
+            
+            // Update collapsed dots
+            LinearLayout dotsContainer = groupView.findViewById(R.id.proxyDotsContainer);
+            if (dotsContainer != null && dotsContainer.getVisibility() == View.VISIBLE) {
+                int ringStroke = (int) (2 * getContext().getResources().getDisplayMetrics().density);
+                for (int j = 0; j < dotsContainer.getChildCount(); j++) {
+                    View dot = dotsContainer.getChildAt(j);
+                    String proxyName = (String) dot.getTag();
+                    if (proxyName != null && latencyMap.containsKey(proxyName)) {
+                        int delay = latencyMap.get(proxyName);
+                        int color = getLatencyColor(delay);
+                        
+                        android.graphics.drawable.GradientDrawable bg = (android.graphics.drawable.GradientDrawable) dot.getBackground();
+                        if (bg != null) {
+                            // Check if ring (selected) by checking if current fill is transparent
+                            int fillColor;
+                            android.content.res.ColorStateList csl = bg.getColor();
+                            if (csl != null) {
+                                fillColor = csl.getDefaultColor();
+                            } else {
+                                fillColor = android.graphics.Color.TRANSPARENT;
+                            }
+                            if (fillColor == android.graphics.Color.TRANSPARENT) {
+                                // Ring style - update stroke
+                                bg.setColor(android.graphics.Color.TRANSPARENT);
+                                bg.setStroke((int) ringStroke, color);
+                            } else {
+                                // Solid dot - update fill
+                                bg.setColor(color);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void cancelLatencyTest() {
+        isLatencyTestRunning = false;
     }
 
     // -- Service actions (shell-based) ----------------------------------------
@@ -659,12 +733,19 @@ public class DashboardFragment extends Fragment {
 
     // -- Helpers --------------------------------------------------------------
 
+    private int getLatencyColor(int delayMs) {
+        if (delayMs > 0 && delayMs < 200) return 0xFF4CAF50; // Green
+        if (delayMs >= 200 && delayMs < 400) return 0xFFFFC107; // Yellow
+        if (delayMs >= 400) return 0xFFFF5252; // Red
+        return 0xFF9E9E9E; // Grey (no data)
+    }
+
     private void runOnUI(Runnable r) {
         if (isAdded() && getActivity() != null) getActivity().runOnUiThread(r);
     }
 
     private String getApiUrl() {
-        return prefs.getString("dash_url", "http://127.0.0.1:9090/ui").replaceAll("/(ui|dashboard)/?$", "");
+        return ClashApiService.normalizeBaseUrl(prefs.getString("dash_url", "http://127.0.0.1:9090/ui"));
     }
 
     private String formatSize(long bytes) {

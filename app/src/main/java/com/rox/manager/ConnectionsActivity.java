@@ -106,8 +106,8 @@ public class ConnectionsActivity extends AppCompatActivity {
     }
 
     private String getApiUrl() {
-        String dashUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui");
-        return dashUrl.replaceAll("/(ui|dashboard)/?$", "").replaceAll("/ui$", "");
+        return com.rox.manager.service.ClashApiService.normalizeBaseUrl(
+                prefs.getString("dash_url", "http://127.0.0.1:9090/ui"));
     }
 
     @Override

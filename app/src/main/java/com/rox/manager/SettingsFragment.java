@@ -76,7 +76,8 @@ public class SettingsFragment extends Fragment {
         }
 
         ThreadManager.runBackgroundTask(() -> {
-            String apiUrl = prefs.getString("dash_url", "http://127.0.0.1:9090/ui").replaceAll("/(ui|dashboard)/?$", "");
+            String apiUrl = ClashApiService.normalizeBaseUrl(
+                    prefs.getString("dash_url", "http://127.0.0.1:9090/ui"));
             ClashApiService service = new ClashApiService(apiUrl);
             ApiResult<Void> result = service.flushFakeIpCache();
             if (!result.isSuccess()) {
