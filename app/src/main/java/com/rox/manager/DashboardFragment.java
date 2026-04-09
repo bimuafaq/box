@@ -753,7 +753,8 @@ public class DashboardFragment extends Fragment {
         int normalTextColor = com.google.android.material.color.MaterialColors.getColor(
                 getContext(), android.R.attr.textColorSecondary, 0xFFAAAAAA);
         int cornerRadius = (int) (16 * getContext().getResources().getDisplayMetrics().density);
-        int itemRadius = (int) (12 * getContext().getResources().getDisplayMetrics().density);
+        int itemRadius = (int) (10 * getContext().getResources().getDisplayMetrics().density);
+        int popupPadding = (int) (8 * getContext().getResources().getDisplayMetrics().density);
 
         android.graphics.drawable.GradientDrawable popupBg = new android.graphics.drawable.GradientDrawable();
         popupBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
@@ -767,7 +768,7 @@ public class DashboardFragment extends Fragment {
         popupWindow.setWidth((int) (180 * getContext().getResources().getDisplayMetrics().density));
         popupWindow.setModal(true);
         popupWindow.setBackgroundDrawable(popupBg);
-        popupWindow.setHorizontalOffset(-anchor.getWidth());
+        popupWindow.setHorizontalOffset(-(int) (anchor.getWidth() * 1.5));
 
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
                 getContext(), android.R.layout.simple_list_item_1, items) {
@@ -775,29 +776,32 @@ public class DashboardFragment extends Fragment {
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
+                view.setClickable(false);
                 TextView textView = view.findViewById(android.R.id.text1);
-                int padding = (int) (14 * getContext().getResources().getDisplayMetrics().density);
+                int outerPadding = (int) (12 * getContext().getResources().getDisplayMetrics().density);
 
                 android.graphics.drawable.GradientDrawable selectedBg = new android.graphics.drawable.GradientDrawable();
                 selectedBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
                 selectedBg.setCornerRadius(itemRadius);
+
+                // Add inner padding so selected card doesn't stick to popup edges
+                int innerPadding = (int) (6 * getContext().getResources().getDisplayMetrics().density);
 
                 if (position == selectedIndex) {
                     selectedBg.setColor(selectedBgColor);
                     view.setBackground(selectedBg);
                     if (textView != null) {
                         textView.setTextColor(headerColor);
-                        textView.setTypeface(null, android.graphics.Typeface.BOLD);
                     }
+                    view.setPadding(outerPadding, innerPadding, outerPadding, innerPadding);
                 } else {
                     view.setBackgroundColor(android.graphics.Color.TRANSPARENT);
                     if (textView != null) {
                         textView.setTextColor(normalTextColor);
-                        textView.setTypeface(null, android.graphics.Typeface.NORMAL);
                     }
+                    view.setPadding(outerPadding, outerPadding, outerPadding, outerPadding);
                 }
 
-                view.setPadding(padding, padding, padding, padding);
                 view.setClipToOutline(true);
                 return view;
             }
