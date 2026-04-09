@@ -66,6 +66,9 @@ public class SettingsFragment extends Fragment {
         View btnClearFakeIp = view.findViewById(R.id.btnClearFakeIp);
         btnClearFakeIp.setOnClickListener(v -> clearFakeIpCache(v));
 
+        View btnReloadConfig = view.findViewById(R.id.btnReloadConfig);
+        btnReloadConfig.setOnClickListener(v -> reloadClashConfig(v));
+
         return view;
     }
 
@@ -82,6 +85,23 @@ public class SettingsFragment extends Fragment {
             ApiResult<Void> result = service.flushFakeIpCache();
             if (!result.isSuccess()) {
                 android.util.Log.w("SettingsFragment", "FakeIP cache flush failed: " + result.getErrorMessage());
+            }
+        });
+    }
+
+    private void reloadClashConfig(View btn) {
+        View icon = ((ViewGroup) btn).getChildAt(1);
+        if (icon != null) {
+            icon.animate().rotationBy(360).setDuration(500).start();
+        }
+
+        ThreadManager.runBackgroundTask(() -> {
+            String apiUrl = ClashApiService.normalizeBaseUrl(
+                    prefs.getString("dash_url", "http://127.0.0.1:9090/ui"));
+            ClashApiService service = new ClashApiService(apiUrl);
+            ApiResult<Boolean> result = service.reloadConfig();
+            if (!result.isSuccess()) {
+                android.util.Log.w("SettingsFragment", "Config reload failed: " + result.getErrorMessage());
             }
         });
     }

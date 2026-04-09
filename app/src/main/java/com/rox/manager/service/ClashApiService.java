@@ -242,6 +242,23 @@ public final class ClashApiService {
         }
     }
 
+    /**
+     * Reloads the main Clash configuration without restarting the core.
+     * Equivalent to restarting Clash but much faster.
+     */
+    public ApiResult<Boolean> reloadConfig() {
+        try {
+            String body = "{}";
+            String raw = ClashApiHelper.put(baseUrl + "/configs", body);
+            if (raw != null && !raw.startsWith("Error")) {
+                return ApiResult.success(true);
+            }
+            return ApiResult.error(raw != null ? raw : "Unknown error");
+        } catch (Exception e) {
+            return ApiResult.error(e.getMessage());
+        }
+    }
+
     // -- Private helpers ------------------------------------------------------
 
     /** Fetches raw /connections response (shared by stats and list methods). */

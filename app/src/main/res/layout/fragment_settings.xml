@@ -97,41 +97,91 @@
                 app:strokeWidth="0dp"
                 style="?attr/materialCardViewFilledStyle">
 
-                <!-- CLEAR FAKE-IP -->
                 <LinearLayout
-                    android:id="@+id/btnClearFakeIp"
                     android:layout_width="match_parent"
-                    android:layout_height="72dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="16dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- RELOAD CONFIG -->
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        <TextView
-                            android:layout_width="wrap_content"
+                        android:id="@+id/btnReloadConfig"
+                        android:layout_width="match_parent"
+                        android:layout_height="72dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="@string/label_clear_fake_ip"
-                            android:textSize="16sp"
-                            android:textColor="?attr/colorOnSurface" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/desc_clear_fake_ip"
-                            android:textSize="13sp"
-                            android:textColor="?android:attr/textColorSecondary" />
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_reload_config"
+                                android:textSize="16sp"
+                                android:textColor="?attr/colorOnSurface" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/desc_reload_config"
+                                android:textSize="13sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_play_arrow"
+                            android:contentDescription="@string/label_reload_config"
+                            app:tint="?attr/colorPrimary" />
                     </LinearLayout>
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_refresh"
-                        android:contentDescription="@string/label_clear_fake_ip"
-                        app:tint="?attr/colorPrimary" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:alpha="0.2"
+                        android:layout_marginHorizontal="16dp" />
+
+                    <!-- CLEAR FAKE-IP -->
+                    <LinearLayout
+                        android:id="@+id/btnClearFakeIp"
+                        android:layout_width="match_parent"
+                        android:layout_height="72dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_clear_fake_ip"
+                                android:textSize="16sp"
+                                android:textColor="?attr/colorOnSurface" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/desc_clear_fake_ip"
+                                android:textSize="13sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_refresh"
+                            android:contentDescription="@string/label_clear_fake_ip"
+                            app:tint="?attr/colorPrimary" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -155,7 +205,7 @@
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:strokeWidth="0dp"
                 style="?attr/materialCardViewFilledStyle">
-                
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
