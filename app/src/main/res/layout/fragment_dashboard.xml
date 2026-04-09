@@ -333,21 +333,28 @@
                     android:gravity="center_vertical"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
-                    android:paddingBottom="12dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:paddingBottom="12dp">
 
                     <TextView
                         android:id="@+id/labelProxyGroups"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/label_proxy_groups"
+                        android:text="PROXIES"
                         android:textSize="12sp"
                         android:textColor="?attr/colorPrimary"
                         android:textStyle="bold"
                         android:letterSpacing="0.1" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnProxyViewMode"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Proxy View Mode"
+                        app:icon="@drawable/ic_swap_horiz"
+                        app:iconSize="20dp"
+                        app:iconTint="?attr/colorPrimary" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnRefreshProviders"

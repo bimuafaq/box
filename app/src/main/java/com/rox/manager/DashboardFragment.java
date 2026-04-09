@@ -54,7 +54,7 @@ public class DashboardFragment extends Fragment {
     private static final String TAG = "DashboardFragment";
 
     // View References
-    private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService, btnRefreshProviders, proxyGroupsHeader;
+    private View initialLayout, webViewContainer, webHeader, dashHeader, btnLatency, btnOpen, btnService, btnRefreshProviders, proxyGroupsHeader, btnProxyViewMode;
     private MaterialCardView statusCard;
     private TextView statusText, coreText, cpuText, ramText, fabUptimeText;
     private WebView webView;
@@ -143,6 +143,7 @@ public class DashboardFragment extends Fragment {
         proxyGroupsContainer = view.findViewById(R.id.proxyGroupsContainer);
         labelProxyGroups = view.findViewById(R.id.labelProxyGroups);
         proxyGroupsHeader = view.findViewById(R.id.proxyGroupsHeader);
+        btnProxyViewMode = view.findViewById(R.id.btnProxyViewMode);
 
         clashConnectionsText = view.findViewById(R.id.clashConnectionsText);
         clashDownloadText = view.findViewById(R.id.clashDownloadText);
@@ -177,7 +178,7 @@ public class DashboardFragment extends Fragment {
         });
 
         btnService.setOnClickListener(v -> handleServiceToggle());
-        proxyGroupsHeader.setOnClickListener(v -> showProxyViewSelector());
+        btnProxyViewMode.setOnClickListener(v -> showProxyViewPopupMenu(v));
         btnRefreshProviders.setOnClickListener(v -> {
             if (!isServiceRunning) return;
             refreshProxyProviders();
@@ -739,23 +740,23 @@ public class DashboardFragment extends Fragment {
 
     // -- Proxy View Selector -------------------------------------------------
 
-    private void showProxyViewSelector() {
+    private void showProxyViewPopupMenu(View anchor) {
         if (getContext() == null) return;
-        String[] options = new String[]{"Main Proxies", "Proxy Providers"};
-        int checked = showProxyProviders ? 1 : 0;
-
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-        builder.setTitle("View Proxies As");
-        builder.setSingleChoiceItems(options, checked, (dialog, which) -> {
-            showProxyProviders = (which == 1);
-            dialog.dismiss();
-            if (showProxyProviders) {
-                renderProxyProvidersView();
-            } else {
+        android.widget.PopupMenu popup = new android.widget.PopupMenu(getContext(), anchor);
+        popup.getMenu().add(0, 0, 0, "Main Proxies").setChecked(!showProxyProviders);
+        popup.getMenu().add(0, 1, 1, "Proxy Providers").setChecked(showProxyProviders);
+        popup.getMenu().setGroupCheckable(0, true, true);
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == 0) {
+                showProxyProviders = false;
                 refreshProxies();
+            } else {
+                showProxyProviders = true;
+                renderProxyProvidersView();
             }
+            return true;
         });
-        builder.show();
+        popup.show();
     }
 
     private void renderProxyProvidersView() {
