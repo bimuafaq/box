@@ -28,6 +28,9 @@
         <!-- Transparent Status Bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
+        <!-- Transparent Navigation Bar -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="snackbarStyle">@style/Widget.Custom.Snackbar</item>
         <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
     </style>
