@@ -120,8 +120,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:gravity="center_vertical">
-                            
+                            android:gravity="top">
+
                             <!-- LEFT: ACTIVE CORE -->
                             <LinearLayout
                                 android:layout_width="0dp"
@@ -171,18 +171,15 @@
 
                         <View
                             android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginTop="12dp"
-                            android:layout_marginBottom="12dp"
-                            android:background="?attr/colorOutlineVariant"
-                            android:alpha="0.5" />
+                            android:layout_height="16dp" />
 
-                        <!-- GRID STATS (CPU and RAM closer, UPTIME at end) -->
+                        <!-- GRID STATS (CPU, RAM, UPTIME, BUTTON) -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-                            
+                            android:orientation="horizontal"
+                            android:gravity="bottom">
+
                             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
                                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_cpu" android:textSize="12sp" android:textStyle="bold" android:textColor="?attr/colorOnSurfaceVariant" />
                                 <TextView android:id="@+id/cpuText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/value_empty_percent" android:textSize="14sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
