@@ -40,20 +40,22 @@ public class MainActivity extends AppCompatActivity {
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-        // Set navigation bar to match Material surface color
-        if (Build.VERSION.SDK_INT >= 29) {
-            getWindow().setNavigationBarContrastEnforced(false);
-        }
-        getWindow().setNavigationBarColor(Color.TRANSPARENT);
-        if (Build.VERSION.SDK_INT >= 30) {
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
-
         setContentView(R.layout.activity_main);
 
         viewPager = findViewById(R.id.viewPager);
         bottomNavigation = findViewById(R.id.bottomNavigation);
         navigationRail = findViewById(R.id.navigationRail);
+
+        // Set navigation bar color to match bottom nav background
+        android.graphics.drawable.Drawable bg = bottomNavigation.getBackground();
+        int navColor = MaterialColors.getColor(bottomNavigation, com.google.android.material.R.attr.colorSurfaceContainer, Color.TRANSPARENT);
+        if (bg instanceof android.graphics.drawable.ColorDrawable) {
+            navColor = ((android.graphics.drawable.ColorDrawable) bg).getColor();
+        }
+        getWindow().setNavigationBarColor(navColor);
+        if (Build.VERSION.SDK_INT >= 29) {
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
 
         setupViewPager();
         setupNavigation();
