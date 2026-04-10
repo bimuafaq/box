@@ -3,9 +3,13 @@ package com.rox.manager;
 import android.os.Bundle;
 import android.view.View;
 import android.content.res.Configuration;
+import android.content.Context;
+import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -15,6 +19,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigationrail.NavigationRailView;
 import androidx.activity.OnBackPressedCallback;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.color.MaterialColors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,12 +27,18 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigation;
     private NavigationRailView navigationRail;
     private boolean isSyncing = false;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        prefs = getSharedPreferences("rox_prefs", Context.MODE_PRIVATE);
+        restoreThemePreference();
+
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         setContentView(R.layout.activity_main);
+        setupSystemBars();
 
         viewPager = findViewById(R.id.viewPager);
         bottomNavigation = findViewById(R.id.bottomNavigation);
@@ -163,5 +174,20 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         @Override public int getItemCount() { return 4; }
+    }
+
+    private void setupSystemBars() {
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        controller.setAppearanceLightStatusBars(false);
+        controller.setAppearanceLightNavigationBars(false);
+    }
+
+    private void restoreThemePreference() {
+        int savedMode = prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        AppCompatDelegate.setDefaultNightMode(savedMode);
+    }
+
+    void saveThemePreference(int mode) {
+        prefs.edit().putInt("theme_mode", mode).apply();
     }
 }
