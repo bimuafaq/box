@@ -894,7 +894,6 @@ public class DashboardFragment extends Fragment {
         isProviderHealthcheckRunning = true;
 
         btnHealthcheckAll.setEnabled(false);
-        btnHealthcheckAll.animate().rotationBy(360).setDuration(500).start();
 
         ThreadManager.runBackgroundTask(() -> {
             ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
@@ -906,33 +905,17 @@ public class DashboardFragment extends Fragment {
 
             List<String> providers = result.getData();
 
-            // Fire healthchecks in parallel
-            java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(
-                    Math.min(providers.size(), 4));
-            java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(providers.size());
+            // Fire all healthchecks in parallel (Clash runs them server-side)
             for (String providerName : providers) {
-                executor.submit(() -> {
-                    try {
-                        getClashApiService().healthcheckProvider(providerName);
-                    } catch (Exception ignored) {
-                    } finally {
-                        latch.countDown();
-                    }
-                });
+                getClashApiService().healthcheckProvider(providerName);
             }
-            executor.shutdown();
 
-            // Wait for healthchecks to complete (max 30s)
-            try { latch.await(30, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
-
-            // Small delay for Clash to finalize results
-            try { Thread.sleep(500); } catch (InterruptedException ignored) {}
-
-            // Fetch updated provider details in parallel
+            // Fetch all provider details in parallel
+            java.util.concurrent.ExecutorService fetchExecutor = java.util.concurrent.Executors.newFixedThreadPool(
+                    Math.min(providers.size(), Math.max(4, providers.size())));
             java.util.Map<String, Integer> latencyMap = new java.util.concurrent.ConcurrentHashMap<>();
             java.util.concurrent.CountDownLatch fetchLatch = new java.util.concurrent.CountDownLatch(providers.size());
-            java.util.concurrent.ExecutorService fetchExecutor = java.util.concurrent.Executors.newFixedThreadPool(
-                    Math.min(providers.size(), 4));
+
             for (String providerName : providers) {
                 fetchExecutor.submit(() -> {
                     try {
@@ -949,9 +932,8 @@ public class DashboardFragment extends Fragment {
                 });
             }
             fetchExecutor.shutdown();
-            try { fetchLatch.await(30, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
+            try { fetchLatch.await(15, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
 
-            // Reset flag before posting to UI thread (Fix #1: prevent stuck flag on detach)
             isProviderHealthcheckRunning = false;
             runOnUI(() -> {
                 btnHealthcheckAll.setEnabled(true);
