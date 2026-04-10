@@ -1,10 +1,12 @@
 package com.rox.manager;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.content.res.Configuration;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -37,6 +39,16 @@ public class MainActivity extends AppCompatActivity {
         restoreThemePreference();
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+        // Set navigation bar to match Material surface color
+        if (Build.VERSION.SDK_INT >= 29) {
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+        if (Build.VERSION.SDK_INT >= 30) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
+
         setContentView(R.layout.activity_main);
 
         viewPager = findViewById(R.id.viewPager);
