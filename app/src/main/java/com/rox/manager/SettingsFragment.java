@@ -279,17 +279,17 @@ public class SettingsFragment extends Fragment {
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle(R.string.dialog_select_theme)
                 .setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
-                    int mode;
+                    int newMode;
                     if (which == 0) {
-                        mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+                        newMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
                     } else if (which == 1) {
-                        mode = AppCompatDelegate.MODE_NIGHT_NO;
+                        newMode = AppCompatDelegate.MODE_NIGHT_NO;
                     } else {
-                        mode = AppCompatDelegate.MODE_NIGHT_YES;
+                        newMode = AppCompatDelegate.MODE_NIGHT_YES;
                     }
-                    AppCompatDelegate.setDefaultNightMode(mode);
+                    AppCompatDelegate.setDefaultNightMode(newMode);
                     if (getActivity() instanceof MainActivity) {
-                        ((MainActivity) getActivity()).saveThemePreference(mode);
+                        ((MainActivity) getActivity()).saveThemePreference(newMode);
                     }
                     updateThemeLabel();
                     dialog.dismiss();
