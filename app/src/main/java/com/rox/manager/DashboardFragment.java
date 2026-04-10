@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import java.util.Locale;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,7 +79,6 @@ public class DashboardFragment extends Fragment {
 
     // Latency Test State
     private volatile boolean isLatencyTestRunning = false;
-    private volatile java.util.concurrent.ExecutorService latencyExecutor = null;
 
     // Proxy View Mode
     private boolean showProxyProviders = false;
@@ -267,11 +265,6 @@ public class DashboardFragment extends Fragment {
         // Fetch service status ONCE when fragment opens
         refreshServiceBaseStatus();
         startPolling();
-        // Check if config was just reloaded from Settings
-        if (prefs.getBoolean("reload_config_triggered", false)) {
-            prefs.edit().remove("reload_config_triggered").apply();
-            refreshProxies();
-        }
     }
 
     @Override
@@ -334,6 +327,11 @@ public class DashboardFragment extends Fragment {
             String result = ShellHelper.runRootCommand(cmd);
 
             runOnUI(() -> {
+                // Always update core info even if PID check fails
+                if (!cachedCoreName.isEmpty()) {
+                    coreText.setText(cachedCoreName.toUpperCase(Locale.ROOT));
+                }
+
                 if (result != null && result.contains("|")) {
                     String[] parts = result.split("\\|");
                     String pid = parts[0].trim();
@@ -342,10 +340,19 @@ public class DashboardFragment extends Fragment {
                     isServiceRunning = !pid.equals("0");
                     updateServiceUI(isServiceRunning, cachedCoreName, pid, etime);
 
+                    // Fetch proxy list when service is running (new start or returning from another tab)
+                    if (isServiceRunning) {
+                        refreshProxies();
+                    }
+
                     if (!isServiceRunning) {
                         ramText.setText(R.string.value_empty_mb_upper);
                         cpuText.setText(R.string.value_empty_percent_upper);
                     }
+                } else {
+                    // PID check failed, update UI with stopped state
+                    isServiceRunning = false;
+                    updateServiceUI(false, cachedCoreName, "0", "00:00");
                 }
             });
         });
@@ -917,10 +924,6 @@ public class DashboardFragment extends Fragment {
 
             runOnUI(() -> applyLatencyUpdates(latencyMap));
         });
-    }
-
-    private void updateProviderLatencyUI(java.util.Map<String, Integer> latencyMap) {
-        applyLatencyUpdates(latencyMap);
     }
 
     private void refreshProxyProviders() {
