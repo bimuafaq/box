@@ -29,8 +29,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-
 import com.rox.manager.model.ApiResult;
 import com.rox.manager.model.ClashStats;
 import com.rox.manager.model.ProxyGroup;
@@ -388,7 +386,8 @@ public class DashboardFragment extends Fragment {
 
     private void updateServiceUI(boolean running, String core, String pid, String etime) {
         if (statusText == null || btnService == null || coreText == null || statusCard == null) return;
-        ExtendedFloatingActionButton fab = (ExtendedFloatingActionButton) btnService;
+
+        MaterialButton serviceBtn = (MaterialButton) btnService;
         if (running) {
             statusText.setText(String.format("PID: %s", pid));
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnTertiaryContainer));
@@ -396,20 +395,21 @@ public class DashboardFragment extends Fragment {
 
             coreText.setText(core.toUpperCase(Locale.ROOT));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
-            fab.setIconResource(R.drawable.ic_stop);
-            fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorErrorContainer)));
-            fab.extend();
+            serviceBtn.setIconResource(R.drawable.ic_stop);
+            serviceBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorErrorContainer)));
+            serviceBtn.setIconTintResource(com.google.android.material.R.attr.colorOnErrorContainer);
             String uptime = String.format(Locale.getDefault(), "%02d:%02d:%02d", currentRuntimeSeconds / 3600, (currentRuntimeSeconds % 3600) / 60, currentRuntimeSeconds % 60);
-            fab.post(() -> fab.setText(uptime));
+            fabUptimeText.setText(uptime);
+            fabUptimeText.setVisibility(View.VISIBLE);
         } else {
             statusText.setText(R.string.status_stopped);
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
 
-            fab.setIconResource(R.drawable.ic_play_arrow);
-            fab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(fab, com.google.android.material.R.attr.colorPrimaryContainer)));
-            fab.shrink();
-            fab.setText("");
+            serviceBtn.setIconResource(R.drawable.ic_play_arrow);
+            serviceBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorSurfaceContainerHighest)));
+            serviceBtn.setIconTintResource(com.google.android.material.R.attr.colorOnSurface);
+            fabUptimeText.setVisibility(View.GONE);
         }
     }
 
@@ -1002,12 +1002,9 @@ public class DashboardFragment extends Fragment {
     }
 
     private void updateRuntimeUI(long totalSeconds) {
-        if (btnService == null) return;
-        ExtendedFloatingActionButton fab = (ExtendedFloatingActionButton) btnService;
-        if (fab.getText().length() > 0) {
-            String uptime = String.format(Locale.getDefault(), "%02d:%02d:%02d", totalSeconds / 3600, (totalSeconds % 3600) / 60, totalSeconds % 60);
-            fab.setText(uptime);
-        }
+        if (fabUptimeText == null) return;
+        String uptime = String.format(Locale.getDefault(), "%02d:%02d:%02d", totalSeconds / 3600, (totalSeconds % 3600) / 60, totalSeconds % 60);
+        fabUptimeText.setText(uptime);
     }
 
     private long parseETimeToSeconds(String etime) {

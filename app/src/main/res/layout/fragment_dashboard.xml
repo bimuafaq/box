@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="4dp"
-                android:paddingBottom="80dp">
+                android:paddingBottom="24dp">
 
                 <!-- MODUL 1: STATUS & SYSTEM INFO (COMPACT MD3 FILLED CARD) -->
                 <com.google.android.material.card.MaterialCardView
@@ -197,6 +197,26 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1" />
+
+                            <!-- START/STOP BUTTON -->
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnService"
+                                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                app:icon="@drawable/ic_play_arrow"
+                                app:iconSize="24dp" />
+
+                            <!-- UPTIME TEXT -->
+                            <TextView
+                                android:id="@+id/fabUptimeText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="00:00:00"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:visibility="gone" />
                         </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -395,17 +415,6 @@
                     android:orientation="vertical" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
-
-        <!-- FAB + UPTIME TEXT -->
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/btnService"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="24dp"
-            app:icon="@drawable/ic_play_arrow"
-            app:iconTint="?attr/colorOnPrimaryContainer"
-            app:backgroundTint="?attr/colorPrimaryContainer" />
 
         <!-- WEBVIEW CONTAINER (OVERLAY) -->
         <com.google.android.material.card.MaterialCardView
