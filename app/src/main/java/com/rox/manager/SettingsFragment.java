@@ -211,6 +211,7 @@ public class SettingsFragment extends Fragment {
                 .setTitle("Select Binary Name")
                 .setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
                     updateSettingsIni("bin_name", options[which]);
+                    prefs.edit().putBoolean("core_changed", true).apply();
                     dialog.dismiss();
                 })
                 .show();

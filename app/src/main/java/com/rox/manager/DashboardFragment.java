@@ -113,10 +113,16 @@ public class DashboardFragment extends Fragment {
 
                 // STATS ONLY (Connections, Up/Down) - Every 1s real-time
                 refreshClashStats();
+            } else {
+                // Reset uptime when service is not running
+                if (currentRuntimeSeconds > 0) {
+                    currentRuntimeSeconds = 0;
+                    updateRuntimeUI(0);
+                }
             }
             lastServiceRunningState = isServiceRunning;
 
-            // 2. HEAVY STATS (CPU/RAM) - Every 2s to reduce shell and UI load
+            // HEAVY STATS (CPU/RAM) - Every 2s to reduce shell and UI load
             if (statsCounter % 2 == 0) {
                 if (isServiceRunning && !isActionRunning) {
                     refreshServiceHeavyStats();
@@ -320,7 +326,11 @@ public class DashboardFragment extends Fragment {
         if (isActionRunning) return;
 
         ThreadManager.runOnShell(() -> {
-            if (cachedCoreName.isEmpty() || statsCounter % 30 == 0) {
+            // Fetch core name only once, or when Settings signals a change
+            if (cachedCoreName.isEmpty() || prefs.getBoolean("core_changed", false)) {
+                if (prefs.getBoolean("core_changed", false)) {
+                    prefs.edit().remove("core_changed").apply();
+                }
                 String settings = ShellHelper.readRootFileDirect("/data/adb/box/settings.ini");
                 if (settings != null) {
                     for (String line : settings.split("\n")) {
@@ -404,10 +414,13 @@ public class DashboardFragment extends Fragment {
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
 
+            coreText.setText(core.toUpperCase(Locale.ROOT));
+            currentRuntimeSeconds = 0;
             serviceBtn.setText(R.string.btn_start);
             serviceBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorPrimaryContainer)));
             serviceBtn.setTextColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorOnPrimaryContainer)));
         }
+        updateRuntimeUI(currentRuntimeSeconds);
     }
 
     // -- Clash API (service layer) --------------------------------------------
