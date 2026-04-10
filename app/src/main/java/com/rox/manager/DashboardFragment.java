@@ -66,7 +66,6 @@ public class DashboardFragment extends Fragment {
 
     // Logic State
     private boolean isServiceRunning = false;
-    private boolean lastServiceRunningState = false;
     private boolean isActionRunning = false;
     private long currentRuntimeSeconds = 0;
     private long statsCounter = 0;
@@ -93,17 +92,9 @@ public class DashboardFragment extends Fragment {
         public void run() {
             if (!isPollingActive) return;
 
-            // 1. SERVICE STATUS & UPTIME (Every 1s)
-            refreshServiceBaseStatus();
-
             if (isServiceRunning) {
                 currentRuntimeSeconds++;
                 updateRuntimeUI(currentRuntimeSeconds);
-
-                // PROXY LIST: Fetch ONCE when service just started
-                if (!lastServiceRunningState) {
-                    refreshProxies();
-                }
 
                 // PROXY LIST: Fetch after config reload from Settings
                 if (prefs.getBoolean("reload_config_triggered", false)) {
@@ -120,7 +111,6 @@ public class DashboardFragment extends Fragment {
                     updateRuntimeUI(0);
                 }
             }
-            lastServiceRunningState = isServiceRunning;
 
             // HEAVY STATS (CPU/RAM) - Every 2s to reduce shell and UI load
             if (statsCounter % 2 == 0) {
@@ -284,6 +274,8 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Fetch service status ONCE when fragment opens
+        refreshServiceBaseStatus();
         startPolling();
         // Check if config was just reloaded from Settings
         if (prefs.getBoolean("reload_config_triggered", false)) {
