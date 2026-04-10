@@ -399,7 +399,7 @@ public class DashboardFragment extends Fragment {
             serviceBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorErrorContainer)));
             serviceBtn.setTextColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorOnErrorContainer)));
         } else {
-            statusText.setText(R.string.status_stopped);
+            statusText.setText("PID: -");
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
 
