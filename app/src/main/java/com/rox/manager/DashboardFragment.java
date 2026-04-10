@@ -328,7 +328,7 @@ public class DashboardFragment extends Fragment {
 
             runOnUI(() -> {
                 // Always update core info even if PID check fails
-                if (!cachedCoreName.isEmpty()) {
+                if (!cachedCoreName.isEmpty() && coreText != null) {
                     coreText.setText(cachedCoreName.toUpperCase(Locale.ROOT));
                 }
 
@@ -346,8 +346,8 @@ public class DashboardFragment extends Fragment {
                     }
 
                     if (!isServiceRunning) {
-                        ramText.setText(R.string.value_empty_mb_upper);
-                        cpuText.setText(R.string.value_empty_percent_upper);
+                        if (ramText != null) ramText.setText(R.string.value_empty_mb_upper);
+                        if (cpuText != null) cpuText.setText(R.string.value_empty_percent_upper);
                     }
                 } else {
                     // PID check failed, update UI with stopped state
