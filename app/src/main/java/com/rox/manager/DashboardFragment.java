@@ -389,9 +389,9 @@ public class DashboardFragment extends Fragment {
 
         MaterialButton serviceBtn = (MaterialButton) btnService;
         if (running) {
-            statusText.setText(String.format("PID: %s", pid));
-            statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnTertiaryContainer));
-            statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorTertiaryContainer)));
+            statusText.setText(String.format(Locale.getDefault(), "%s: %s", getString(R.string.label_pid), pid));
+            statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnSurfaceVariant));
+            statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorSurfaceContainerHigh)));
 
             coreText.setText(core.toUpperCase(Locale.ROOT));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
