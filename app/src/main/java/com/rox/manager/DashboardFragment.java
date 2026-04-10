@@ -890,22 +890,12 @@ public class DashboardFragment extends Fragment {
     }
 
     private void healthcheckAllProviders() {
-        if (isProviderHealthcheckRunning) return;
-        isProviderHealthcheckRunning = true;
-
-        btnHealthcheckAll.setEnabled(false);
-
         ThreadManager.runBackgroundTask(() -> {
+            // Fire all healthchecks in parallel (Clash runs them server-side)
             ApiResult<List<String>> result = getClashApiService().getProxyProviderNames();
-            if (!result.isSuccess() || result.getData() == null) {
-                isProviderHealthcheckRunning = false;
-                runOnUI(() -> btnHealthcheckAll.setEnabled(true));
-                return;
-            }
+            if (!result.isSuccess() || result.getData() == null) return;
 
             List<String> providers = result.getData();
-
-            // Fire all healthchecks in parallel (Clash runs them server-side)
             for (String providerName : providers) {
                 getClashApiService().healthcheckProvider(providerName);
             }
@@ -934,11 +924,7 @@ public class DashboardFragment extends Fragment {
             fetchExecutor.shutdown();
             try { fetchLatch.await(15, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
 
-            isProviderHealthcheckRunning = false;
-            runOnUI(() -> {
-                btnHealthcheckAll.setEnabled(true);
-                applyLatencyUpdates(latencyMap);
-            });
+            runOnUI(() -> applyLatencyUpdates(latencyMap));
         });
     }
 
