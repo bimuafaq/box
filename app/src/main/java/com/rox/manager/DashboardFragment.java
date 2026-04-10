@@ -68,7 +68,6 @@ public class DashboardFragment extends Fragment {
     private boolean isServiceRunning = false;
     private boolean isActionRunning = false;
     private long currentRuntimeSeconds = 0;
-    private long statsCounter = 0;
     private String cachedCoreName = "";
 
     private SharedPreferences prefs;
@@ -95,15 +94,14 @@ public class DashboardFragment extends Fragment {
             if (isServiceRunning) {
                 currentRuntimeSeconds++;
                 updateRuntimeUI(currentRuntimeSeconds);
+                refreshClashStats();
+                refreshServiceHeavyStats();
 
                 // PROXY LIST: Fetch after config reload from Settings
                 if (prefs.getBoolean("reload_config_triggered", false)) {
                     prefs.edit().remove("reload_config_triggered").apply();
                     refreshProxies();
                 }
-
-                // STATS ONLY (Connections, Up/Down) - Every 1s real-time
-                refreshClashStats();
             } else {
                 // Reset uptime when service is not running
                 if (currentRuntimeSeconds > 0) {
@@ -112,14 +110,6 @@ public class DashboardFragment extends Fragment {
                 }
             }
 
-            // HEAVY STATS (CPU/RAM) - Every 2s to reduce shell and UI load
-            if (statsCounter % 2 == 0) {
-                if (isServiceRunning && !isActionRunning) {
-                    refreshServiceHeavyStats();
-                }
-            }
-
-            statsCounter++;
             pollingHandler.postDelayed(this, 1000);
         }
     };
