@@ -761,7 +761,6 @@ public class DashboardFragment extends Fragment {
             btnRefreshProviders.setVisibility(View.VISIBLE);
             btnLatency.setVisibility(View.GONE);
             btnHealthcheckAll.setVisibility(View.VISIBLE);
-            expandedProviders.clear();
             renderProxyProvidersView();
         } else {
             btnRefreshProviders.setVisibility(View.GONE);
