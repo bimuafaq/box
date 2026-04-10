@@ -162,6 +162,7 @@ public class DashboardFragment extends Fragment {
         btnRefreshProviders.setVisibility(View.GONE);
         btnHealthcheckAll = view.findViewById(R.id.btnHealthcheckAll);
         btnHealthcheckAll.setVisibility(View.GONE);
+        fabUptimeText = view.findViewById(R.id.fabUptimeText);
 
         MaterialButton btnClose = view.findViewById(R.id.btnCloseWeb);
         View btnRefreshWeb = view.findViewById(R.id.btnRefreshWeb);
@@ -395,21 +396,17 @@ public class DashboardFragment extends Fragment {
 
             coreText.setText(core.toUpperCase(Locale.ROOT));
             currentRuntimeSeconds = parseETimeToSeconds(etime);
-            serviceBtn.setIconResource(R.drawable.ic_stop);
+            serviceBtn.setText(R.string.btn_stop);
             serviceBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorErrorContainer)));
-            serviceBtn.setIconTintResource(com.google.android.material.R.attr.colorOnErrorContainer);
-            String uptime = String.format(Locale.getDefault(), "%02d:%02d:%02d", currentRuntimeSeconds / 3600, (currentRuntimeSeconds % 3600) / 60, currentRuntimeSeconds % 60);
-            fabUptimeText.setText(uptime);
-            fabUptimeText.setVisibility(View.VISIBLE);
+            serviceBtn.setTextColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorOnErrorContainer)));
         } else {
             statusText.setText(R.string.status_stopped);
             statusText.setTextColor(MaterialColors.getColor(statusText, com.google.android.material.R.attr.colorOnErrorContainer));
             statusCard.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer)));
 
-            serviceBtn.setIconResource(R.drawable.ic_play_arrow);
-            serviceBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorSurfaceContainerHighest)));
-            serviceBtn.setIconTintResource(com.google.android.material.R.attr.colorOnSurface);
-            fabUptimeText.setVisibility(View.GONE);
+            serviceBtn.setText(R.string.btn_start);
+            serviceBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorPrimaryContainer)));
+            serviceBtn.setTextColor(android.content.res.ColorStateList.valueOf(MaterialColors.getColor(serviceBtn, com.google.android.material.R.attr.colorOnPrimaryContainer)));
         }
     }
 

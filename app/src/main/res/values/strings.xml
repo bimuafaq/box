@@ -89,6 +89,8 @@
     <string name="desc_clear_search">Clear search</string>
     <string name="desc_previous_result">Previous result</string>
     <string name="desc_next_result">Next result</string>
+    <string name="btn_start">START</string>
+    <string name="btn_stop">STOP</string>
     <string name="desc_healthcheck_providers">Healthcheck All Providers</string>
     <string name="desc_expand_proxy">Expand proxy list</string>
     <string name="connection_meta_format">%1$s \u2022 %2$s \u2794 %3$s</string>
