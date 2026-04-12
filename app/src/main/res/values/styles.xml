@@ -23,8 +23,11 @@
         <item name="fabSize">mini</item>
     </style>
 
-    <!-- Light Theme Material 3 -->
+    <!-- Light Theme Material 3 - Warm Amber -->
     <style name="Theme.OXController" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Window background - warm off-white -->
+        <item name="android:windowBackground">#FFFBF8</item>
+        <item name="colorSurface">#FFFBF8</item>
         <!-- Transparent Status Bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -34,5 +37,28 @@
         <item name="android:enforceNavigationBarContrast">false</item>
         <item name="snackbarStyle">@style/Widget.Custom.Snackbar</item>
         <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
+        <!-- Warm Amber Palette -->
+        <item name="colorPrimary">#8B5000</item>
+        <item name="colorPrimaryContainer">#FFDCBE</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnPrimaryContainer">#2C1500</item>
+        <item name="colorSecondary">#745A42</item>
+        <item name="colorSecondaryContainer">#FFDCC0</item>
+        <item name="colorOnSecondary">#3B2815</item>
+        <item name="colorOnSecondaryContainer">#56412D</item>
+        <item name="colorTertiary">#5B623A</item>
+        <item name="colorTertiaryContainer">#DFE6B4</item>
+        <item name="colorOnTertiary">#1A1E03</item>
+        <item name="colorOnTertiaryContainer">#3A411B</item>
+        <item name="colorError">#BA1A1A</item>
+        <item name="colorErrorContainer">#F9DEDC</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="colorOnErrorContainer">#410E0B</item>
+        <item name="colorSurfaceContainer">#F5E9DD</item>
+        <item name="colorSurfaceContainerHigh">#F0E0D1</item>
+        <item name="colorSurfaceContainerHighest">#EBD7C5</item>
+        <item name="colorSurfaceVariant">#F0E0D1</item>
+        <item name="colorOnSurface">#1E1B16</item>
+        <item name="colorOnSurfaceVariant">#4F4539</item>
     </style>
 </resources>

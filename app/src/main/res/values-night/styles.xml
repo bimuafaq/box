@@ -1,5 +1,5 @@
 <resources>
-    <!-- Dark Theme Material 3 -->
+    <!-- Dark Theme Material 3 - Warm Amber -->
     <style name="Theme.OXController" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Transparent Status Bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -10,5 +10,28 @@
         <item name="android:enforceNavigationBarContrast">false</item>
         <item name="snackbarStyle">@style/Widget.Custom.Snackbar</item>
         <item name="floatingActionButtonStyle">@style/Widget.App.FloatingActionButton</item>
+        <!-- Warm Amber Palette (Dark) -->
+        <item name="colorPrimary">#FFB871</item>
+        <item name="colorPrimaryContainer">#6A3C00</item>
+        <item name="colorOnPrimary">#492900</item>
+        <item name="colorOnPrimaryContainer">#FFDCBE</item>
+        <item name="colorSecondary">#E3C1A4</item>
+        <item name="colorSecondaryContainer">#56412D</item>
+        <item name="colorOnSecondary">#3B2815</item>
+        <item name="colorOnSecondaryContainer">#FFDCC0</item>
+        <item name="colorTertiary">#C3CA99</item>
+        <item name="colorTertiaryContainer">#2D330F</item>
+        <item name="colorOnTertiary">#2C320B</item>
+        <item name="colorOnTertiaryContainer">#DFE6B4</item>
+        <item name="colorError">#FFB4AB</item>
+        <item name="colorErrorContainer">#93000A</item>
+        <item name="colorOnError">#690005</item>
+        <item name="colorOnErrorContainer">#FFDAD6</item>
+        <item name="colorSurfaceContainer">#19120B</item>
+        <item name="colorSurfaceContainerHigh">#201710</item>
+        <item name="colorSurfaceContainerHighest">#4A3F33</item>
+        <item name="colorSurfaceVariant">#4A3F33</item>
+        <item name="colorOnSurface">#E9E1D7</item>
+        <item name="colorOnSurfaceVariant">#D1C0B0</item>
     </style>
 </resources>
