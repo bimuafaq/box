@@ -38,30 +38,40 @@
                     android:paddingVertical="2dp"
                     android:layout_marginEnd="6dp" />
 
+            <HorizontalScrollView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
                 <TextView
                     android:id="@+id/connHost"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/placeholder_connection_host"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="?attr/colorOnSurface"
-                    android:ellipsize="middle"
-                    android:maxLines="1"
+                    android:singleLine="true"
                     android:textIsSelectable="true" />
+            </HorizontalScrollView>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/connMeta"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/placeholder_connection_meta"
-                android:textSize="12sp"
-                android:textColor="?attr/colorOnSurfaceVariant"
                 android:layout_marginTop="4dp"
-                android:alpha="0.8"
-                android:textIsSelectable="true" />
+                android:scrollbars="none">
+                <TextView
+                    android:id="@+id/connMeta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_connection_meta"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:singleLine="true"
+                    android:textIsSelectable="true"
+                    android:alpha="0.8" />
+            </HorizontalScrollView>
         </LinearLayout>
 
         <LinearLayout
