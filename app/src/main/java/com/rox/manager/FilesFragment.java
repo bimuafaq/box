@@ -23,6 +23,7 @@ import android.content.res.Configuration;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
 import io.github.rosemoe.sora.widget.schemes.SchemeNotepadXX;
+import io.github.rosemoe.sora.event.ContentChangeEvent;
 import androidx.activity.OnBackPressedCallback;
 
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ public class FilesFragment extends Fragment {
     private String editingFilePath = "";
     private String originalContent = "";
     private MaterialButton btnUndo, btnRedo, btnSave;
-    private java.util.Timer editorChangeTimer;
     private OnBackPressedCallback backPressedCallback;
     private FloatingActionButton btnAddAction;
 
@@ -133,8 +133,12 @@ public class FilesFragment extends Fragment {
             updateEditorButtons();
         });
 
-        // Track text changes via periodic polling
-        startEditorChangePolling();
+        // Track content changes in real-time via Sora Editor events
+        codeEditor.subscribeAlways(ContentChangeEvent.class, event -> {
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> updateEditorButtons());
+            }
+        });
 
         btnSearchClear.setOnClickListener(v -> {
             if (editorSearchEditText.getText().length() > 0) {
@@ -337,30 +341,7 @@ public class FilesFragment extends Fragment {
         if (btnAddAction != null) btnAddAction.setVisibility(View.VISIBLE);
         editingFilePath = "";
         originalContent = "";
-        if (editorChangeTimer != null) {
-            editorChangeTimer.cancel();
-            editorChangeTimer = null;
-        }
         if (backPressedCallback != null) backPressedCallback.setEnabled(false);
-    }
-
-    private void startEditorChangePolling() {
-        if (editorChangeTimer != null) editorChangeTimer.cancel();
-        editorChangeTimer = new java.util.Timer();
-        editorChangeTimer.scheduleAtFixedRate(new java.util.TimerTask() {
-            String lastText = "";
-            @Override
-            public void run() {
-                if (editorContainer.getVisibility() != View.VISIBLE) return;
-                String current = codeEditor.getText().toString();
-                if (!current.equals(lastText)) {
-                    lastText = current;
-                    if (isAdded() && getActivity() != null) {
-                        getActivity().runOnUiThread(() -> updateEditorButtons());
-                    }
-                }
-            }
-        }, 500, 500);
     }
 
     private void saveFile() {
