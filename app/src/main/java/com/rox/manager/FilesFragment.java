@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import android.annotation.SuppressLint;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -272,6 +273,7 @@ public class FilesFragment extends Fragment {
         return (lastSlash <= 0) ? "/data/adb/box" : path.substring(0, lastSlash);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void filter(String query) {
         filteredFiles.clear();
         for (FileData f : allFiles) {

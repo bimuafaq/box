@@ -171,7 +171,7 @@ public class LogsFragment extends Fragment {
 
                 String fullContent = rawContent.trim();
                 if (fullContent.isEmpty()) {
-                    logTextView.setText("Log file is empty.");
+                    logTextView.setText(R.string.log_file_empty);
                     lastLogLength = 0;
                     return;
                 }

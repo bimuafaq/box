@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import android.annotation.SuppressLint;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -139,6 +140,7 @@ public class ConnectionsActivity extends AppCompatActivity {
     private class ConnAdapter extends RecyclerView.Adapter<ConnAdapter.ViewHolder> {
         private final List<Connection> data = new ArrayList<>();
 
+        @SuppressLint("NotifyDataSetChanged")
         public void setData(List<Connection> newData) {
             data.clear();
             data.addAll(newData);

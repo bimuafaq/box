@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Box</string>
     <string name="title_logs">Logs</string>
     <string name="title_files">File Manager</string>
@@ -12,10 +12,10 @@
     <string name="value_empty_mb">0 MB</string>
     <string name="value_zero_bytes">0 B</string>
     <string name="value_zero">0</string>
+    <string name="value_zero_time">00:00:00</string>
 
     <!-- Home Fragment -->
     <string name="status_ready">READY</string>
-    <string name="status_stopped">STOPPED</string>
     <string name="label_active_core">ACTIVE CORE</string>
     <string name="label_cpu">CPU</string>
     <string name="label_ram">RAM</string>
@@ -80,11 +80,10 @@
     <string name="desc_refresh_providers">Refresh Providers</string>
     <string name="label_reload_config">Reload Clash Config</string>
     <string name="desc_reload_config">Apply config changes without restart</string>
-    <string name="label_proxy_providers">PROXY PROVIDERS</string>
     <string name="desc_proxy_view_mode">Proxy View Mode</string>
+    <string name="log_file_empty">Log file is empty.</string>
     <string name="no_proxy_providers">No proxy providers found</string>
-    <string name="label_healthcheck">Healthcheck</string>
-    <string name="format_provider_info">%1$s • %2$d proxies</string>
+    <string name="format_provider_info" tools:ignore="PluralsCandidate">%1$s • %2$d proxies</string>
     <string name="desc_add_file">Add file</string>
     <string name="desc_clear_search">Clear search</string>
     <string name="desc_previous_result">Previous result</string>

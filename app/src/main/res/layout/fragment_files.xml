@@ -191,6 +191,7 @@
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:contentDescription="@string/desc_undo"
                 app:icon="@drawable/ic_undo_material"
                 app:iconSize="24dp"
                 app:iconTint="?attr/colorOnSurfaceVariant" />
@@ -200,6 +201,7 @@
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:contentDescription="@string/desc_redo"
                 app:icon="@drawable/ic_redo_material"
                 app:iconSize="24dp"
                 app:iconTint="?attr/colorOnSurfaceVariant" />
