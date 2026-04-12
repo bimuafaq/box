@@ -28,12 +28,13 @@ public class LogsFragment extends Fragment {
     private SwipeRefreshLayout swipeRefresh;
     private MaterialSwitch switchLiveLogs;
     private NestedScrollView logScrollView;
-    private View cardLogSource;
+    private View cardLogSource, btnRefreshLogs;
     private String selectedLogFile = "runs.log";
     private SharedPreferences prefs;
-    
+
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isLive = true;
+    private int lastLogLength = 0;
 
     @Nullable
     @Override
@@ -51,6 +52,7 @@ public class LogsFragment extends Fragment {
         switchLiveLogs = view.findViewById(R.id.switchLiveLogs);
         logScrollView = view.findViewById(R.id.logScrollView);
         cardLogSource = view.findViewById(R.id.cardLogSource);
+        btnRefreshLogs = view.findViewById(R.id.btnRefreshLogs);
 
         // Load cached logs from previous session
         String cachedLogs = prefs.getString("last_logs_cache", "");
@@ -62,6 +64,7 @@ public class LogsFragment extends Fragment {
         switchLiveLogs.setChecked(isLive);
         switchLiveLogs.setOnCheckedChangeListener((v, checked) -> {
             isLive = checked;
+            lastLogLength = 0;
             prefs.edit().putBoolean("is_live_logs", isLive).apply();
             if (isLive) startLiveLogs();
             else stopLiveLogs();
@@ -69,8 +72,10 @@ public class LogsFragment extends Fragment {
 
         cardLogSource.setOnClickListener(v -> showLogSelectionDialog());
 
+        btnRefreshLogs.setOnClickListener(v -> loadLogsFull());
+
         swipeRefresh.setOnRefreshListener(() -> {
-            loadLogs();
+            loadLogsFull();
             swipeRefresh.setRefreshing(false);
         });
 
@@ -127,6 +132,7 @@ public class LogsFragment extends Fragment {
                         selectedLogFile = items[which];
                         prefs.edit().putString("selected_log", selectedLogFile).apply();
                         textSelectedLog.setText(selectedLogFile);
+                        lastLogLength = 0;
                         loadLogs();
                     })
                     .show();
@@ -146,6 +152,7 @@ public class LogsFragment extends Fragment {
 
     private void startLiveLogs() {
         handler.removeCallbacks(liveRunnable);
+        lastLogLength = logTextView.getText().length();
         handler.post(liveRunnable);
     }
 
@@ -157,30 +164,59 @@ public class LogsFragment extends Fragment {
         if (!isResumed()) return;
         ThreadManager.runBackgroundTask(() -> {
             String path = "/data/adb/box/run/" + selectedLogFile;
-            // Use Bridge File pattern to read root-protected log file natively
-            String fullContent = ShellHelper.readRootFileDirect(path);
-            
+            String rawContent = ShellHelper.readRootFileDirect(path);
+
             runOnUI(() -> {
-                if (fullContent != null) {
-                    // Native "tail -n 100" logic in Java
+                if (rawContent == null) {
+                    logTextView.setText(R.string.log_file_not_found);
+                    return;
+                }
+
+                String fullContent = rawContent.trim();
+                if (fullContent.isEmpty()) {
+                    logTextView.setText("Log file is empty.");
+                    lastLogLength = 0;
+                    return;
+                }
+
+                // Append-only: only show new content since last read
+                if (lastLogLength > 0 && fullContent.length() > lastLogLength) {
+                    String newContent = fullContent.substring(lastLogLength);
+                    logTextView.append(formatLogText(newContent));
+                } else if (lastLogLength == 0) {
+                    // First load or reset: show last 100 lines
                     String[] lines = fullContent.split("\n");
                     StringBuilder tailContent = new StringBuilder();
                     int start = Math.max(0, lines.length - 100);
                     for (int i = start; i < lines.length; i++) {
                         tailContent.append(lines[i]).append("\n");
                     }
-                    
                     String result = tailContent.toString().trim();
-                    if (result.isEmpty()) result = "Log file is empty.";
-                    
                     prefs.edit().putString("last_logs_cache", result).apply();
                     logTextView.setText(formatLogText(result));
-                    logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
-                } else {
-                    logTextView.setText(R.string.log_file_not_found);
                 }
+                // If content shrunk (log rotated), reload full
+                else if (fullContent.length() < lastLogLength) {
+                    String[] lines = fullContent.split("\n");
+                    StringBuilder tailContent = new StringBuilder();
+                    int start = Math.max(0, lines.length - 100);
+                    for (int i = start; i < lines.length; i++) {
+                        tailContent.append(lines[i]).append("\n");
+                    }
+                    String result = tailContent.toString().trim();
+                    prefs.edit().putString("last_logs_cache", result).apply();
+                    logTextView.setText(formatLogText(result));
+                }
+
+                lastLogLength = fullContent.length();
+                logScrollView.post(() -> logScrollView.fullScroll(View.FOCUS_DOWN));
             });
         });
+    }
+
+    private void loadLogsFull() {
+        lastLogLength = 0;
+        loadLogs();
     }
 
     private void runOnUI(Runnable r) {
