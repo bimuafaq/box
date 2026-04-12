@@ -378,13 +378,63 @@ public class FilesFragment extends Fragment {
                 return "JSON Error: " + e.getMessage();
             }
         } else if (ext.equals("yaml") || ext.equals("yml")) {
-            if (content.contains("\t")) return "YAML Error: tabs are not allowed, use spaces";
-            for (int i = 0; i < content.split("\n").length; i++) {
-                String line = content.split("\n")[i];
-                if (line.startsWith(" ") && !line.matches(" +")) {
-                    // Check indentation is consistent (2 or 4 spaces)
+            String[] lines = content.split("\n", -1);
+            int prevIndent = -1;
+            boolean inBlockScalar = false;
+
+            for (int i = 0; i < lines.length; i++) {
+                String line = lines[i];
+                int lineNum = i + 1;
+
+                // Skip empty lines and comments
+                if (line.trim().isEmpty() || line.trim().startsWith("#")) {
+                    // But check trailing whitespace on non-empty lines
+                    if (!line.trim().isEmpty()) {
+                        String trimmedRight = line.replaceAll("\\s+$", "");
+                        if (!line.equals(trimmedRight)) return "YAML Error: trailing whitespace on line " + lineNum;
+                    }
+                    continue;
                 }
-                if (line.contains("\t")) return "YAML Error: tabs found on line " + (i + 1);
+
+                // No tabs allowed
+                if (line.contains("\t")) return "YAML Error: tab character on line " + lineNum;
+
+                // Trailing spaces
+                String trimmedRight = line.replaceAll("\\s+$", "");
+                if (!line.equals(trimmedRight)) return "YAML Error: trailing whitespace on line " + lineNum;
+
+                // Calculate indentation
+                int indent = 0;
+                while (indent < line.length() && line.charAt(indent) == ' ') indent++;
+                String trimmed = line.substring(indent);
+
+                // Check indentation is multiple of 2
+                if (indent % 2 != 0) return "YAML Error: odd indentation (should be 2-space) on line " + lineNum;
+
+                // Check for missing colon in key-value pairs
+                if (!trimmed.startsWith("-") && !trimmed.startsWith("#") && !trimmed.startsWith("{") && !trimmed.startsWith("[") && !trimmed.startsWith("|") && !trimmed.startsWith(">")) {
+                    if (!trimmed.contains(":")) {
+                        return "YAML Error: missing ':' (key-value separator) on line " + lineNum;
+                    }
+                    // Colon must be followed by space for key-value
+                    int colonPos = trimmed.indexOf(":");
+                    if (colonPos >= 0 && colonPos < trimmed.length() - 1) {
+                        char afterColon = trimmed.charAt(colonPos + 1);
+                        if (afterColon != ' ' && afterColon != '\n' && afterColon != '\r') {
+                            // Allow `key:` with nothing after, or `key: {` etc
+                            // But warn if it's `key:value` (no space after colon)
+                            // Actually this is valid in YAML, so skip
+                        }
+                    }
+                }
+
+                // Check for unclosed quotes
+                long singleQuotes = trimmed.chars().filter(c -> c == '\'').count();
+                long doubleQuotes = trimmed.chars().filter(c -> c == '"').count();
+                if (singleQuotes % 2 != 0) return "YAML Error: unclosed single quote on line " + lineNum;
+                if (doubleQuotes % 2 != 0) return "YAML Error: unclosed double quote on line " + lineNum;
+
+                prevIndent = indent;
             }
         } else if (ext.equals("toml")) {
             int sectionDepth = 0;
