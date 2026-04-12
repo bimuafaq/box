@@ -49,6 +49,9 @@ public class FilesFragment extends Fragment {
     private View editorSearchLayout;
     private EditText editorSearchEditText;
     private String editingFilePath = "";
+    private String originalContent = "";
+    private MaterialButton btnUndo, btnRedo, btnSave;
+    private java.util.Timer editorChangeTimer;
     private OnBackPressedCallback backPressedCallback;
     private FloatingActionButton btnAddAction;
 
@@ -69,10 +72,10 @@ public class FilesFragment extends Fragment {
         codeEditor = view.findViewById(R.id.codeEditor);
         editorFileName = view.findViewById(R.id.editorFileName);
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
-        MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
+        btnSave = view.findViewById(R.id.btnEditorSave);
         MaterialButton btnSearch = view.findViewById(R.id.btnEditorSearch);
-        MaterialButton btnUndo = view.findViewById(R.id.btnEditorUndo);
-        MaterialButton btnRedo = view.findViewById(R.id.btnEditorRedo);
+        btnUndo = view.findViewById(R.id.btnEditorUndo);
+        btnRedo = view.findViewById(R.id.btnEditorRedo);
         
         editorSearchLayout = view.findViewById(R.id.editorSearchLayout);
         editorSearchEditText = view.findViewById(R.id.editorSearchEditText);
@@ -121,8 +124,17 @@ public class FilesFragment extends Fragment {
             }
         });
 
-        btnUndo.setOnClickListener(v -> codeEditor.undo());
-        btnRedo.setOnClickListener(v -> codeEditor.redo());
+        btnUndo.setOnClickListener(v -> {
+            codeEditor.undo();
+            updateEditorButtons();
+        });
+        btnRedo.setOnClickListener(v -> {
+            codeEditor.redo();
+            updateEditorButtons();
+        });
+
+        // Track text changes via periodic polling
+        startEditorChangePolling();
 
         btnSearchClear.setOnClickListener(v -> {
             if (editorSearchEditText.getText().length() > 0) {
@@ -280,14 +292,25 @@ public class FilesFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
                     if (content != null) {
+                        originalContent = content;
                         codeEditor.setText(content);
                         codeEditor.requestFocus();
                     } else {
+                        originalContent = "";
                         codeEditor.setText("");
                     }
+                    updateEditorButtons();
                 });
             }
         });
+    }
+
+    private void updateEditorButtons() {
+        if (btnUndo == null || btnRedo == null || btnSave == null) return;
+        btnUndo.setEnabled(codeEditor.canUndo());
+        btnRedo.setEnabled(codeEditor.canRedo());
+        String current = codeEditor.getText().toString();
+        btnSave.setEnabled(!current.equals(originalContent));
     }
 
     private void closeSearch() {
@@ -306,17 +329,43 @@ public class FilesFragment extends Fragment {
         fileListLayout.setVisibility(View.VISIBLE);
         if (btnAddAction != null) btnAddAction.setVisibility(View.VISIBLE);
         editingFilePath = "";
+        originalContent = "";
+        if (editorChangeTimer != null) {
+            editorChangeTimer.cancel();
+            editorChangeTimer = null;
+        }
         if (backPressedCallback != null) backPressedCallback.setEnabled(false);
+    }
+
+    private void startEditorChangePolling() {
+        if (editorChangeTimer != null) editorChangeTimer.cancel();
+        editorChangeTimer = new java.util.Timer();
+        editorChangeTimer.scheduleAtFixedRate(new java.util.TimerTask() {
+            String lastText = "";
+            @Override
+            public void run() {
+                if (editorContainer.getVisibility() != View.VISIBLE) return;
+                String current = codeEditor.getText().toString();
+                if (!current.equals(lastText)) {
+                    lastText = current;
+                    if (isAdded() && getActivity() != null) {
+                        getActivity().runOnUiThread(() -> updateEditorButtons());
+                    }
+                }
+            }
+        }, 500, 500);
     }
 
     private void saveFile() {
         String content = codeEditor.getText().toString();
+        originalContent = content;
         ThreadManager.runBackgroundTask(() -> {
             boolean success = ShellHelper.writeRootFileDirect(editingFilePath, content);
             if (isAdded() && getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     if (!isAdded()) return;
                     showSnackbar(success ? "Saved Successfully!" : "Save Failed!");
+                    updateEditorButtons();
                 });
             }
         });
