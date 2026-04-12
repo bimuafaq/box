@@ -71,6 +71,8 @@ public class FilesFragment extends Fragment {
         MaterialButton btnBack = view.findViewById(R.id.btnEditorBack);
         MaterialButton btnSave = view.findViewById(R.id.btnEditorSave);
         MaterialButton btnSearch = view.findViewById(R.id.btnEditorSearch);
+        MaterialButton btnUndo = view.findViewById(R.id.btnEditorUndo);
+        MaterialButton btnRedo = view.findViewById(R.id.btnEditorRedo);
         
         editorSearchLayout = view.findViewById(R.id.editorSearchLayout);
         editorSearchEditText = view.findViewById(R.id.editorSearchEditText);
@@ -118,6 +120,9 @@ public class FilesFragment extends Fragment {
                 if (imm != null) imm.showSoftInput(editorSearchEditText, 0);
             }
         });
+
+        btnUndo.setOnClickListener(v -> codeEditor.undo());
+        btnRedo.setOnClickListener(v -> codeEditor.redo());
 
         btnSearchClear.setOnClickListener(v -> {
             if (editorSearchEditText.getText().length() > 0) {
