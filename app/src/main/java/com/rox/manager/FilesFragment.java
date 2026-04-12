@@ -25,6 +25,9 @@ import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
 import io.github.rosemoe.sora.widget.schemes.SchemeNotepadXX;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
 import androidx.activity.OnBackPressedCallback;
 
 import java.util.ArrayList;
@@ -348,6 +351,70 @@ public class FilesFragment extends Fragment {
 
     private void saveFile() {
         String content = codeEditor.getText().toString();
+        String ext = getFileExtension(editingFilePath);
+        String error = validateContent(content, ext);
+
+        if (error != null) {
+            showSaveErrorDialog(error, content);
+            return;
+        }
+
+        doSave(content);
+    }
+
+    private String getFileExtension(String path) {
+        int dot = path.lastIndexOf('.');
+        return dot >= 0 ? path.substring(dot + 1).toLowerCase() : "";
+    }
+
+    private String validateContent(String content, String ext) {
+        if (ext.equals("json")) {
+            content = content.trim();
+            try {
+                if (content.startsWith("{")) new JSONObject(content);
+                else if (content.startsWith("[")) new JSONArray(content);
+                else return "Invalid JSON: must start with { or [";
+            } catch (JSONException e) {
+                return "JSON Error: " + e.getMessage();
+            }
+        } else if (ext.equals("yaml") || ext.equals("yml")) {
+            if (content.contains("\t")) return "YAML Error: tabs are not allowed, use spaces";
+            for (int i = 0; i < content.split("\n").length; i++) {
+                String line = content.split("\n")[i];
+                if (line.startsWith(" ") && !line.matches(" +")) {
+                    // Check indentation is consistent (2 or 4 spaces)
+                }
+                if (line.contains("\t")) return "YAML Error: tabs found on line " + (i + 1);
+            }
+        } else if (ext.equals("toml")) {
+            int sectionDepth = 0;
+            String[] lines = content.split("\n");
+            for (int i = 0; i < lines.length; i++) {
+                String line = lines[i].trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
+                if (line.startsWith("[[")) {
+                    if (!line.endsWith("]]")) return "TOML Error: invalid array table on line " + (i + 1);
+                } else if (line.startsWith("[")) {
+                    if (!line.endsWith("]")) return "TOML Error: unclosed section on line " + (i + 1);
+                } else if (!line.contains("=")) {
+                    return "TOML Error: expected key=value on line " + (i + 1);
+                }
+            }
+        }
+        return null; // Valid or no validation needed
+    }
+
+    private void showSaveErrorDialog(String error, String content) {
+        String fileName = editingFilePath.substring(editingFilePath.lastIndexOf('/') + 1);
+        new MaterialAlertDialogBuilder(getContext())
+            .setTitle("⚠️ Syntax Error")
+            .setMessage("File: " + fileName + "\n\n" + error + "\n\nSave anyway?")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Save Anyway", (d, w) -> doSave(content))
+            .show();
+    }
+
+    private void doSave(String content) {
         originalContent = content;
         ThreadManager.runBackgroundTask(() -> {
             boolean success = ShellHelper.writeRootFileDirect(editingFilePath, content);
