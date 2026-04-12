@@ -25,8 +25,9 @@
 
     <!-- Light Theme Material 3 - Warm Amber -->
     <style name="Theme.OXController" parent="Theme.Material3.Light.NoActionBar">
-        <!-- Window background - warm off-white -->
+        <!-- Warm window background -->
         <item name="android:windowBackground">#FFFBF8</item>
+        <item name="android:colorBackground">#FFFBF8</item>
         <item name="colorSurface">#FFFBF8</item>
         <!-- Transparent Status Bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>

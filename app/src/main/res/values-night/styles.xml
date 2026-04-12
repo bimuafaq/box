@@ -1,6 +1,13 @@
 <resources>
     <!-- Dark Theme Material 3 - Warm Amber -->
     <style name="Theme.OXController" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Override default dark blue window background -->
+        <item name="android:windowBackground">#12100C</item>
+        <item name="android:colorBackground">#12100C</item>
+        <item name="colorSurface">#12100C</item>
+        <!-- Disable elevation overlay that adds blue tint -->
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="elevationOverlayColor">#00000000</item>
         <!-- Transparent Status Bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
@@ -27,10 +34,10 @@
         <item name="colorErrorContainer">#93000A</item>
         <item name="colorOnError">#690005</item>
         <item name="colorOnErrorContainer">#FFDAD6</item>
-        <item name="colorSurfaceContainer">#19120B</item>
-        <item name="colorSurfaceContainerHigh">#201710</item>
-        <item name="colorSurfaceContainerHighest">#4A3F33</item>
-        <item name="colorSurfaceVariant">#4A3F33</item>
+        <item name="colorSurfaceContainer">#201B12</item>
+        <item name="colorSurfaceContainerHigh">#2A2218</item>
+        <item name="colorSurfaceContainerHighest">#352C20</item>
+        <item name="colorSurfaceVariant">#4E4439</item>
         <item name="colorOnSurface">#E9E1D7</item>
         <item name="colorOnSurfaceVariant">#D1C0B0</item>
     </style>
