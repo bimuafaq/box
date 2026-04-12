@@ -307,12 +307,10 @@ public class FilesFragment extends Fragment {
 
     private void updateEditorButtons() {
         if (btnUndo == null || btnRedo == null || btnSave == null) return;
-        boolean canUndo = codeEditor.canUndo();
-        boolean canRedo = codeEditor.canRedo();
-        boolean hasChanges = !codeEditor.getText().toString().equals(originalContent);
-        btnUndo.setAlpha(canUndo ? 1f : 0.4f);
-        btnRedo.setAlpha(canRedo ? 1f : 0.4f);
-        btnSave.setAlpha(hasChanges ? 1f : 0.4f);
+        btnUndo.setEnabled(codeEditor.canUndo());
+        btnRedo.setEnabled(codeEditor.canRedo());
+        String current = codeEditor.getText().toString();
+        btnSave.setEnabled(!current.equals(originalContent));
     }
 
     private void closeSearch() {
