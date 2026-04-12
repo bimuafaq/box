@@ -84,6 +84,10 @@ public class DashboardFragment extends Fragment {
     private boolean showProxyProviders = false;
     private volatile boolean isProviderHealthcheckRunning = false;
 
+    // Native /proc tracking
+    private long prevCpuTotal = 0;
+    private long prevProcTotal = 0;
+
     private final Runnable pollingRunnable = new Runnable() {
         @Override
         public void run() {
@@ -318,67 +322,151 @@ public class DashboardFragment extends Fragment {
                 if (cachedCoreName.isEmpty()) cachedCoreName = "clash";
             }
 
-            String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
-                         "if [ \"$PID\" != \"0\" ]; then " +
-                         "  ETIME=$(ps -p $PID -o etime= 2>/dev/null || echo \"00:00\"); " +
-                         "  echo \"$PID|$ETIME\"; " +
-                         "else echo \"0|00:00\"; fi";
+            // Read PID natively via bridge
+            String pidStr = ShellHelper.readRootFileDirect("/data/adb/box/run/box.pid");
+            String pid = "0";
+            if (pidStr != null && !pidStr.trim().isEmpty()) {
+                pid = pidStr.trim();
+            }
 
-            String result = ShellHelper.runRootCommand(cmd);
+            String etime = "00:00";
+            if (!pid.equals("0")) {
+                // Calculate elapsed time from /proc/$PID/stat + /proc/uptime
+                String statContent = ShellHelper.readRootFileDirect("/proc/" + pid + "/stat");
+                String uptimeContent = ShellHelper.readRootFileDirect("/proc/uptime");
+                if (statContent != null && uptimeContent != null) {
+                    try {
+                        // Field 22 (0-indexed 21) is starttime in jiffies
+                        String[] statFields = statContent.split("\\s+");
+                        if (statFields.length > 21) {
+                            long starttime = Long.parseLong(statFields[21]);
+                            // /proc/uptime first field is seconds since boot
+                            double uptimeSec = Double.parseDouble(uptimeContent.split("\\s+")[0]);
+                            // CLK_TCK is typically 100 on Android
+                            long hz = 100;
+                            double startedSec = uptimeSec - (starttime / (double) hz);
+                            etime = formatSecondsToETime((long) startedSec);
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }
 
+            final String finalPid = pid;
+            final String finalEtime = etime;
             runOnUI(() -> {
                 // Always update core info even if PID check fails
                 if (!cachedCoreName.isEmpty() && coreText != null) {
                     coreText.setText(cachedCoreName.toUpperCase(Locale.ROOT));
                 }
 
-                if (result != null && result.contains("|")) {
-                    String[] parts = result.split("\\|");
-                    String pid = parts[0].trim();
-                    String etime = parts[1].trim();
+                boolean running = !finalPid.equals("0");
+                isServiceRunning = running;
+                updateServiceUI(running, cachedCoreName, finalPid, finalEtime);
 
-                    isServiceRunning = !pid.equals("0");
-                    updateServiceUI(isServiceRunning, cachedCoreName, pid, etime);
+                // Fetch proxy list when service is running
+                if (isServiceRunning) {
+                    refreshProxies();
+                }
 
-                    // Fetch proxy list when service is running (new start or returning from another tab)
-                    if (isServiceRunning) {
-                        refreshProxies();
-                    }
-
-                    if (!isServiceRunning) {
-                        if (ramText != null) ramText.setText(R.string.value_empty_mb_upper);
-                        if (cpuText != null) cpuText.setText(R.string.value_empty_percent_upper);
-                    }
-                } else {
-                    // PID check failed, update UI with stopped state
-                    isServiceRunning = false;
-                    updateServiceUI(false, cachedCoreName, "0", "00:00");
+                if (!isServiceRunning) {
+                    if (ramText != null) ramText.setText(R.string.value_empty_mb_upper);
+                    if (cpuText != null) cpuText.setText(R.string.value_empty_percent_upper);
+                    // Reset CPU delta tracking
+                    prevCpuTotal = 0;
+                    prevProcTotal = 0;
                 }
             });
         });
     }
 
+    private String formatSecondsToETime(long seconds) {
+        long days = seconds / 86400;
+        seconds %= 86400;
+        long hours = seconds / 3600;
+        seconds %= 3600;
+        long minutes = seconds / 60;
+        long secs = seconds % 60;
+        if (days > 0) return String.format(Locale.getDefault(), "%d-%02d:%02d:%02d", days, hours, minutes, secs);
+        return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs);
+    }
+
     private void refreshServiceHeavyStats() {
         if (isActionRunning || !isServiceRunning) return;
 
-        ThreadManager.runOnShell(() -> {
-            String cmd = "PID=$(cat /data/adb/box/run/box.pid 2>/dev/null || echo \"0\"); " +
-                         "if [ \"$PID\" != \"0\" ]; then " +
-                         "  RSS=$(grep VmRSS /proc/$PID/status 2>/dev/null | awk '{print $2}' || echo \"0\"); " +
-                         "  CPU=$(ps -p $PID -o %cpu= 2>/dev/null || echo \"0\"); " +
-                         "  echo \"$RSS|$CPU\"; " +
-                         "else echo \"0|0\"; fi";
+        ThreadManager.runBackgroundTask(() -> {
+            // Read PID from file
+            String pidStr = ShellHelper.readRootFileDirect("/data/adb/box/run/box.pid");
+            String pid = "0";
+            if (pidStr != null && !pidStr.trim().isEmpty()) {
+                pid = pidStr.trim();
+            }
 
-            String res = ShellHelper.runRootCommand(cmd);
+            if (pid.equals("0")) {
+                runOnUI(() -> {
+                    if (ramText != null) ramText.setText(R.string.value_empty_mb_upper);
+                    if (cpuText != null) cpuText.setText(R.string.value_empty_percent_upper);
+                });
+                return;
+            }
+
+            // Read /proc/$PID/status for VmRSS
+            String statusContent = ShellHelper.readRootFileDirect("/proc/" + pid + "/status");
+            // Read /proc/$PID/stat for CPU times (fields 14=utime, 15=stime, 22=starttime)
+            String statContent = ShellHelper.readRootFileDirect("/proc/" + pid + "/stat");
+            // Read /proc/uptime for system uptime
+            String uptimeContent = ShellHelper.readRootFileDirect("/proc/uptime");
+
+            long rssKb = 0;
+            double cpuPercent = 0;
+
+            if (statusContent != null) {
+                // Parse VmRSS line: "VmRSS:    12345 kB"
+                for (String line : statusContent.split("\n")) {
+                    if (line.startsWith("VmRSS:")) {
+                        try {
+                            String[] parts = line.trim().split("\\s+");
+                            rssKb = Long.parseLong(parts[1]);
+                        } catch (Exception ignored) {}
+                        break;
+                    }
+                }
+            }
+
+            if (statContent != null && uptimeContent != null) {
+                try {
+                    String[] statFields = statContent.split("\\s+");
+                    if (statFields.length > 21) {
+                        long utime = Long.parseLong(statFields[13]);  // field 14 (0-indexed 13)
+                        long stime = Long.parseLong(statFields[14]);  // field 15 (0-indexed 14)
+                        long starttime = Long.parseLong(statFields[21]);  // field 22 (0-indexed 21)
+                        long hz = 100;
+                        double uptimeSec = Double.parseDouble(uptimeContent.split("\\s+")[0]);
+                        long totalCpu = utime + stime;
+                        long totalProc = (long) (uptimeSec * hz);
+
+                        if (prevCpuTotal > 0 && prevProcTotal > 0) {
+                            long deltaCpu = totalCpu - prevCpuTotal;
+                            long deltaProc = totalProc - prevProcTotal;
+                            if (deltaProc > 0) {
+                                cpuPercent = (deltaCpu * 100.0) / deltaProc;
+                                if (cpuPercent < 0) cpuPercent = 0;
+                                if (cpuPercent > 100) cpuPercent = 100;
+                            }
+                        }
+                        prevCpuTotal = totalCpu;
+                        prevProcTotal = totalProc;
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            final long finalRss = rssKb;
+            final double finalCpu = cpuPercent;
             runOnUI(() -> {
-                if (res != null && res.contains("|") && ramText != null && cpuText != null) {
-                    String[] parts = res.split("\\|");
-                    try {
-                        long rssKb = Long.parseLong(parts[0].trim());
-                        String cpu = parts[1].trim();
-                        ramText.setText(rssKb >= 1024 ? (rssKb / 1024) + " MB" : rssKb + " KB");
-                        cpuText.setText(cpu.isEmpty() ? "0%" : cpu + "%");
-                    } catch (Exception ignored) {}
+                if (ramText != null) {
+                    ramText.setText(finalRss >= 1024 ? (finalRss / 1024) + " MB" : finalRss + " KB");
+                }
+                if (cpuText != null) {
+                    cpuText.setText(String.format(Locale.getDefault(), "%.0f%%", finalCpu));
                 }
             });
         });
