@@ -29,6 +29,12 @@
         <item name="android:windowBackground">#FFFBF8</item>
         <item name="android:colorBackground">#FFFBF8</item>
         <item name="colorSurface">#FFFBF8</item>
+        <item name="colorSurfaceContainerLowest">#FFFFFF</item>
+        <item name="colorSurfaceContainerLow">#FAF3EB</item>
+        <item name="colorSurfaceContainer">#F5E9DD</item>
+        <item name="colorSurfaceContainerHigh">#F0E0D1</item>
+        <item name="colorSurfaceContainerHighest">#EBD7C5</item>
+        <item name="colorSurfaceVariant">#F0E0D1</item>
         <!-- Transparent Status Bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -55,10 +61,6 @@
         <item name="colorErrorContainer">#F9DEDC</item>
         <item name="colorOnError">#FFFFFF</item>
         <item name="colorOnErrorContainer">#410E0B</item>
-        <item name="colorSurfaceContainer">#F5E9DD</item>
-        <item name="colorSurfaceContainerHigh">#F0E0D1</item>
-        <item name="colorSurfaceContainerHighest">#EBD7C5</item>
-        <item name="colorSurfaceVariant">#F0E0D1</item>
         <item name="colorOnSurface">#1E1B16</item>
         <item name="colorOnSurfaceVariant">#4F4539</item>
     </style>
