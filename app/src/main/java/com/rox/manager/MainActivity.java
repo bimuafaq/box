@@ -96,6 +96,22 @@ public class MainActivity extends AppCompatActivity {
                         })
                         .show();
                 });
+                return;
+            }
+
+            boolean hasModule = ShellHelper.runRootCommand("ls -d /data/adb/modules/box_for_root").startsWith("/data/adb/modules/box_for_root");
+            if (!hasModule) {
+                runOnUiThread(() -> {
+                    new MaterialAlertDialogBuilder(this)
+                        .setTitle("Module Not Installed")
+                        .setMessage("Box for Root module is not installed. Please install the module from Magisk/KSU and restart the app.")
+                        .setCancelable(false)
+                        .setPositiveButton("Exit", (dialog, which) -> {
+                            finishAffinity();
+                            System.exit(0);
+                        })
+                        .show();
+                });
             }
         });
     }
