@@ -28,7 +28,7 @@ public class LogsFragment extends Fragment {
     private SwipeRefreshLayout swipeRefresh;
     private MaterialSwitch switchLiveLogs;
     private NestedScrollView logScrollView;
-    private View cardLogSource, btnRefreshLogs;
+    private View cardLogSource;
     private String selectedLogFile = "runs.log";
     private SharedPreferences prefs;
 
@@ -52,7 +52,6 @@ public class LogsFragment extends Fragment {
         switchLiveLogs = view.findViewById(R.id.switchLiveLogs);
         logScrollView = view.findViewById(R.id.logScrollView);
         cardLogSource = view.findViewById(R.id.cardLogSource);
-        btnRefreshLogs = view.findViewById(R.id.btnRefreshLogs);
 
         // Load cached logs from previous session
         String cachedLogs = prefs.getString("last_logs_cache", "");
@@ -71,8 +70,6 @@ public class LogsFragment extends Fragment {
         });
 
         cardLogSource.setOnClickListener(v -> showLogSelectionDialog());
-
-        btnRefreshLogs.setOnClickListener(v -> loadLogsFull());
 
         swipeRefresh.setOnRefreshListener(() -> {
             loadLogsFull();

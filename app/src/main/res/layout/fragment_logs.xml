@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/liveControlsContainer"
+                app:layout_constraintEnd_toStartOf="@id/switchLiveLogs"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent">
                 <TextView
@@ -58,29 +58,13 @@
                     android:textColor="?attr/colorPrimary" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/liveControlsContainer"
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchLiveLogs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
-                <ImageButton
-                    android:id="@+id/btnRefreshLogs"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_refresh"
-                    android:contentDescription="Refresh logs"
-                    app:tint="?attr/colorOnSurfaceVariant" />
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switchLiveLogs"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp" />
-            </LinearLayout>
+                app:layout_constraintBottom_toBottomOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
